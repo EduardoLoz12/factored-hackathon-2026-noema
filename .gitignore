@@ -58,6 +58,8 @@ logs/**
 !logs/README.md
 !logs/*/
 !logs/*/.gitkeep
+# La bitacora de trabajo SI se versiona: es documentacion del avance.
+!logs/worklog/**
 traces/
 *.log
 !eval/results/*.json

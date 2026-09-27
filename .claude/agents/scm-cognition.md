@@ -98,6 +98,22 @@ git push -u origin feat/scm-<lo-que-hagas>
 
 PR contra `main`. **Nunca push directo a `main`.**
 
+## Bitacora y logs
+
+**Antes de cerrar cualquier sesion**, en este orden:
+
+```bash
+python -m scripts.worklog "en que trabajaste"
+make checklist
+git commit -m "Nuevo (SCM-03): missing_evidence compara contra los slots requeridos por intencion"
+```
+
+Tu bitacora va en `logs/worklog/YYYY-MM-DD-federico.md` y **se versiona**. Ahi dejas: que items moviste, que decidiste, que se rompio y que sigue. Es como Eduardo y cualquier agente que retome saben en que estado quedo el SCM sin leer el diff.
+
+Si tu codigo necesita escribir algo al correr, va dentro de `logs/` — nunca en la raiz ni junto al codigo. Reglas en `logs/README.md`.
+
+**Mensajes de commit legibles, en espanol y sin jerga.** Tipos: `Nuevo`, `Corrige`, `Mejora`, `Docs`, `Pruebas`, `Infra`, `Limpieza`, `Revierte`. El asunto debe entenderse sin abrir el diff.
+
 ## Memoria
 
 Si descubres algo que contradiga una suposición del contrato —un caso que la especificación no cubre, una ambigüedad en la semántica— escríbelo en `docs/knowledge/findings.md` con el formato de ese archivo **antes de seguir**, y dilo. Cambiar el contrato el día 4 cuesta mucho más que discutirlo el día 1.

@@ -93,9 +93,28 @@ Regla: **si descubres algo que contradice una suposición, escríbelo en `docs/k
 
 ## Convenciones
 
-- Código en inglés (`snake_case`); documentación y políticas en español.
-- Ramas `feat/`, `fix/`, `docs/`. Commits convencionales. `main` protegida, PR + CI en verde.
+- Código en inglés (`snake_case`); documentación, políticas y **mensajes de commit** en español.
+- **Mensajes de commit legibles, sin jerga.** Formato: `Tipo (ÍTEM): qué cambió, en español`.
+  Tipos: `Nuevo`, `Corrige`, `Mejora`, `Docs`, `Pruebas`, `Infra`, `Limpieza`, `Revierte`.
+  Bien: `Nuevo (DAT-06): la capa silver normaliza los tipos de producto que venían en español y en inglés`.
+  Mal: `feat(silver): normalize enums`.
+  El asunto debe entenderse **sin abrir el diff**. El cuerpo explica el porqué, no el cómo.
+- Ramas `trabajo/`, `arreglo/`, `docs/`. `main` protegida, PR + CI en verde.
 - Toda decisión no obvia se registra como ADR en `docs/decisions/`.
+
+## Antes de cerrar cualquier sesión de trabajo
+
+Tres cosas, siempre, en este orden:
+
+```bash
+python -m scripts.worklog "en qué trabajaste"   # bitácora: decisiones, qué se rompió, qué sigue
+make checklist                                   # el ítem avanza solo si el trabajo existe
+git commit -m "Nuevo (ÍTEM): descripción legible en español"
+```
+
+**La bitácora es parte del trabajo, no un extra.** El commit dice qué cambió; la bitácora dice por qué, con qué fricción y qué quedó a medias. Sin ella, quien retome mañana —el otro integrante o un agente— empieza de cero. Se rellena **antes** de cerrar, no tres días después.
+
+Los logs que el sistema escribe al correr van **siempre** dentro de `logs/`, en la carpeta que corresponda (`ingest/`, `build/`, `agent/`, `traces/`, `eval/`). Nunca en la raíz ni junto al código. Las reglas de formato, PII y retención están en `logs/README.md`.
 
 ## Dónde vive el proyecto
 

@@ -74,6 +74,22 @@ Al revisar, no te quedes en el conteo. Responde tres cosas:
 
 Si algo de eso falla, **escríbelo en `docs/knowledge/findings.md` y dilo de frente**, con el commit y el archivo concretos. Callarlo el día 3 cuesta el entregable el día 8.
 
+## Bitacora y logs
+
+**Antes de cerrar cualquier sesion de trabajo**, en este orden:
+
+```bash
+python -m scripts.worklog "en que trabajaste"   # decisiones, que se rompio, que sigue
+make checklist                                   # el item avanza solo si el trabajo existe
+git commit -m "Nuevo (ITEM): descripcion legible en espanol"
+```
+
+La bitacora vive en `logs/worklog/` y **si se versiona**. Es lo unico de `logs/` que se commitea. El commit dice que cambio; la bitacora dice por que, con que friccion y que quedo a medias. Sin ella, quien retome manana empieza de cero.
+
+Todo lo que el sistema escriba al correr va **siempre** dentro de `logs/`, en su carpeta (`ingest/`, `build/`, `agent/`, `traces/`, `eval/`). Nunca en la raiz ni junto al codigo. Formato, reglas de PII y retencion: `logs/README.md`.
+
+**Mensajes de commit legibles, sin jerga.** `Nuevo (DAT-06): la capa silver normaliza los tipos de producto que venian en espanol y en ingles`, no `feat(silver): normalize enums`. El asunto debe entenderse sin abrir el diff.
+
 ## Memoria
 
 Antes de empezar, lee `docs/knowledge/findings.md` y la revisión más reciente de `docs/knowledge/contributions.md`. Al terminar cualquier tarea que revele algo que contradiga una suposición previa —del dataset, de la plataforma, del modelo, del rubro o del trabajo del otro— **escribe la entrada antes de seguir**. Formato: fecha · área · qué se encontró · evidencia · qué decisión produjo.

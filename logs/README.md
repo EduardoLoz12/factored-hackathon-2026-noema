@@ -1,8 +1,25 @@
 # logs/
 
-Dónde aterriza todo lo que el sistema escribe cuando corre. **El contenido no se versiona** — solo esta estructura y esta página.
+Dos cosas distintas viven aquí, y conviene no confundirlas:
 
-Existe por una razón concreta del rubro: el reto evalúa observabilidad (slide 15) y pide poder demostrar que una acción **realmente ocurrió**. Sin un lugar fijo y con formato acordado, esa evidencia se dispersa en la consola y se pierde.
+1. **Lo que el sistema escribe cuando corre** — trazas, errores, corridas. **No se versiona.**
+2. **La bitácora de trabajo** (`logs/worklog/`) — lo que cada persona hizo en cada sesión. **Sí se versiona**, porque es documentación del avance.
+
+Existen por una razón concreta del rubro: el reto evalúa observabilidad (slide 15) y pide poder demostrar que una acción **realmente ocurrió**. Sin un lugar fijo y con formato acordado, esa evidencia se dispersa en la consola y se pierde.
+
+## Dónde va cada cosa
+
+| Si estás escribiendo… | Va en | ¿Se versiona? |
+|---|---|---|
+| Salida de la ingesta desde S3 | `logs/ingest/` | No |
+| Salida de dbt y de los contratos de calidad | `logs/build/` | No |
+| Errores y eventos de la API y del orquestador | `logs/agent/` | No |
+| **La traza de cada turno de conversación** | `logs/traces/` | No |
+| El ledger de acciones ejecutadas | `logs/traces/actions.jsonl` | No |
+| Corridas del harness de evaluación | `logs/eval/` | No |
+| **Lo que hiciste hoy, qué decidiste, qué se rompió** | `logs/worklog/` | **Sí** |
+
+**Nunca escribas logs fuera de `logs/`.** Ni en la raíz, ni junto al código, ni en `data/`. Si necesitas una carpeta nueva, agrégala aquí y documéntala.
 
 ## Estructura
 
@@ -13,6 +30,7 @@ Existe por una razón concreta del rubro: el reto evalúa observabilidad (slide 
 | `logs/agent/` | Log de aplicación de la API y del orquestador: errores con contexto, reintentos, degradaciones | JSONL |
 | `logs/traces/` | **Una traza por turno de conversación.** Es la evidencia central del entregable | JSONL |
 | `logs/eval/` | Corridas del harness: qué caso, qué brazo, qué desenlace | JSONL |
+| `logs/worklog/` | **Bitácora de trabajo, versionada.** Una entrada por persona y por día | Markdown |
 
 ## La traza por turno
 
@@ -49,6 +67,41 @@ De aquí salen tres de las métricas que el reto exige medir: resolución autom�
 ```
 
 `verified` es el resultado de la etapa VERIFY: releímos el registro y comparamos campo por campo. **Si `verified` es falso, el agente no le afirmó nada al cliente.** Ese campo es la prueba de que la verificación existe y no es decorativa.
+
+## La bitácora de trabajo — `logs/worklog/`
+
+Es la única parte de `logs/` que se versiona, y es **parte del trabajo, no un extra**. El commit dice *qué cambió*; la bitácora dice *por qué, con qué fricción, y qué quedó a medias*. Sin ella, nadie —ni el otro integrante, ni un agente que retome mañana, ni el jurado— puede reconstruir cómo se llegó a lo que hay.
+
+Un archivo por persona y por día: `logs/worklog/2026-09-27-eduardo.md`. Varias sesiones el mismo día se acumulan en el mismo archivo.
+
+```bash
+python -m scripts.worklog "Silver de productos y clientes"   # crea o agrega la sesión de hoy
+python -m scripts.worklog --list                              # últimas entradas de todos
+python -m scripts.worklog --show                              # la de hoy
+```
+
+Cada entrada responde cinco cosas, y ninguna es opcional:
+
+| Bloque | Para qué sirve |
+|---|---|
+| **Ítems del checklist que moví** | Liga el trabajo al entregable. Si no moviste ninguno, dilo y explica por qué valía la pena |
+| **Qué hice** | Para que el otro no tenga que leer el diff |
+| **Decisiones que tomé** | Si cambia el contrato o la arquitectura, va **también** a `docs/decisions/` |
+| **Qué se rompió o me frenó** | Si contradice una suposición previa, va **también** a `docs/knowledge/findings.md` |
+| **Qué sigue** | Para que quien retome —tú mañana o un agente— no empiece de cero |
+
+**Se rellena antes de cerrar la sesión y se commitea junto con el trabajo.** Una bitácora escrita tres días después es ficción.
+
+## Cómo se conecta todo
+
+| Pregunta | Dónde se responde |
+|---|---|
+| ¿Qué falta por hacer y de quién es? | `docs/knowledge/checklist.md` — `make checklist` |
+| ¿Qué cambió, cuándo y quién? | `CHANGELOG.md` — `make changelog` |
+| ¿Alguien se salió de su carril? | `docs/knowledge/contributions.md` — `make review` |
+| ¿Por qué se hizo así? | `docs/decisions/` y `docs/knowledge/findings.md` |
+| ¿Cómo fue el trabajo de ese día? | `logs/worklog/` |
+| ¿El sistema realmente hizo lo que dijo? | `logs/traces/` y el ledger de acciones |
 
 ## Reglas
 

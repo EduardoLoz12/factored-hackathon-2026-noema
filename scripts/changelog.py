@@ -18,6 +18,7 @@ import argparse
 import re
 import subprocess
 import sys
+import unicodedata
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -27,21 +28,51 @@ if hasattr(sys.stdout, "reconfigure"):
 
 OUT = Path("CHANGELOG.md")
 
+# Prefijos en espanol, que es lo que se lee en GitHub. Se aceptan tambien los
+# ingleses de Conventional Commits por los commits que ya existian.
 TIPOS = {
+    "nuevo": "Nuevo",
+    "corrige": "Corregido",
+    "mejora": "Mejorado",
+    "docs": "Documentacion",
+    "pruebas": "Pruebas",
+    "infra": "Infraestructura",
+    "limpieza": "Limpieza",
+    "revierte": "Revertido",
+    # equivalencias en ingles
     "feat": "Nuevo",
     "fix": "Corregido",
-    "perf": "Rendimiento",
-    "refactor": "Refactor",
-    "docs": "Documentación",
+    "perf": "Mejorado",
+    "refactor": "Mejorado",
     "test": "Pruebas",
-    "build": "Construcción",
-    "ci": "Integración continua",
-    "chore": "Mantenimiento",
+    "build": "Infraestructura",
+    "ci": "Infraestructura",
+    "chore": "Limpieza",
     "revert": "Revertido",
 }
-ORDEN = list(TIPOS.values()) + ["Otros"]
+ORDEN = [
+    "Nuevo",
+    "Corregido",
+    "Mejorado",
+    "Documentacion",
+    "Pruebas",
+    "Infraestructura",
+    "Limpieza",
+    "Revertido",
+    "Otros",
+]
 
-RE_HEAD = re.compile(r"^(?P<tipo>[a-z]+)(?:\((?P<ambito>[^)]+)\))?(?P<bang>!)?:\s*(?P<texto>.+)$")
+RE_HEAD = re.compile(
+    r"^(?P<tipo>[A-Za-zÁÉÍÓÚÑáéíóúñ]+)(?:\((?P<ambito>[^)]+)\))?(?P<bang>!)?:\s*(?P<texto>.+)$"
+)
+
+
+def normaliza(t: str) -> str:
+    """minusculas y sin tildes, para buscar el tipo."""
+    base = "".join(c for c in unicodedata.normalize("NFD", t) if unicodedata.category(c) != "Mn")
+    return base.lower()
+
+
 RE_ITEM = re.compile(r"\b((?:DAT|ML|SCM|AG|EV|API|UI|ENT|INF)-\d{2})\b")
 
 
@@ -75,7 +106,7 @@ def main() -> int:
 
         m = RE_HEAD.match(asunto)
         if m:
-            seccion = TIPOS.get(m.group("tipo"), "Otros")
+            seccion = TIPOS.get(normaliza(m.group("tipo")), "Otros")
             texto = m.group("texto")
             ambito = m.group("ambito")
             breaking = bool(m.group("bang")) or "BREAKING CHANGE" in cuerpo
@@ -105,9 +136,10 @@ def main() -> int:
     )
     lineas.append("")
     lineas.append(
-        "Formato de commit: `tipo(ámbito): descripción`. Usa el identificador del ítem como "
-        "ámbito cuando aplique — por ejemplo `feat(DAT-06): silver de productos`. "
-        "Tipos: " + ", ".join(f"`{t}`" for t in TIPOS) + "."
+        "Formato de commit: `Tipo (ÍTEM): qué cambió, en español y sin jerga`. "
+        "Por ejemplo: `Nuevo (DAT-06): la capa silver normaliza los tipos de producto "
+        "que venían en español y en inglés`. "
+        "Tipos: `Nuevo`, `Corrige`, `Mejora`, `Docs`, `Pruebas`, `Infra`, `Limpieza`, `Revierte`."
     )
     lineas.append("")
     lineas.append(f"Última generación: {datetime.now():%Y-%m-%d %H:%M}")
