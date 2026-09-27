@@ -35,6 +35,13 @@ dev = [
     "pre-commit>=4.0",
 ]
 
+# Sin esto, setuptools intenta autodescubrir paquetes con una disposición plana y
+# falla: "Multiple top-level packages discovered". Declaramos explícitamente qué
+# es código Python del proyecto y qué no (ui/ es Next.js, docs/ es documentación).
+[tool.setuptools.packages.find]
+include = ["agent*", "api*", "data_platform*", "eval*", "ml*", "scripts*"]
+exclude = ["ui*", "docs*", "deliverables*", "data*", "tests*", "materiales*", "documentos*"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"
