@@ -1,0 +1,81 @@
+# CLAUDE.md — factored-hackathon-2026-noema
+
+Contrato operativo del proyecto. Léelo antes de tocar código.
+
+## Qué es esto
+
+Sistema de servicio al cliente bancario para el **Factored AI & Data Hackathon 2026**.
+Workflow elegido: **Credit-Product Information & Eligibility** (1 de 4 permitidos).
+
+- **Equipo:** `noema` — Eduardo Lozada + Federico Vargas
+- **Cierre:** 5-oct-2026, 23:59 hora Colombia. Premiación 16-oct.
+- **Entregables:** repo público · URL desplegada · 5 slides · video ≤3 min → `hackathon.admin@factored.ai`
+
+Tesis: **separar la conversación de la decisión**. El LLM conversa y explica; nunca produce una cifra ni decide una elegibilidad.
+
+## Reglas no negociables
+
+1. **Ninguna cifra sale del LLM.** Toda cifra viene de un tool que consultó la base. El `GroundingChecker` valida la respuesta final contra los valores devueltos por los tools de ese turno y bloquea si aparece un número huérfano.
+2. **El LLM no decide elegibilidad.** Decide `agent/policies/eligibility_v1.yaml`. La política se testea sin LLM.
+3. **Toda escritura se vuelve a leer** antes de confirmarle nada al cliente. Si no coincide, no se afirma: se escala.
+4. **Nada se cae en silencio.** Toda llamada externa (LLM, DB, modelo, S3) va en `try/except`, con fallback visible al usuario y log con contexto suficiente para diagnosticar.
+5. **Falla cerrado.** Si el modelo de riesgo no carga, el sistema no aprueba nada: escala y lo dice.
+6. **Cero secretos en git.** `.env` y `materiales/` fuera. `gitleaks` corre en pre-commit y en CI.
+7. **Abstenerse es un resultado válido**, se mide aparte y no se penaliza.
+
+## Frontera de responsabilidades
+
+| Área | Dueño |
+|---|---|
+| `agent/cognition/` (SCM-lite) | **Federico** |
+| Todo lo demás | **Eduardo** |
+
+Federico **no toca** `data_platform/`, `ml/`, `agent/core/`, `agent/tools/`, `agent/policies/`, `api/`, `ui/`, `eval/`.
+
+**Contrato del SCM** — `agent/cognition/scm.py` expone `SemanticState` con exactamente cuatro métodos públicos:
+
+```python
+assert_fact(subject, predicate, value, source, confidence) -> None
+missing_evidence() -> set[str]
+contradictions() -> list[Contradiction]
+snapshot() -> dict
+```
+
+Con `SCM_ENABLED=false` el sistema debe funcionar idéntico y toda la suite de tests debe seguir en verde.
+
+## Comandos
+
+```bash
+make setup      # entorno, dependencias, pre-commit
+make ingest     # S3 → data/bronze/*.parquet + manifest con checksums
+make audit      # perfil de calidad de las 13 tablas → docs/01_data_audit.md
+make build      # dbt: bronze → silver → gold (perfil duckdb por defecto)
+make train      # baseline logreg + PD LightGBM + capacidad → MLflow
+make eval       # harness: baseline vs tools vs tools+SCM
+make serve      # API FastAPI local
+make test       # pytest
+make check      # lint + tests + gitleaks
+```
+
+## Estado del dataset (auditado, no supuesto)
+
+S3 read-only de Factored: **5.4 GB, 7 683 objetos, 13 tablas**, 2023-06-17 → 2026-06-17.
+Seis dimensiones planas + siete hechos particionados `year=/month=/day=`.
+
+Hallazgos que cambian decisiones — el detalle vive en `docs/01_data_audit.md`:
+
+- **Los transcripts no sirven como corpus**: 2 plantillas únicas, 1 intent, cero portugués, placeholders sin rellenar (`{monto}`, `{moneda}`, `{limite}`). Se usan como **plantillas** para generar los casos de evaluación, no como texto de entrenamiento.
+- **Sí hay etiquetas de riesgo**: `products.days_past_due` con 125 350 no nulos, ~15 % en mora.
+- **El diccionario miente en 7 puntos**: enums en español, MXN inexistente, cero duplicados donde promete 2 %, nulos estructurales muy distintos al 5 % declarado, `contact_reason` duplicada de `reason_category`.
+
+Regla: **si descubres algo que contradice una suposición, escríbelo en `docs/knowledge/findings.md` antes de seguir codificando.**
+
+## Convenciones
+
+- Código en inglés (`snake_case`); documentación y políticas en español.
+- Ramas `feat/`, `fix/`, `docs/`. Commits convencionales. `main` protegida, PR + CI en verde.
+- Toda decisión no obvia se registra como ADR en `docs/decisions/`.
+
+## Estado actual
+
+**D1 — 27-sep-2026.** Scaffold creado. Siguiente: ingesta S3 y spike de Databricks.

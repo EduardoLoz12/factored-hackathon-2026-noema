@@ -1,0 +1,64 @@
+# === Secretos — NUNCA se commitean ===
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+token*.json
+
+# === Materiales originales (los PDFs del reto contienen llaves AWS en texto plano) ===
+materiales/
+*.pdf
+
+# === Datos ===
+data/
+!data/samples/.gitkeep
+*.parquet
+*.csv
+*.duckdb
+*.duckdb.wal
+
+# === ML ===
+mlruns/
+mlartifacts/
+*.pkl
+*.joblib
+*.onnx
+
+# === Python ===
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+dist/
+build/
+*.egg-info/
+
+# === dbt ===
+data_platform/dbt/target/
+data_platform/dbt/dbt_packages/
+data_platform/dbt/logs/
+
+# === Node / Next ===
+node_modules/
+.next/
+out/
+.vercel/
+
+# === Trazas y logs locales ===
+logs/
+traces/
+*.log
+!eval/results/*.json
+
+# === SO / editor ===
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
