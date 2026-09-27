@@ -20,6 +20,9 @@ setup:
 ingest:
 	$(PY) -m data_platform.ingestion.ingest_s3 --workers 16
 
+summary:
+	$(PY) -m data_platform.ingestion.summarize_manifest
+
 ingest-light:
 	$(PY) -m data_platform.ingestion.ingest_s3 --skip digital_events --workers 16
 

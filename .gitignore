@@ -12,8 +12,9 @@ materiales/
 *.pdf
 
 # === Datos ===
-data/
-!data/samples/.gitkeep
+# Anclado a la raíz: docs/data/ SÍ se versiona (lleva el resumen del manifest).
+/data/
+!/data/samples/.gitkeep
 *.parquet
 *.csv
 *.duckdb
@@ -62,3 +63,7 @@ traces/
 Thumbs.db
 .idea/
 .vscode/
+
+# Documentos internos generados (Word/PDF de estrategia) — no van al entregable público
+documentos/
+ingest.log

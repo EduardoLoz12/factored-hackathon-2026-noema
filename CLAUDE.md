@@ -76,6 +76,20 @@ Regla: **si descubres algo que contradice una suposición, escríbelo en `docs/k
 - Ramas `feat/`, `fix/`, `docs/`. Commits convencionales. `main` protegida, PR + CI en verde.
 - Toda decisión no obvia se registra como ADR en `docs/decisions/`.
 
+## Dónde vive el proyecto
+
+La raíz del repo es **`C:\Users\eduar\Factored AI & DATA Hackathon`** — la misma carpeta de trabajo de Eduardo, no una subcarpeta. Al lado del código, sin versionar:
+
+- `materiales/` — PDFs originales del reto (contienen las llaves de AWS en texto plano), transcripciones, y `referencia/` con el código que envió Federico.
+- `documentos/` — los Word de estrategia generados para el equipo.
+- `data/` — bronze en Parquet, 1.5 GB.
+
+**Los push se hacen solo cuando Eduardo lo pide.** Commits locales sí, `git push` no, salvo que lo diga explícitamente.
+
 ## Estado actual
 
-**D1 — 27-sep-2026.** Scaffold creado. Siguiente: ingesta S3 y spike de Databricks.
+**D1 — 27-sep-2026, completado.** Repo público creado y publicado. Ingesta completa: 7 671 archivos, **23 495 188 filas**, 0 fallos, 5.35 GB → 1.50 GB Parquet. Auditoría con 9 hallazgos. 4 ADRs.
+
+**Bloqueado:** el spike de Databricks espera `DATABRICKS_HOST` y `DATABRICKS_TOKEN`. El workflow de CI espera `gh auth refresh -h github.com -s workflow`.
+
+**Siguiente (D2):** contratos de calidad con pandera, reporte DQ a escala —confirmar si el «2 % de duplicados» existe—, capa silver, y `tests/fixtures/scm_inputs.json` para Federico.
