@@ -2,37 +2,38 @@
 
 Generado por `make checklist` contra el estado real del repo. Cuando alguien crea o completa un archivo de evidencia, el ítem avanza solo en la siguiente corrida. **No editar estados a mano aquí** — usar `python -m scripts.checklist --done ID --note "..."`.
 
-Última evaluación: 2026-09-27 17:38
+Última evaluación: 2026-09-27 17:47
 
 Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
-## Avance global — 10/75 `███░░░░░░░░░░░░░░░░░░░░░`
+## Avance global — 10/76 `███░░░░░░░░░░░░░░░░░░░░░`
 
-**10 terminado · 7 avanzado · 58 falta**
+**10 terminado · 8 avanzado · 58 falta**
 
 | Dueño | Terminado | Avanzado | Falta | Total |
 |---|---:|---:|---:|---:|
-| Eduardo | 9 | 2 | 56 | 67 |
-| Federico | 1 | 5 | 2 | 8 |
+| Eduardo | 9 | 3 | 43 | 55 |
+| Federico | 1 | 5 | 15 | 21 |
 
-## Plataforma de datos — 2/14 `██░░░░░░░░░░`
+## Plataforma de datos — 2/15 `██░░░░░░░░░░`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
 | [x] | `DAT-01` | Ingesta S3 a bronze, con manifest y checksums | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
 | [x] | `DAT-02` | Resumen versionable del manifest | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
-| [ ] | `DAT-03` | Contratos de esquema por tabla (pandera) | Eduardo | D2 · 28-sep | — |
-| [ ] | `DAT-04` | Reporte de calidad a escala: duplicados, nulos, huerfanos de FK, telefono vs pais | Eduardo | D2 · 28-sep | — |
-| [ ] | `DAT-05` | Cuarentena de registros que violan contrato | Eduardo | D2 · 28-sep | — |
-| [ ] | `DAT-06` | dbt configurado con perfil duckdb | Eduardo | D2 · 28-sep | — |
-| [ ] | `DAT-07` | Silver: normalizacion de enums espanol/ingles | Eduardo | D2 · 28-sep | — |
-| [ ] | `DAT-08` | Silver: conversion FX a USD con daily_exchange_rates | Eduardo | D3 · 29-sep | — |
-| [ ] | `DAT-09` | Gold: customer_360 | Eduardo | D3 · 29-sep | — |
-| [ ] | `DAT-10` | Gold: credit_features_asof (con corte temporal) | Eduardo | D3 · 29-sep | — |
-| [ ] | `DAT-11` | Gold: catalogo y condiciones de producto | Eduardo | D3 · 29-sep | — |
-| [ ] | `DAT-12` | Gold: dq_report publicable en /analytics | Eduardo | D3 · 29-sep | — |
-| [ ] | `DAT-13` | Espejo en Databricks: perfil dbt y subida a UC Volume | Eduardo | D3 · 29-sep | — |
-| [ ] | `DAT-14` | Export de gold a Postgres para serving | Eduardo | D5 · 1-oct | — |
+| [ ] | `DAT-03` | Contratos de esquema por tabla (pandera) | Federico | D2 · 28-sep | — |
+| [ ] | `DAT-04` | Reporte de calidad a escala: duplicados, nulos, huerfanos de FK, telefono vs pais | Federico | D2 · 28-sep | — |
+| [ ] | `DAT-05` | Cuarentena de registros que violan contrato | Federico | D2 · 28-sep | — |
+| [ ] | `DAT-06` | dbt configurado con perfil duckdb | Federico | D2 · 28-sep | — |
+| [ ] | `DAT-07` | Silver: normalizacion de enums espanol/ingles | Federico | D2 · 28-sep | — |
+| [ ] | `DAT-08` | Silver: conversion FX a USD con daily_exchange_rates | Federico | D3 · 29-sep | — |
+| [ ] | `DAT-09` | Gold: customer_360 | Federico | D3 · 29-sep | — |
+| [ ] | `DAT-10` | Gold: credit_features_asof (con corte temporal) | Federico | D3 · 29-sep | — |
+| [ ] | `DAT-11` | Gold: catalogo y condiciones de producto | Federico | D3 · 29-sep | — |
+| [ ] | `DAT-12` | Gold: dq_report publicable en /analytics | Federico | D3 · 29-sep | — |
+| [ ] | `DAT-13` | Espejo en Databricks: perfil dbt y subida a UC Volume | Federico | D3 · 29-sep | — |
+| [ ] | `DAT-14` | Export de gold a Postgres para serving | Federico | D5 · 1-oct | — |
+| [~] | `DAT-15` | Prueba que falla si una columna prohibida por fuga entra a credit_features_asof | Eduardo | D3 · 29-sep | sin commit |
 
 ## Modelos — 0/10 `░░░░░░░░░░░░`
 
@@ -41,7 +42,7 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [ ] | `ML-01` | Feature store as-of, sin fuga (corte 2025-12-31) | Eduardo | D3 · 29-sep | — |
 | [ ] | `ML-02` | Baseline: regresion logistica solo con credit_score | Eduardo | D3 · 29-sep | — |
 | [ ] | `ML-03` | Modelo de riesgo de incumplimiento (LightGBM) | Eduardo | D4 · 30-sep | — |
-| [ ] | `ML-04` | Modelo de capacidad de pago desde flujo transaccional | Eduardo | D4 · 30-sep | — |
+| [ ] | `ML-04` | Modelo de capacidad de pago desde flujo transaccional | Federico | D4 · 30-sep | — |
 | [ ] | `ML-05` | Metricas y calibracion: AUC, PR-AUC, KS, Brier | Eduardo | D4 · 30-sep | — |
 | [ ] | `ML-06` | SHAP: los 3 factores que sustentan cada prediccion | Eduardo | D4 · 30-sep | — |
 | [ ] | `ML-07` | MLflow: tracking y registry de los tres modelos | Eduardo | D4 · 30-sep | — |

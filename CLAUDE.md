@@ -25,16 +25,24 @@ Tesis: **separar la conversación de la decisión**. El LLM conversa y explica; 
 
 ## Frontera de responsabilidades — léelo antes de escribir código
 
-| Área | Dueño |
-|---|---|
-| `agent/cognition/` y `tests/cognition/` (SCM-lite) | **Federico Vargas** |
-| Todo lo demás | **Eduardo Lozada** |
+| Área | Dueño | Spec |
+|---|---|---|
+| `data_platform/` — limpieza, ETL, silver y gold | **Federico Vargas** | `docs/09_etl_spec.md` |
+| `ml/training/capacity.py` — capacidad de pago | **Federico Vargas** | `docs/09_etl_spec.md` §5.5 |
+| `agent/cognition/` y `tests/cognition/` — SCM-lite | **Federico Vargas** | `docs/07_scm_spec.md` |
+| Modelos de riesgo, agente, evaluación, API, frontend y entregables | **Eduardo Lozada** | — |
 
-**Si trabajas para Federico:** tu tarea completa está en **`docs/07_scm_spec.md`** y tu punto de partida es `agent/cognition/scm.py`, que ya tiene los tipos y los `NotImplementedError` marcando lo que falta. Usa el agente **`scm-cognition`**. No toques `data_platform/`, `ml/`, `agent/core/`, `agent/tools/`, `agent/policies/`, `api/`, `ui/` ni `eval/` — si necesitas un dato en el estado, pídelo.
+**Si trabajas para Federico:** tienes dos frentes y un agente para cada uno.
+- Datos y ETL → agente **`data-etl`**, spec `docs/09_etl_spec.md`. Son 15 ítems: `DAT-03` a `DAT-14` y `ML-04`.
+- Cognición → agente **`scm-cognition`**, spec `docs/07_scm_spec.md`. Son 8 ítems: `SCM-01` a `SCM-08`.
 
-**Si trabajas para Eduardo:** usa el agente **`hackathon-factored`**. Puedes andamiar el contrato de la capa de cognición, pero no la implementes: es de Federico, y su aporte se mide por separado.
+No toques `agent/core/`, `agent/tools/`, `agent/policies/`, `agent/guardrails/`, `ml/training/pd_lightgbm.py`, `ml/training/baseline_logreg.py`, `eval/`, `api/` ni `ui/`.
 
-La frontera es asimétrica a propósito y se verifica: `make review` marca cualquier commit que la cruce y acumula el resultado en `docs/knowledge/contributions.md`.
+**Si trabajas para Eduardo:** usa el agente **`hackathon-factored`**. Puedes andamiar contratos de las capas de Federico —esqueletos, tipos, pruebas de aceptación— pero no las implementes: su aporte se mide por separado.
+
+`make review` marca cualquier commit que cruce una frontera y acumula el resultado en `docs/knowledge/contributions.md`.
+
+**Dependencia crítica:** el modelo de riesgo (Eduardo, D4) se entrena sobre `credit_features_asof` (Federico, D3). Es el único punto donde una demora de uno bloquea al otro. La prueba `tests/data/test_feature_contract.py` verifica mecánicamente que esa tabla no traiga columnas con fuga de información.
 
 **Contrato del SCM** — `agent/cognition/scm.py` expone `SemanticState` con exactamente cuatro métodos públicos:
 

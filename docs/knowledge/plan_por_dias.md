@@ -7,9 +7,9 @@ Cada día apunta a ítems concretos del [checklist](checklist.md). Si un día te
 | Día | Eduardo | Federico | Ítems que deben cerrar |
 |---|---|---|---|
 | **D1 · 27-sep** ✅ | Repo, estructura, contrato operativo, CI, agentes y memoria. Ingesta S3 completa. Auditoría del dataset. 4 ADRs. Onboarding de Federico. | Leer el repo y congelar el contrato de `scm.py`. | `INF-01..07`, `DAT-01`, `DAT-02`, `SCM-01` |
-| **D2 · 28-sep** | Contratos de esquema, reporte de calidad a escala, cuarentena, dbt con perfil duckdb, silver de productos y clientes. Spike de Databricks. | `assert_fact` y `missing_evidence` con sus tests en verde. | `DAT-03..07`, `SCM-02`, `SCM-03` |
-| **D3 · 29-sep** | Silver de transacciones con FX. Gold: `customer_360`, `credit_features_asof`, `product_policy`, `dq_report`. Subida a Databricks. Feature store y baseline. | `contradictions` y `snapshot` con procedencia. | `DAT-08..13`, `ML-01`, `ML-02`, `SCM-04`, `SCM-05` |
-| **D4 · 30-sep** | Modelo de riesgo, capacidad de pago, métricas y calibración, SHAP, MLflow, `predictor.py`. Política YAML y motor de reglas. | Endurecer el SCM; las 26 pruebas de aceptación en verde. | `ML-03..07`, `ML-09`, `AG-01`, `AG-02`, `SCM-06`, `SCM-07` |
+| **D2 · 28-sep** | Política de crédito y motor de reglas. Prepara el contrato de features que consumirá el modelo. | Contratos de esquema, reporte de calidad a escala, cuarentena, dbt con perfil duckdb, silver de productos y clientes. | `DAT-03..07`, `AG-01`, `AG-02` |
+| **D3 · 29-sep** | Feature store as-of y baseline sobre las tablas de Federico. `SCM-04` y `SCM-05` si Federico va apretado. | Silver de transacciones con FX. Gold: `customer_360`, `credit_features_asof`, `product_policy`, `dq_report`. Subida a Databricks. | `DAT-08..13`, `ML-01`, `ML-02`, `SCM-04`, `SCM-05` |
+| **D4 · 30-sep** | Modelo de riesgo, métricas y calibración, SHAP, MLflow, `predictor.py`. | Capacidad de pago (`ML-04`). Endurecer el SCM; las 26 pruebas de aceptación en verde. | `ML-03`, `ML-05..07`, `ML-09`, `ML-04`, `SCM-06`, `SCM-07` |
 | **D5 · 1-oct** | Tools con allowlist, AccessGuard, orquestador de las seis etapas, VERIFY con relectura real, handoff estructurado, observabilidad. Integración del SCM tras la bandera. Export a Postgres. | Acompañar la integración y corregir lo que salga del uso real. | `AG-03..08`, `AG-12`, `AG-13`, `DAT-14` |
 | **D6 · 2-oct** | GroundingChecker, defensa anti-inyección, multilingüe ES/PT, suite adversarial. Model cards y estabilidad por país. `/chat` con panel Caja de Vidrio y escenarios. | Congelar el SCM y escribir la sección neurosimbólica. | `AG-09..11`, `ML-08`, `ML-10`, `EV-04`, `UI-01..04`, `SCM-08` |
 | **D7 · 3-oct** | Generador de casos, conjuntos retenidos ES y PT, harness de los tres brazos. API con seguridad. `/console`, `/analytics` y deploy público. | Preparar sus 40 segundos del video. | `EV-01..03`, `EV-05`, `API-01`, `API-02`, `UI-05..08` |
@@ -27,3 +27,5 @@ Cada día apunta a ítems concretos del [checklist](checklist.md). Si un día te
 **D1 cerrado en fecha.** La ingesta era lo único de ese día con riesgo de tomar medio día; tomó cuatro minutos.
 
 **Bloqueos abiertos:** cuenta de Databricks (`INF-08`, falta host y token).
+
+**La única dependencia cruzada:** el modelo de riesgo de Eduardo (D4) se entrena sobre `credit_features_asof`, que entrega Federico el D3. Si el D3 esa tabla no está, se avisa **el D3**, no el D4. Mitigación mecánica: `tests/data/test_feature_contract.py` falla si entra una columna con fuga.

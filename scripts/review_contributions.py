@@ -37,7 +37,9 @@ LEDGER = Path("docs/knowledge/contributions.md")
 AREAS: list[tuple[str, str, str]] = [
     ("agent/cognition/", "cognición (SCM)", "federico"),
     ("tests/cognition/", "cognición (SCM)", "federico"),
-    ("data_platform/", "plataforma de datos", "eduardo"),
+    ("tests/data/", "contratos de datos", "eduardo"),
+    ("data_platform/", "plataforma de datos", "federico"),
+    ("ml/training/capacity.py", "capacidad de pago", "federico"),
     ("ml/", "modelos", "eduardo"),
     ("agent/core/", "orquestador", "eduardo"),
     ("agent/tools/", "herramientas", "eduardo"),

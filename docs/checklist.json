@@ -9,22 +9,161 @@
     {
       "id": "DAT",
       "nombre": "Plataforma de datos",
-      "owner": "eduardo",
+      "owner": "federico",
       "items": [
-        {"id": "DAT-01", "dia": 1, "tarea": "Ingesta S3 a bronze, con manifest y checksums", "evidence": ["data_platform/ingestion/ingest_s3.py"], "done": "paths"},
-        {"id": "DAT-02", "dia": 1, "tarea": "Resumen versionable del manifest", "evidence": ["data_platform/ingestion/summarize_manifest.py", "docs/data/manifest_summary.json"], "done": "paths"},
-        {"id": "DAT-03", "dia": 2, "tarea": "Contratos de esquema por tabla (pandera)", "evidence": ["data_platform/contracts/schemas.py"], "done": "nostub"},
-        {"id": "DAT-04", "dia": 2, "tarea": "Reporte de calidad a escala: duplicados, nulos, huerfanos de FK, telefono vs pais", "evidence": ["data_platform/contracts/audit.py"], "done": "nostub"},
-        {"id": "DAT-05", "dia": 2, "tarea": "Cuarentena de registros que violan contrato", "evidence": ["data_platform/contracts/quarantine.py"], "done": "nostub"},
-        {"id": "DAT-06", "dia": 2, "tarea": "dbt configurado con perfil duckdb", "evidence": ["data_platform/dbt/dbt_project.yml", "data_platform/dbt/profiles.yml"], "done": "paths"},
-        {"id": "DAT-07", "dia": 2, "tarea": "Silver: normalizacion de enums espanol/ingles", "evidence": ["data_platform/dbt/models/silver/stg_products.sql", "data_platform/dbt/models/silver/stg_customers.sql"], "done": "paths"},
-        {"id": "DAT-08", "dia": 3, "tarea": "Silver: conversion FX a USD con daily_exchange_rates", "evidence": ["data_platform/dbt/models/silver/stg_transactions.sql"], "done": "paths"},
-        {"id": "DAT-09", "dia": 3, "tarea": "Gold: customer_360", "evidence": ["data_platform/dbt/models/gold/customer_360.sql"], "done": "paths"},
-        {"id": "DAT-10", "dia": 3, "tarea": "Gold: credit_features_asof (con corte temporal)", "evidence": ["data_platform/dbt/models/gold/credit_features_asof.sql"], "done": "paths"},
-        {"id": "DAT-11", "dia": 3, "tarea": "Gold: catalogo y condiciones de producto", "evidence": ["data_platform/dbt/models/gold/product_policy.sql"], "done": "paths"},
-        {"id": "DAT-12", "dia": 3, "tarea": "Gold: dq_report publicable en /analytics", "evidence": ["data_platform/dbt/models/gold/dq_report.sql"], "done": "paths"},
-        {"id": "DAT-13", "dia": 3, "tarea": "Espejo en Databricks: perfil dbt y subida a UC Volume", "evidence": ["data_platform/databricks/upload_to_volume.py"], "done": "nostub"},
-        {"id": "DAT-14", "dia": 5, "tarea": "Export de gold a Postgres para serving", "evidence": ["data_platform/serving/export_to_postgres.py"], "done": "nostub"}
+        {
+          "id": "DAT-01",
+          "dia": 1,
+          "tarea": "Ingesta S3 a bronze, con manifest y checksums",
+          "evidence": [
+            "data_platform/ingestion/ingest_s3.py"
+          ],
+          "done": "paths",
+          "owner": "eduardo"
+        },
+        {
+          "id": "DAT-02",
+          "dia": 1,
+          "tarea": "Resumen versionable del manifest",
+          "evidence": [
+            "data_platform/ingestion/summarize_manifest.py",
+            "docs/data/manifest_summary.json"
+          ],
+          "done": "paths",
+          "owner": "eduardo"
+        },
+        {
+          "id": "DAT-03",
+          "dia": 2,
+          "tarea": "Contratos de esquema por tabla (pandera)",
+          "evidence": [
+            "data_platform/contracts/schemas.py"
+          ],
+          "done": "nostub",
+          "owner": "federico"
+        },
+        {
+          "id": "DAT-04",
+          "dia": 2,
+          "tarea": "Reporte de calidad a escala: duplicados, nulos, huerfanos de FK, telefono vs pais",
+          "evidence": [
+            "data_platform/contracts/audit.py"
+          ],
+          "done": "nostub",
+          "owner": "federico"
+        },
+        {
+          "id": "DAT-05",
+          "dia": 2,
+          "tarea": "Cuarentena de registros que violan contrato",
+          "evidence": [
+            "data_platform/contracts/quarantine.py"
+          ],
+          "done": "nostub",
+          "owner": "federico"
+        },
+        {
+          "id": "DAT-06",
+          "dia": 2,
+          "tarea": "dbt configurado con perfil duckdb",
+          "evidence": [
+            "data_platform/dbt/dbt_project.yml",
+            "data_platform/dbt/profiles.yml"
+          ],
+          "done": "paths",
+          "owner": "federico"
+        },
+        {
+          "id": "DAT-07",
+          "dia": 2,
+          "tarea": "Silver: normalizacion de enums espanol/ingles",
+          "evidence": [
+            "data_platform/dbt/models/silver/stg_products.sql",
+            "data_platform/dbt/models/silver/stg_customers.sql"
+          ],
+          "done": "paths",
+          "owner": "federico"
+        },
+        {
+          "id": "DAT-08",
+          "dia": 3,
+          "tarea": "Silver: conversion FX a USD con daily_exchange_rates",
+          "evidence": [
+            "data_platform/dbt/models/silver/stg_transactions.sql"
+          ],
+          "done": "paths",
+          "owner": "federico"
+        },
+        {
+          "id": "DAT-09",
+          "dia": 3,
+          "tarea": "Gold: customer_360",
+          "evidence": [
+            "data_platform/dbt/models/gold/customer_360.sql"
+          ],
+          "done": "paths",
+          "owner": "federico"
+        },
+        {
+          "id": "DAT-10",
+          "dia": 3,
+          "tarea": "Gold: credit_features_asof (con corte temporal)",
+          "evidence": [
+            "data_platform/dbt/models/gold/credit_features_asof.sql"
+          ],
+          "done": "paths",
+          "owner": "federico"
+        },
+        {
+          "id": "DAT-11",
+          "dia": 3,
+          "tarea": "Gold: catalogo y condiciones de producto",
+          "evidence": [
+            "data_platform/dbt/models/gold/product_policy.sql"
+          ],
+          "done": "paths",
+          "owner": "federico"
+        },
+        {
+          "id": "DAT-12",
+          "dia": 3,
+          "tarea": "Gold: dq_report publicable en /analytics",
+          "evidence": [
+            "data_platform/dbt/models/gold/dq_report.sql"
+          ],
+          "done": "paths",
+          "owner": "federico"
+        },
+        {
+          "id": "DAT-13",
+          "dia": 3,
+          "tarea": "Espejo en Databricks: perfil dbt y subida a UC Volume",
+          "evidence": [
+            "data_platform/databricks/upload_to_volume.py"
+          ],
+          "done": "nostub",
+          "owner": "federico"
+        },
+        {
+          "id": "DAT-14",
+          "dia": 5,
+          "tarea": "Export de gold a Postgres para serving",
+          "evidence": [
+            "data_platform/serving/export_to_postgres.py"
+          ],
+          "done": "nostub",
+          "owner": "federico"
+        },
+        {
+          "id": "DAT-15",
+          "dia": 3,
+          "tarea": "Prueba que falla si una columna prohibida por fuga entra a credit_features_asof",
+          "evidence": [
+            "tests/data/test_feature_contract.py"
+          ],
+          "done": "manual",
+          "owner": "eduardo"
+        }
       ]
     },
     {
@@ -32,16 +171,107 @@
       "nombre": "Modelos",
       "owner": "eduardo",
       "items": [
-        {"id": "ML-01", "dia": 3, "tarea": "Feature store as-of, sin fuga (corte 2025-12-31)", "evidence": ["ml/features/build_features.py"], "done": "nostub"},
-        {"id": "ML-02", "dia": 3, "tarea": "Baseline: regresion logistica solo con credit_score", "evidence": ["ml/training/baseline_logreg.py"], "done": "nostub"},
-        {"id": "ML-03", "dia": 4, "tarea": "Modelo de riesgo de incumplimiento (LightGBM)", "evidence": ["ml/training/pd_lightgbm.py"], "done": "nostub"},
-        {"id": "ML-04", "dia": 4, "tarea": "Modelo de capacidad de pago desde flujo transaccional", "evidence": ["ml/training/capacity.py"], "done": "nostub"},
-        {"id": "ML-05", "dia": 4, "tarea": "Metricas y calibracion: AUC, PR-AUC, KS, Brier", "evidence": ["ml/evaluation/metrics.py"], "done": "nostub"},
-        {"id": "ML-06", "dia": 4, "tarea": "SHAP: los 3 factores que sustentan cada prediccion", "evidence": ["ml/evaluation/explain.py"], "done": "nostub"},
-        {"id": "ML-07", "dia": 4, "tarea": "MLflow: tracking y registry de los tres modelos", "evidence": ["ml/training/run_all.py"], "done": "nostub"},
-        {"id": "ML-08", "dia": 6, "tarea": "Model cards con supuestos y columnas excluidas", "evidence": ["ml/model_cards/noema_pd.md", "ml/model_cards/noema_capacity.md"], "done": "paths"},
-        {"id": "ML-09", "dia": 4, "tarea": "predictor.py: predict_risk y predict_capacity", "evidence": ["ml/serving/predictor.py"], "done": "nostub"},
-        {"id": "ML-10", "dia": 6, "tarea": "Estabilidad del modelo por pais", "evidence": ["ml/evaluation/stability.py"], "done": "nostub"}
+        {
+          "id": "ML-01",
+          "dia": 3,
+          "tarea": "Feature store as-of, sin fuga (corte 2025-12-31)",
+          "evidence": [
+            "ml/features/build_features.py"
+          ],
+          "done": "nostub",
+          "owner": "eduardo"
+        },
+        {
+          "id": "ML-02",
+          "dia": 3,
+          "tarea": "Baseline: regresion logistica solo con credit_score",
+          "evidence": [
+            "ml/training/baseline_logreg.py"
+          ],
+          "done": "nostub",
+          "owner": "eduardo"
+        },
+        {
+          "id": "ML-03",
+          "dia": 4,
+          "tarea": "Modelo de riesgo de incumplimiento (LightGBM)",
+          "evidence": [
+            "ml/training/pd_lightgbm.py"
+          ],
+          "done": "nostub",
+          "owner": "eduardo"
+        },
+        {
+          "id": "ML-04",
+          "dia": 4,
+          "tarea": "Modelo de capacidad de pago desde flujo transaccional",
+          "evidence": [
+            "ml/training/capacity.py"
+          ],
+          "done": "nostub",
+          "owner": "federico"
+        },
+        {
+          "id": "ML-05",
+          "dia": 4,
+          "tarea": "Metricas y calibracion: AUC, PR-AUC, KS, Brier",
+          "evidence": [
+            "ml/evaluation/metrics.py"
+          ],
+          "done": "nostub",
+          "owner": "eduardo"
+        },
+        {
+          "id": "ML-06",
+          "dia": 4,
+          "tarea": "SHAP: los 3 factores que sustentan cada prediccion",
+          "evidence": [
+            "ml/evaluation/explain.py"
+          ],
+          "done": "nostub",
+          "owner": "eduardo"
+        },
+        {
+          "id": "ML-07",
+          "dia": 4,
+          "tarea": "MLflow: tracking y registry de los tres modelos",
+          "evidence": [
+            "ml/training/run_all.py"
+          ],
+          "done": "nostub",
+          "owner": "eduardo"
+        },
+        {
+          "id": "ML-08",
+          "dia": 6,
+          "tarea": "Model cards con supuestos y columnas excluidas",
+          "evidence": [
+            "ml/model_cards/noema_pd.md",
+            "ml/model_cards/noema_capacity.md"
+          ],
+          "done": "paths",
+          "owner": "eduardo"
+        },
+        {
+          "id": "ML-09",
+          "dia": 4,
+          "tarea": "predictor.py: predict_risk y predict_capacity",
+          "evidence": [
+            "ml/serving/predictor.py"
+          ],
+          "done": "nostub",
+          "owner": "eduardo"
+        },
+        {
+          "id": "ML-10",
+          "dia": 6,
+          "tarea": "Estabilidad del modelo por pais",
+          "evidence": [
+            "ml/evaluation/stability.py"
+          ],
+          "done": "nostub",
+          "owner": "eduardo"
+        }
       ]
     },
     {
@@ -49,14 +279,78 @@
       "nombre": "Cognicion (SCM)",
       "owner": "federico",
       "items": [
-        {"id": "SCM-01", "dia": 1, "tarea": "Tipos, procedencia, contradicciones y estado epistemico definidos", "evidence": ["agent/cognition/scm.py"], "done": "paths"},
-        {"id": "SCM-02", "dia": 2, "tarea": "assert_fact con fuente obligatoria y sin sobrescritura silenciosa", "evidence": ["agent/cognition/scm.py"], "done": "nostub"},
-        {"id": "SCM-03", "dia": 2, "tarea": "missing_evidence contra los slots requeridos por intencion", "evidence": ["agent/cognition/scm.py"], "done": "nostub"},
-        {"id": "SCM-04", "dia": 3, "tarea": "contradictions: valor, procedencia y precondicion", "evidence": ["agent/cognition/scm.py"], "done": "nostub"},
-        {"id": "SCM-05", "dia": 3, "tarea": "snapshot serializable con epistemic_status", "evidence": ["agent/cognition/scm.py"], "done": "nostub"},
-        {"id": "SCM-06", "dia": 4, "tarea": "Las 26 pruebas de aceptacion pasando", "evidence": ["tests/cognition/test_scm_contract.py"], "done": "manual"},
-        {"id": "SCM-07", "dia": 4, "tarea": "Endurecido contra entradas ambiguas y contradictorias", "evidence": ["tests/cognition/test_scm_edge_cases.py"], "done": "paths"},
-        {"id": "SCM-08", "dia": 6, "tarea": "Seccion neurosimbolica de la documentacion", "evidence": ["docs/08_neurosymbolic.md"], "done": "paths"}
+        {
+          "id": "SCM-01",
+          "dia": 1,
+          "tarea": "Tipos, procedencia, contradicciones y estado epistemico definidos",
+          "evidence": [
+            "agent/cognition/scm.py"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "SCM-02",
+          "dia": 2,
+          "tarea": "assert_fact con fuente obligatoria y sin sobrescritura silenciosa",
+          "evidence": [
+            "agent/cognition/scm.py"
+          ],
+          "done": "nostub"
+        },
+        {
+          "id": "SCM-03",
+          "dia": 2,
+          "tarea": "missing_evidence contra los slots requeridos por intencion",
+          "evidence": [
+            "agent/cognition/scm.py"
+          ],
+          "done": "nostub"
+        },
+        {
+          "id": "SCM-04",
+          "dia": 3,
+          "tarea": "contradictions: valor, procedencia y precondicion",
+          "evidence": [
+            "agent/cognition/scm.py"
+          ],
+          "done": "nostub"
+        },
+        {
+          "id": "SCM-05",
+          "dia": 3,
+          "tarea": "snapshot serializable con epistemic_status",
+          "evidence": [
+            "agent/cognition/scm.py"
+          ],
+          "done": "nostub"
+        },
+        {
+          "id": "SCM-06",
+          "dia": 4,
+          "tarea": "Las 26 pruebas de aceptacion pasando",
+          "evidence": [
+            "tests/cognition/test_scm_contract.py"
+          ],
+          "done": "manual"
+        },
+        {
+          "id": "SCM-07",
+          "dia": 4,
+          "tarea": "Endurecido contra entradas ambiguas y contradictorias",
+          "evidence": [
+            "tests/cognition/test_scm_edge_cases.py"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "SCM-08",
+          "dia": 6,
+          "tarea": "Seccion neurosimbolica de la documentacion",
+          "evidence": [
+            "docs/08_neurosymbolic.md"
+          ],
+          "done": "paths"
+        }
       ]
     },
     {
@@ -64,19 +358,127 @@
       "nombre": "Agente",
       "owner": "eduardo",
       "items": [
-        {"id": "AG-01", "dia": 4, "tarea": "Politica de elegibilidad versionada en YAML", "evidence": ["agent/policies/eligibility_v1.yaml"], "done": "paths"},
-        {"id": "AG-02", "dia": 4, "tarea": "Motor de reglas determinista, testeable sin LLM", "evidence": ["agent/core/axiom_engine.py"], "done": "nostub"},
-        {"id": "AG-03", "dia": 5, "tarea": "Registro de tools con allowlist por rol", "evidence": ["agent/tools/registry.py"], "done": "nostub"},
-        {"id": "AG-04", "dia": 5, "tarea": "Las nueve herramientas implementadas", "evidence": ["agent/tools/customer.py", "agent/tools/credit.py", "agent/tools/cases.py"], "done": "nostub"},
-        {"id": "AG-05", "dia": 5, "tarea": "AccessGuard: identidad, 3 intentos, JWT con customer_id dentro", "evidence": ["agent/core/access_guard.py"], "done": "nostub"},
-        {"id": "AG-06", "dia": 5, "tarea": "Orquestador de las seis etapas", "evidence": ["agent/core/orchestrator.py"], "done": "nostub"},
-        {"id": "AG-07", "dia": 5, "tarea": "VERIFY: relectura real del store y ledger de acciones", "evidence": ["agent/core/verifier.py"], "done": "nostub"},
-        {"id": "AG-08", "dia": 5, "tarea": "Handoff estructurado validado por esquema", "evidence": ["agent/core/handoff.py"], "done": "nostub"},
-        {"id": "AG-09", "dia": 6, "tarea": "GroundingChecker: ninguna cifra fuera de los tools", "evidence": ["agent/guardrails/grounding.py"], "done": "nostub"},
-        {"id": "AG-10", "dia": 6, "tarea": "Defensa contra inyeccion de prompt", "evidence": ["agent/guardrails/injection.py"], "done": "nostub"},
-        {"id": "AG-11", "dia": 6, "tarea": "Multilingue: deteccion y prompts espanol/portugues", "evidence": ["agent/i18n/detect.py", "agent/i18n/prompts_es.py", "agent/i18n/prompts_pt.py"], "done": "paths"},
-        {"id": "AG-12", "dia": 5, "tarea": "Observabilidad: traza por turno, costo, health checks", "evidence": ["agent/observability/tracing.py"], "done": "nostub"},
-        {"id": "AG-13", "dia": 5, "tarea": "Integracion del SCM tras la bandera SCM_ENABLED", "evidence": ["agent/core/orchestrator.py"], "done": "manual"}
+        {
+          "id": "AG-01",
+          "dia": 4,
+          "tarea": "Politica de elegibilidad versionada en YAML",
+          "evidence": [
+            "agent/policies/eligibility_v1.yaml"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "AG-02",
+          "dia": 4,
+          "tarea": "Motor de reglas determinista, testeable sin LLM",
+          "evidence": [
+            "agent/core/axiom_engine.py"
+          ],
+          "done": "nostub"
+        },
+        {
+          "id": "AG-03",
+          "dia": 5,
+          "tarea": "Registro de tools con allowlist por rol",
+          "evidence": [
+            "agent/tools/registry.py"
+          ],
+          "done": "nostub"
+        },
+        {
+          "id": "AG-04",
+          "dia": 5,
+          "tarea": "Las nueve herramientas implementadas",
+          "evidence": [
+            "agent/tools/customer.py",
+            "agent/tools/credit.py",
+            "agent/tools/cases.py"
+          ],
+          "done": "nostub"
+        },
+        {
+          "id": "AG-05",
+          "dia": 5,
+          "tarea": "AccessGuard: identidad, 3 intentos, JWT con customer_id dentro",
+          "evidence": [
+            "agent/core/access_guard.py"
+          ],
+          "done": "nostub"
+        },
+        {
+          "id": "AG-06",
+          "dia": 5,
+          "tarea": "Orquestador de las seis etapas",
+          "evidence": [
+            "agent/core/orchestrator.py"
+          ],
+          "done": "nostub"
+        },
+        {
+          "id": "AG-07",
+          "dia": 5,
+          "tarea": "VERIFY: relectura real del store y ledger de acciones",
+          "evidence": [
+            "agent/core/verifier.py"
+          ],
+          "done": "nostub"
+        },
+        {
+          "id": "AG-08",
+          "dia": 5,
+          "tarea": "Handoff estructurado validado por esquema",
+          "evidence": [
+            "agent/core/handoff.py"
+          ],
+          "done": "nostub"
+        },
+        {
+          "id": "AG-09",
+          "dia": 6,
+          "tarea": "GroundingChecker: ninguna cifra fuera de los tools",
+          "evidence": [
+            "agent/guardrails/grounding.py"
+          ],
+          "done": "nostub"
+        },
+        {
+          "id": "AG-10",
+          "dia": 6,
+          "tarea": "Defensa contra inyeccion de prompt",
+          "evidence": [
+            "agent/guardrails/injection.py"
+          ],
+          "done": "nostub"
+        },
+        {
+          "id": "AG-11",
+          "dia": 6,
+          "tarea": "Multilingue: deteccion y prompts espanol/portugues",
+          "evidence": [
+            "agent/i18n/detect.py",
+            "agent/i18n/prompts_es.py",
+            "agent/i18n/prompts_pt.py"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "AG-12",
+          "dia": 5,
+          "tarea": "Observabilidad: traza por turno, costo, health checks",
+          "evidence": [
+            "agent/observability/tracing.py"
+          ],
+          "done": "nostub"
+        },
+        {
+          "id": "AG-13",
+          "dia": 5,
+          "tarea": "Integracion del SCM tras la bandera SCM_ENABLED",
+          "evidence": [
+            "agent/core/orchestrator.py"
+          ],
+          "done": "manual"
+        }
       ]
     },
     {
@@ -84,13 +486,69 @@
       "nombre": "Evaluacion",
       "owner": "eduardo",
       "items": [
-        {"id": "EV-01", "dia": 7, "tarea": "Generador de casos desde las plantillas reales", "evidence": ["eval/generator/build_cases.py"], "done": "nostub"},
-        {"id": "EV-02", "dia": 7, "tarea": "Conjunto retenido en espanol (~80 casos)", "evidence": ["eval/datasets/heldout_es.json"], "done": "paths"},
-        {"id": "EV-03", "dia": 7, "tarea": "Conjunto en portugues de Brasil (~40 casos)", "evidence": ["eval/datasets/heldout_pt.json"], "done": "paths"},
-        {"id": "EV-04", "dia": 6, "tarea": "Suite adversarial (~20 casos de inyeccion y suplantacion)", "evidence": ["eval/datasets/redteam.json"], "done": "paths"},
-        {"id": "EV-05", "dia": 7, "tarea": "Harness de los tres brazos: baseline, tools, tools+SCM", "evidence": ["eval/harness/run.py"], "done": "nostub"},
-        {"id": "EV-06", "dia": 8, "tarea": "Metricas: resolucion segura, acciones inseguras, grounding, costo", "evidence": ["eval/harness/metrics.py"], "done": "nostub"},
-        {"id": "EV-07", "dia": 8, "tarea": "Resultados publicados y comparados", "evidence": ["eval/results/summary.json"], "done": "paths"}
+        {
+          "id": "EV-01",
+          "dia": 7,
+          "tarea": "Generador de casos desde las plantillas reales",
+          "evidence": [
+            "eval/generator/build_cases.py"
+          ],
+          "done": "nostub"
+        },
+        {
+          "id": "EV-02",
+          "dia": 7,
+          "tarea": "Conjunto retenido en espanol (~80 casos)",
+          "evidence": [
+            "eval/datasets/heldout_es.json"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "EV-03",
+          "dia": 7,
+          "tarea": "Conjunto en portugues de Brasil (~40 casos)",
+          "evidence": [
+            "eval/datasets/heldout_pt.json"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "EV-04",
+          "dia": 6,
+          "tarea": "Suite adversarial (~20 casos de inyeccion y suplantacion)",
+          "evidence": [
+            "eval/datasets/redteam.json"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "EV-05",
+          "dia": 7,
+          "tarea": "Harness de los tres brazos: baseline, tools, tools+SCM",
+          "evidence": [
+            "eval/harness/run.py"
+          ],
+          "done": "nostub"
+        },
+        {
+          "id": "EV-06",
+          "dia": 8,
+          "tarea": "Metricas: resolucion segura, acciones inseguras, grounding, costo",
+          "evidence": [
+            "eval/harness/metrics.py"
+          ],
+          "done": "nostub"
+        },
+        {
+          "id": "EV-07",
+          "dia": 8,
+          "tarea": "Resultados publicados y comparados",
+          "evidence": [
+            "eval/results/summary.json"
+          ],
+          "done": "paths"
+        }
       ]
     },
     {
@@ -98,8 +556,24 @@
       "nombre": "API",
       "owner": "eduardo",
       "items": [
-        {"id": "API-01", "dia": 7, "tarea": "FastAPI con chat, trace, cases, metrics, eval, scenarios", "evidence": ["api/main.py"], "done": "nostub"},
-        {"id": "API-02", "dia": 7, "tarea": "Seguridad: JWT, rate limit, CORS cerrado, redaccion de PII", "evidence": ["api/security.py"], "done": "nostub"}
+        {
+          "id": "API-01",
+          "dia": 7,
+          "tarea": "FastAPI con chat, trace, cases, metrics, eval, scenarios",
+          "evidence": [
+            "api/main.py"
+          ],
+          "done": "nostub"
+        },
+        {
+          "id": "API-02",
+          "dia": 7,
+          "tarea": "Seguridad: JWT, rate limit, CORS cerrado, redaccion de PII",
+          "evidence": [
+            "api/security.py"
+          ],
+          "done": "nostub"
+        }
       ]
     },
     {
@@ -107,14 +581,78 @@
       "nombre": "Frontend",
       "owner": "eduardo",
       "items": [
-        {"id": "UI-01", "dia": 6, "tarea": "Proyecto Next.js configurado", "evidence": ["ui/package.json"], "done": "paths"},
-        {"id": "UI-02", "dia": 6, "tarea": "/chat en espanol y portugues", "evidence": ["ui/app/chat/page.tsx"], "done": "paths"},
-        {"id": "UI-03", "dia": 6, "tarea": "Panel Caja de Vidrio con la traza en vivo", "evidence": ["ui/components/glassbox/GlassBoxPanel.tsx"], "done": "paths"},
-        {"id": "UI-04", "dia": 6, "tarea": "Escenarios precargados para el jurado", "evidence": ["ui/components/ScenarioPicker.tsx"], "done": "paths"},
-        {"id": "UI-05", "dia": 7, "tarea": "/console con los expedientes estructurados", "evidence": ["ui/app/console/page.tsx"], "done": "paths"},
-        {"id": "UI-06", "dia": 7, "tarea": "/analytics: metricas del agente y evidencia del ablation", "evidence": ["ui/app/analytics/page.tsx"], "done": "paths"},
-        {"id": "UI-07", "dia": 7, "tarea": "/analytics: insights del negocio y calidad de datos", "evidence": ["ui/components/charts/DataQuality.tsx"], "done": "paths"},
-        {"id": "UI-08", "dia": 7, "tarea": "Deploy publico accesible para el jurado", "evidence": ["docs/deploy_url.txt"], "done": "paths"}
+        {
+          "id": "UI-01",
+          "dia": 6,
+          "tarea": "Proyecto Next.js configurado",
+          "evidence": [
+            "ui/package.json"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "UI-02",
+          "dia": 6,
+          "tarea": "/chat en espanol y portugues",
+          "evidence": [
+            "ui/app/chat/page.tsx"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "UI-03",
+          "dia": 6,
+          "tarea": "Panel Caja de Vidrio con la traza en vivo",
+          "evidence": [
+            "ui/components/glassbox/GlassBoxPanel.tsx"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "UI-04",
+          "dia": 6,
+          "tarea": "Escenarios precargados para el jurado",
+          "evidence": [
+            "ui/components/ScenarioPicker.tsx"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "UI-05",
+          "dia": 7,
+          "tarea": "/console con los expedientes estructurados",
+          "evidence": [
+            "ui/app/console/page.tsx"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "UI-06",
+          "dia": 7,
+          "tarea": "/analytics: metricas del agente y evidencia del ablation",
+          "evidence": [
+            "ui/app/analytics/page.tsx"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "UI-07",
+          "dia": 7,
+          "tarea": "/analytics: insights del negocio y calidad de datos",
+          "evidence": [
+            "ui/components/charts/DataQuality.tsx"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "UI-08",
+          "dia": 7,
+          "tarea": "Deploy publico accesible para el jurado",
+          "evidence": [
+            "docs/deploy_url.txt"
+          ],
+          "done": "paths"
+        }
       ]
     },
     {
@@ -122,11 +660,52 @@
       "nombre": "Entregables",
       "owner": "eduardo",
       "items": [
-        {"id": "ENT-01", "dia": 8, "tarea": "docs 02 arquitectura, 03 politica, 04 evaluacion, 06 runbook completos", "evidence": ["docs/02_architecture.md", "docs/03_credit_policy.md", "docs/04_evaluation.md", "docs/06_runbook.md"], "done": "manual"},
-        {"id": "ENT-02", "dia": 8, "tarea": "LIMITATIONS final, con lo que realmente falto", "evidence": ["LIMITATIONS.md"], "done": "manual"},
-        {"id": "ENT-03", "dia": 9, "tarea": "Cinco diapositivas", "evidence": ["deliverables/slides.pdf"], "done": "paths"},
-        {"id": "ENT-04", "dia": 9, "tarea": "Video de maximo 3 minutos", "evidence": ["deliverables/video_script.md"], "done": "manual"},
-        {"id": "ENT-05", "dia": 9, "tarea": "Envio a hackathon.admin@factored.ai", "evidence": [], "done": "manual"}
+        {
+          "id": "ENT-01",
+          "dia": 8,
+          "tarea": "docs 02 arquitectura, 03 politica, 04 evaluacion, 06 runbook completos",
+          "evidence": [
+            "docs/02_architecture.md",
+            "docs/03_credit_policy.md",
+            "docs/04_evaluation.md",
+            "docs/06_runbook.md"
+          ],
+          "done": "manual"
+        },
+        {
+          "id": "ENT-02",
+          "dia": 8,
+          "tarea": "LIMITATIONS final, con lo que realmente falto",
+          "evidence": [
+            "LIMITATIONS.md"
+          ],
+          "done": "manual"
+        },
+        {
+          "id": "ENT-03",
+          "dia": 9,
+          "tarea": "Cinco diapositivas",
+          "evidence": [
+            "deliverables/slides.pdf"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "ENT-04",
+          "dia": 9,
+          "tarea": "Video de maximo 3 minutos",
+          "evidence": [
+            "deliverables/video_script.md"
+          ],
+          "done": "manual"
+        },
+        {
+          "id": "ENT-05",
+          "dia": 9,
+          "tarea": "Envio a hackathon.admin@factored.ai",
+          "evidence": [],
+          "done": "manual"
+        }
       ]
     },
     {
@@ -134,14 +713,87 @@
       "nombre": "Infraestructura y gobierno",
       "owner": "eduardo",
       "items": [
-        {"id": "INF-01", "dia": 1, "tarea": "Repo publico, estructura y contrato operativo", "evidence": ["CLAUDE.md", "README.md", "Makefile"], "done": "paths"},
-        {"id": "INF-02", "dia": 1, "tarea": "CI: secretos, lint, tests, dependencias", "evidence": [".github/workflows/ci.yml", ".pre-commit-config.yaml"], "done": "paths"},
-        {"id": "INF-03", "dia": 1, "tarea": "Auditoria del dataset documentada", "evidence": ["docs/01_data_audit.md"], "done": "paths"},
-        {"id": "INF-04", "dia": 1, "tarea": "Decisiones de arquitectura registradas", "evidence": ["docs/decisions/ADR-0001-workflow-y-separacion-de-responsabilidades.md", "docs/decisions/ADR-0002-ruta-de-datos.md", "docs/decisions/ADR-0003-ground-truth-desde-plantillas.md", "docs/decisions/ADR-0004-corte-temporal-y-fuga.md"], "done": "paths"},
-        {"id": "INF-05", "dia": 1, "tarea": "Contrato de seguridad escrito", "evidence": ["docs/05_security.md"], "done": "paths"},
-        {"id": "INF-06", "dia": 1, "tarea": "Onboarding de Federico: spec, esqueleto, fixtures, agente", "evidence": ["docs/07_scm_spec.md", "tests/fixtures/scm_inputs.json", ".claude/agents/scm-cognition.md"], "done": "paths"},
-        {"id": "INF-07", "dia": 1, "tarea": "Revision de contribuciones y checklist vivo", "evidence": ["scripts/review_contributions.py", "scripts/checklist.py"], "done": "paths"},
-        {"id": "INF-08", "dia": 2, "tarea": "Cuenta de Databricks conectada (bloqueado: falta host y token)", "evidence": ["data_platform/databricks/README.md"], "done": "manual"}
+        {
+          "id": "INF-01",
+          "dia": 1,
+          "tarea": "Repo publico, estructura y contrato operativo",
+          "evidence": [
+            "CLAUDE.md",
+            "README.md",
+            "Makefile"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "INF-02",
+          "dia": 1,
+          "tarea": "CI: secretos, lint, tests, dependencias",
+          "evidence": [
+            ".github/workflows/ci.yml",
+            ".pre-commit-config.yaml"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "INF-03",
+          "dia": 1,
+          "tarea": "Auditoria del dataset documentada",
+          "evidence": [
+            "docs/01_data_audit.md"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "INF-04",
+          "dia": 1,
+          "tarea": "Decisiones de arquitectura registradas",
+          "evidence": [
+            "docs/decisions/ADR-0001-workflow-y-separacion-de-responsabilidades.md",
+            "docs/decisions/ADR-0002-ruta-de-datos.md",
+            "docs/decisions/ADR-0003-ground-truth-desde-plantillas.md",
+            "docs/decisions/ADR-0004-corte-temporal-y-fuga.md"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "INF-05",
+          "dia": 1,
+          "tarea": "Contrato de seguridad escrito",
+          "evidence": [
+            "docs/05_security.md"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "INF-06",
+          "dia": 1,
+          "tarea": "Onboarding de Federico: spec, esqueleto, fixtures, agente",
+          "evidence": [
+            "docs/07_scm_spec.md",
+            "tests/fixtures/scm_inputs.json",
+            ".claude/agents/scm-cognition.md"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "INF-07",
+          "dia": 1,
+          "tarea": "Revision de contribuciones y checklist vivo",
+          "evidence": [
+            "scripts/review_contributions.py",
+            "scripts/checklist.py"
+          ],
+          "done": "paths"
+        },
+        {
+          "id": "INF-08",
+          "dia": 2,
+          "tarea": "Cuenta de Databricks conectada (bloqueado: falta host y token)",
+          "evidence": [
+            "data_platform/databricks/README.md"
+          ],
+          "done": "manual"
+        }
       ]
     }
   ]

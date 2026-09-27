@@ -93,12 +93,16 @@ make review     # who changed what, and whether it stayed inside its boundary
 
 ## 6. Who owns what
 
-| Area | Owner |
-|---|---|
-| `agent/cognition/` — Semantic Cognition Matrix | **Federico Vargas** |
-| Everything else | **Eduardo Lozada** |
+| Area | Owner | Spec |
+|---|---|---|
+| `data_platform/` — cleaning, ETL, silver and gold | **Federico Vargas** | [`docs/09_etl_spec.md`](docs/09_etl_spec.md) |
+| `ml/training/capacity.py` — payment capacity model | **Federico Vargas** | [`docs/09_etl_spec.md`](docs/09_etl_spec.md) §5.5 |
+| `agent/cognition/` — Semantic Cognition Matrix | **Federico Vargas** | [`docs/07_scm_spec.md`](docs/07_scm_spec.md) |
+| Risk models, agent, evaluation, API, frontend, deliverables | **Eduardo Lozada** | — |
 
-**If you are Federico (or Federico's Claude): read [`docs/07_scm_spec.md`](docs/07_scm_spec.md) first.** It contains your task, the exact contract, the acceptance tests you must pass, and how your work feeds the rest of the project. Your entire scope is one file plus its tests.
+**If you are Federico (or Federico's Claude):** you have two fronts, each with its own agent and its own spec. Data and ETL → agent `data-etl`, spec [`docs/09_etl_spec.md`](docs/09_etl_spec.md). Cognition → agent `scm-cognition`, spec [`docs/07_scm_spec.md`](docs/07_scm_spec.md). Both contain the task, the contract, the acceptance tests and the dates. Start there; you do not need anything else from the rest of the repo.
+
+**Critical dependency:** the risk model (Eduardo, day 4) trains on `credit_features_asof` (Federico, day 3). That is the single point where a delay by one blocks the other. `tests/data/test_feature_contract.py` mechanically verifies that this table carries no leaking columns.
 
 Boundaries are enforced, not suggested: `make review` flags any commit that touches files outside its owner's area.
 
@@ -124,6 +128,7 @@ Full audit with reproducible numbers: [`docs/01_data_audit.md`](docs/01_data_aud
 | [`docs/04_evaluation.md`](docs/04_evaluation.md) | Protocol, baseline and results |
 | [`docs/05_security.md`](docs/05_security.md) | Secrets, identity, authorization, injection, PII, network |
 | [`docs/07_scm_spec.md`](docs/07_scm_spec.md) | **Federico's task**: the Semantic Cognition Matrix |
+| [`docs/09_etl_spec.md`](docs/09_etl_spec.md) | **Federico's task**: cleaning, ETL and payment capacity |
 | [`docs/knowledge/findings.md`](docs/knowledge/findings.md) | Project memory — every finding that changed a decision |
 | [`docs/knowledge/contributions.md`](docs/knowledge/contributions.md) | Contribution ledger: who changed what, and whether it advanced the project |
 | [`docs/decisions/`](docs/decisions/) | Architecture Decision Records |
