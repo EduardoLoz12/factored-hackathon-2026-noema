@@ -117,7 +117,7 @@ def list_objects(s3, bucket: str, prefix: str) -> list[dict]:
 
 def table_of(key: str, prefix: str) -> str | None:
     """Deriva el nombre de tabla desde la key de S3."""
-    rel = key[len(prefix):] if key.startswith(prefix) else key
+    rel = key[len(prefix) :] if key.startswith(prefix) else key
     parts = rel.split("/")
     if len(parts) == 1:
         return parts[0].rsplit(".", 1)[0] if parts[0].endswith(".csv") else None
@@ -126,7 +126,7 @@ def table_of(key: str, prefix: str) -> str | None:
 
 def local_target(key: str, prefix: str, data_dir: Path) -> Path:
     """data/bronze/<tabla>/[year=/month=/day=/]<archivo>.parquet"""
-    rel = key[len(prefix):] if key.startswith(prefix) else key
+    rel = key[len(prefix) :] if key.startswith(prefix) else key
     parts = rel.split("/")
     if len(parts) == 1:
         table = parts[0].rsplit(".", 1)[0]
@@ -192,8 +192,12 @@ def main() -> int:
     objects = [o for o in objects if table_of(o["key"], prefix) in wanted]
 
     total_bytes = sum(o["size"] for o in objects)
-    log.info("%d objetos · %.2f GB · tablas: %s",
-             len(objects), total_bytes / 1e9, ", ".join(sorted(wanted)))
+    log.info(
+        "%d objetos · %.2f GB · tablas: %s",
+        len(objects),
+        total_bytes / 1e9,
+        ", ".join(sorted(wanted)),
+    )
 
     if args.dry_run:
         return 0
@@ -220,9 +224,7 @@ def main() -> int:
     started = time.time()
 
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
-        futures = {
-            pool.submit(ingest_one, s3, bucket, o, prefix, data_dir): o for o in pending
-        }
+        futures = {pool.submit(ingest_one, s3, bucket, o, prefix, data_dir): o for o in pending}
         done = 0
         for fut in as_completed(futures):
             obj = futures[fut]
@@ -239,8 +241,13 @@ def main() -> int:
             done += 1
             if done % 250 == 0 or done == len(pending):
                 elapsed = time.time() - started
-                log.info("%d/%d archivos · %.0fs · %.1f arch/s",
-                         done, len(pending), elapsed, done / max(elapsed, 1))
+                log.info(
+                    "%d/%d archivos · %.0fs · %.1f arch/s",
+                    done,
+                    len(pending),
+                    elapsed,
+                    done / max(elapsed, 1),
+                )
 
     manifest_path.write_text(
         json.dumps(
@@ -258,8 +265,12 @@ def main() -> int:
 
     log.info(
         "LISTO · ok=%d saltados=%d fallidos=%d · filas=%s · %.2f GB CSV → %.2f GB Parquet",
-        stats.files_ok, stats.files_skipped, stats.files_failed,
-        f"{stats.rows:,}", stats.bytes_in / 1e9, stats.bytes_out / 1e9,
+        stats.files_ok,
+        stats.files_skipped,
+        stats.files_failed,
+        f"{stats.rows:,}",
+        stats.bytes_in / 1e9,
+        stats.bytes_out / 1e9,
     )
     if stats.errors:
         log.error("Errores (%d), primeros 10:", len(stats.errors))

@@ -1,0 +1,134 @@
+{
+  "_comment": "Entradas fijas para desarrollar y probar el SCM sin base de datos, sin LLM y sin haber corrido la ingesta. Semilla 42. Los valores imitan la forma real del dataset LATAM Bank: montos en COP/ARS/USD, product_type en español, credit_score 422-850.",
+  "_owner": "agent/cognition/ — Federico Vargas",
+  "_spec": "docs/07_scm_spec.md",
+
+  "cases": [
+    {
+      "id": "SCM-01-incompleto",
+      "description": "Cliente ambiguo: monto aproximado, sin moneda, sin identidad verificada. El sistema debe preguntar, no decidir.",
+      "utterance": "Estoy pensando sacar un préstamo de unos 5 millones, pero últimamente he estado bastante justo de plata.",
+      "language": "es",
+      "intent": "CREDIT_ELIGIBILITY",
+      "facts": [
+        {"subject": "request", "predicate": "requested_amount", "value": 5000000,
+         "source": {"layer": "language", "ref": "turn_1"}, "confidence": 0.8},
+        {"subject": "request", "predicate": "currency", "value": "UNKNOWN",
+         "source": {"layer": "language", "ref": "turn_1"}, "confidence": 0.3},
+        {"subject": "customer", "predicate": "financial_stress", "value": "PRESENT",
+         "source": {"layer": "language", "ref": "turn_1"}, "confidence": 0.6},
+        {"subject": "customer", "predicate": "identity_verified", "value": false,
+         "source": {"layer": "tool", "ref": "access_guard"}, "confidence": 1.0}
+      ],
+      "expected": {
+        "missing_evidence": ["identity_verified", "currency", "product_type"],
+        "contradictions": 0,
+        "epistemic_status": "INCOMPLETE"
+      }
+    },
+
+    {
+      "id": "SCM-02-completo",
+      "description": "Todos los slots presentes, sin conflictos. El sistema puede decidir.",
+      "utterance": "Quiero un préstamo personal de 12.000.000 de pesos colombianos.",
+      "language": "es",
+      "intent": "CREDIT_ELIGIBILITY",
+      "facts": [
+        {"subject": "customer", "predicate": "identity_verified", "value": true,
+         "source": {"layer": "tool", "ref": "access_guard"}, "confidence": 1.0},
+        {"subject": "request", "predicate": "requested_amount", "value": 12000000,
+         "source": {"layer": "language", "ref": "turn_1"}, "confidence": 0.9},
+        {"subject": "request", "predicate": "currency", "value": "COP",
+         "source": {"layer": "language", "ref": "turn_1"}, "confidence": 0.95},
+        {"subject": "request", "predicate": "product_type", "value": "Préstamo Personal",
+         "source": {"layer": "language", "ref": "turn_1"}, "confidence": 0.9},
+        {"subject": "customer", "predicate": "has_risk_band", "value": "LOW",
+         "source": {"layer": "model", "ref": "noema_pd", "version": "v3"}, "confidence": 1.0},
+        {"subject": "customer", "predicate": "affordable_payment", "value": 1250000,
+         "source": {"layer": "model", "ref": "noema_capacity", "version": "v1"}, "confidence": 1.0}
+      ],
+      "expected": {
+        "missing_evidence": [],
+        "contradictions": 0,
+        "epistemic_status": "COMPLETE"
+      }
+    },
+
+    {
+      "id": "SCM-03-valor-en-conflicto",
+      "description": "El cliente declara un ingreso y la base dice otro. Ambos hechos quedan; se reporta el conflicto. El SCM no elige ganador.",
+      "utterance": "Yo gano 5 millones al mes.",
+      "language": "es",
+      "intent": "CREDIT_ELIGIBILITY",
+      "facts": [
+        {"subject": "customer", "predicate": "identity_verified", "value": true,
+         "source": {"layer": "tool", "ref": "access_guard"}, "confidence": 1.0},
+        {"subject": "request", "predicate": "requested_amount", "value": 8000000,
+         "source": {"layer": "language", "ref": "turn_1"}, "confidence": 0.9},
+        {"subject": "request", "predicate": "currency", "value": "COP",
+         "source": {"layer": "language", "ref": "turn_1"}, "confidence": 0.9},
+        {"subject": "request", "predicate": "product_type", "value": "Préstamo Personal",
+         "source": {"layer": "language", "ref": "turn_1"}, "confidence": 0.9},
+        {"subject": "customer", "predicate": "monthly_income", "value": 5000000,
+         "source": {"layer": "language", "ref": "turn_1"}, "confidence": 0.5},
+        {"subject": "customer", "predicate": "monthly_income", "value": 1200000,
+         "source": {"layer": "table", "ref": "gold.customer_360"}, "confidence": 1.0}
+      ],
+      "expected": {
+        "missing_evidence": [],
+        "contradictions": 1,
+        "contradiction_types": ["value_conflict"],
+        "epistemic_status": "CONFLICTED"
+      }
+    },
+
+    {
+      "id": "SCM-04-precondicion-violada",
+      "description": "Hay una decisión de elegibilidad pero la identidad nunca se verificó. Es una violación de precondición: no debió llegarse ahí.",
+      "utterance": "¿Ya me lo aprobaron?",
+      "language": "es",
+      "intent": "CREDIT_ELIGIBILITY",
+      "facts": [
+        {"subject": "customer", "predicate": "identity_verified", "value": false,
+         "source": {"layer": "tool", "ref": "access_guard"}, "confidence": 1.0},
+        {"subject": "request", "predicate": "requested_amount", "value": 3000000,
+         "source": {"layer": "language", "ref": "turn_1"}, "confidence": 0.8},
+        {"subject": "request", "predicate": "currency", "value": "COP",
+         "source": {"layer": "language", "ref": "turn_1"}, "confidence": 0.9},
+        {"subject": "request", "predicate": "product_type", "value": "Tarjeta Crédito",
+         "source": {"layer": "language", "ref": "turn_1"}, "confidence": 0.9},
+        {"subject": "product", "predicate": "eligibility_decision", "value": "APPROVED",
+         "source": {"layer": "policy", "ref": "eligibility_v1.yaml", "version": "v1"}, "confidence": 1.0}
+      ],
+      "expected": {
+        "missing_evidence": ["identity_verified"],
+        "contradictions": 1,
+        "contradiction_types": ["precondition_violation"],
+        "epistemic_status": "CONFLICTED"
+      }
+    },
+
+    {
+      "id": "SCM-05-portugues",
+      "description": "Mismo flujo en portugués de Brasil. El SCM es agnóstico al idioma: solo recibe hechos ya extraídos.",
+      "utterance": "Gostaria de saber se consigo um empréstimo de 20 mil reais.",
+      "language": "pt",
+      "intent": "CREDIT_ELIGIBILITY",
+      "facts": [
+        {"subject": "customer", "predicate": "identity_verified", "value": true,
+         "source": {"layer": "tool", "ref": "access_guard"}, "confidence": 1.0},
+        {"subject": "request", "predicate": "requested_amount", "value": 20000,
+         "source": {"layer": "language", "ref": "turn_1"}, "confidence": 0.9},
+        {"subject": "request", "predicate": "currency", "value": "UNKNOWN",
+         "source": {"layer": "language", "ref": "turn_1"}, "confidence": 0.2},
+        {"subject": "request", "predicate": "product_type", "value": "Préstamo Personal",
+         "source": {"layer": "language", "ref": "turn_1"}, "confidence": 0.85}
+      ],
+      "expected": {
+        "missing_evidence": ["currency"],
+        "contradictions": 0,
+        "epistemic_status": "INCOMPLETE"
+      }
+    }
+  ]
+}

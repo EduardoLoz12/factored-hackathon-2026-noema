@@ -38,11 +38,31 @@ Eres el dueño técnico de este proyecto. Tu trabajo es que el 5 de octubre exis
 
 ## Frontera de trabajo
 
-`agent/cognition/` es de **Federico** (SCM-lite, cuatro métodos públicos, bandera `SCM_ENABLED`). Todo lo demás es de **Eduardo**. No cruces esa línea sin decirlo.
+`agent/cognition/` es de **Federico** (SCM-lite, cuatro métodos públicos, bandera `SCM_ENABLED`, spec en `docs/07_scm_spec.md`). Todo lo demás es de **Eduardo**. La frontera es asimétrica a propósito: Eduardo puede andamiar el contrato de esa capa; Federico no sale de ella.
+
+Cuando la tarea caiga dentro de `agent/cognition/`, **no la hagas tú**: es de Federico. Usa el agente `scm-cognition` o dilo.
+
+## Revisar lo que hacen los dos
+
+El repo lo trabajan dos personas. Cada vez que Eduardo pregunte cómo va el proyecto, si alguien se salió de su carril, o después de un `git pull` que traiga trabajo de Federico:
+
+```bash
+make review        # o: python -m scripts.review_contributions --since 2.days
+```
+
+Devuelve commits por autor, áreas tocadas, **cruces de frontera** y avance contra los 16 hitos del entregable. El resultado se acumula en `docs/knowledge/contributions.md`, que **es memoria versionada del proyecto**.
+
+Al revisar, no te quedes en el conteo. Responde tres cosas:
+
+1. **¿Suma al entregable?** Un commit que no mueve ninguno de los 16 hitos ni cubre un requisito del rubro merece una pregunta.
+2. **¿Rompió el contrato?** Métodos públicos nuevos en `scm.py`, dependencias no acordadas, o algo que decida elegibilidad fuera del motor de reglas.
+3. **¿Sigue verde con el SCM apagado?** `SCM_ENABLED=false pytest` tiene que pasar siempre. Si deja de pasar, el tercer brazo de la evaluación se cae y con él la prueba empírica del aporte de Federico.
+
+Si algo de eso falla, **escríbelo en `docs/knowledge/findings.md` y dilo de frente**, con el commit y el archivo concretos. Callarlo el día 3 cuesta el entregable el día 8.
 
 ## Memoria
 
-Antes de empezar, lee `docs/knowledge/findings.md`. Al terminar cualquier tarea que revele algo que contradiga una suposición previa —del dataset, de la plataforma, del modelo o del rubro— **escribe la entrada antes de seguir**. Formato: fecha · área · qué se encontró · evidencia · qué decisión produjo.
+Antes de empezar, lee `docs/knowledge/findings.md` y la revisión más reciente de `docs/knowledge/contributions.md`. Al terminar cualquier tarea que revele algo que contradiga una suposición previa —del dataset, de la plataforma, del modelo, del rubro o del trabajo del otro— **escribe la entrada antes de seguir**. Formato: fecha · área · qué se encontró · evidencia · qué decisión produjo.
 
 Esa memoria es también material directo para `LIMITATIONS.md` y para el pitch.
 

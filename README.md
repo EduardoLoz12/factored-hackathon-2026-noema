@@ -1,91 +1,141 @@
-# NOEMA — Asistente de elegibilidad de crédito
+# NOEMA — Credit Eligibility Agent
 
-**Factored AI & Data Hackathon 2026** · Equipo `noema` · Workflow: *Credit-Product Information & Eligibility*
+**Factored AI & Data Hackathon 2026** · Team `noema` · Workflow: *Credit-Product Information & Eligibility*
 
-> Cualquiera puede hacer que un modelo de lenguaje suene como un asesor bancario.
-> Nosotros construimos el sistema que sabe cuándo ese asesor se está inventando algo — y lo puede probar con un número.
+> Anyone can make a language model *sound* like a bank advisor.
+> We built the system that knows when that advisor is making something up — and can prove it with a number.
 
 ---
 
-## Qué es
+## 1. What this is
 
-Un sistema de servicio al cliente bancario que atiende en **español y portugués**, verifica la identidad de quien escribe, responde **únicamente con cifras traídas de la base**, evalúa elegibilidad crediticia con un **modelo entrenado más una política determinista versionada**, **comprueba lo que ejecutó**, se **abstiene** cuando no sabe, y cuando necesita un humano le entrega un **expediente estructurado** en vez de la transcripción del chat.
+A banking customer-service system that handles **credit eligibility** conversations in **Spanish and Portuguese**. It verifies who is talking, answers **only with figures pulled from the database**, evaluates eligibility with a **trained model plus a versioned deterministic policy**, **verifies what it executed**, **abstains** when it doesn't know, and hands a **structured case file** — not a chat transcript — to a human when one is needed.
 
-No es un chatbot con documentos. El modelo de lenguaje conversa y explica; **nunca decide ni produce una cifra**.
+It is not a chatbot with documents attached. **The language model talks and explains. It never decides, and it never produces a number.**
 
-## El principio
+## 2. The core principle
 
 ```
-                 conversación          │          decisión
-   ┌──────────────────────────────────┐│┌──────────────────────────────────┐
-   │  LLM: entiende, aclara, explica  │││  Motor de reglas YAML + modelos  │
-   │  Nunca emite un número propio    │││  Determinista, testeable sin LLM │
-   └──────────────────────────────────┘│└──────────────────────────────────┘
+            conversation           │            decision
+  ┌────────────────────────────────┐│┌────────────────────────────────────┐
+  │ LLM: understands, asks,        │││ YAML rule engine + trained models  │
+  │ clarifies, explains            │││ Deterministic, testable without an │
+  │ Never emits a figure of its own│││ LLM in the loop                    │
+  └────────────────────────────────┘│└────────────────────────────────────┘
 ```
 
-Tres reglas que no se negocian en ninguna parte del código:
+Three rules that are not negotiable anywhere in the codebase:
 
-1. **Ninguna cifra sale del LLM.** Un `GroundingChecker` valida la respuesta final contra lo que devolvieron los tools y bloquea cualquier número huérfano.
-2. **El LLM no decide elegibilidad.** Decide `agent/policies/eligibility_v1.yaml`.
-3. **Toda escritura se vuelve a leer** antes de confirmarla. Si no coincide, no se afirma: se escala.
+1. **No figure comes from the LLM.** Every number comes from a tool that queried the database. A `GroundingChecker` validates the final answer against the values the tools returned and blocks any orphan number.
+2. **The LLM does not decide eligibility.** `agent/policies/eligibility_v1.yaml` decides. The policy is unit-tested without an LLM.
+3. **Every write is read back** before anything is confirmed to the customer. If it doesn't match, the agent does not claim it happened — it escalates.
 
-## Las cinco etapas
+## 3. The six stages
 
 ```
 UNDERSTAND → ACCESS GUARD → DECIDE → ACT → VERIFY → ESCALATE
-   idioma        documento    política  tools  relectura  expediente
-   intención     + fecha nac. + modelos allowlist real     estructurado
-   SCM-lite      3 intentos            idempotente
+ language      document +     policy   typed   real     structured
+ intent        birth date     engine   tools   read     case file
+ SCM state     3 attempts     + models idempotent back
 ```
 
-## Arquitectura
+| Stage | What it does | The control that protects it |
+|---|---|---|
+| **Understand** | Detects language, classifies intent, extracts slots. If something essential is missing, it asks instead of guessing. | The **SCM** records what is known, what is unknown, and where each fact came from |
+| **Access Guard** | Validates `document_type` + `document_number` + `date_of_birth` against the `customers` table | 3 attempts, identical error messages, constant-time comparison |
+| **Decide** | The rule engine combines risk, payment capacity and product conditions | The LLM does not participate; the policy is a versioned file |
+| **Act** | Executes through tools with typed contracts | Role allowlist enforced in code; writes are idempotent |
+| **Verify** | Reads back what it wrote and compares field by field | On mismatch: claim nothing, escalate |
+| **Escalate** | Hands over verified facts, executed actions and open questions | Schema-validated object, not free text |
+
+## 4. Architecture
 
 ```
-UI (Next.js)  ──HTTPS+JWT──▶  API FastAPI  ──▶  Postgres (gold + casos)
- /chat + panel Caja de Vidrio      │          ──▶  Modelos (MLflow registry)
- /console (expedientes)            │
- /analytics (métricas + datos)     │
-                                   ▼
-                        Databricks (Delta + MLflow)
-                                   ▲
-                      Parquet ── DuckDB + dbt ── Ingesta S3
+UI (Next.js, Vercel)  ──HTTPS + JWT──▶  API (FastAPI)  ──▶  Postgres  (gold tables, cases, ledger)
+ /chat   + Glass Box panel                    │          ──▶  Models    (MLflow registry)
+ /console  (case files)                       │
+ /analytics (metrics + data quality)          ▼
+                                   Databricks (Delta + MLflow)
+                                              ▲
+                          Parquet ── DuckDB + dbt ── S3 ingestion
 ```
 
-El frontend **nunca** toca el lakehouse ni la base. Solo habla con la API.
+The frontend **never** touches Databricks or the database. It only talks to the API.
+The ingestion layer is the **only** component that ever sees the dataset credentials.
 
-## Cómo correrlo
+**Why the data path looks like this:** Databricks Free Edition is serverless-only and restricts outbound internet to a trusted domain list, so it cannot read Factored's third-party S3 bucket. Ingestion therefore runs locally, canonical curation happens in DuckDB + dbt (5.35 GB runs in minutes on a laptop), and Databricks receives converted Parquet to act as the Delta lakehouse and model registry. Full reasoning in [`docs/decisions/ADR-0002`](docs/decisions/ADR-0002-ruta-de-datos.md).
+
+## 5. Getting started
 
 ```bash
-cp .env.example .env     # rellenar credenciales (ver Data Dictionary, pág. 1)
-make setup               # entorno y dependencias
-make ingest              # S3 → data/bronze/*.parquet + manifest con checksums
-make build               # dbt: bronze → silver → gold
-make train               # baseline + modelo PD + capacidad de pago
-make eval                # baseline vs tools vs tools+SCM
-make serve               # API en local
+git clone https://github.com/EduardoLoz12/factored-hackathon-2026-noema.git
+cd factored-hackathon-2026-noema
+
+cp .env.example .env          # fill in credentials — see page 1 of the Data Dictionary
+python -m pip install -e ".[dev]"
+pre-commit install
 ```
 
-Detalle completo en [`docs/06_runbook.md`](docs/06_runbook.md).
+Then, depending on what you need:
 
-## Documentación
+```bash
+make ingest     # S3 → data/bronze/*.parquet + manifest with SHA-256 checksums (~4 min, 1.5 GB)
+make summary    # small, committable summary of the manifest
+make build      # dbt: bronze → silver → gold
+make train      # baseline + default-risk model + payment capacity → MLflow
+make eval       # harness: baseline vs tools vs tools+SCM
+make serve      # local API
+make test       # pytest
+make review     # who changed what, and whether it stayed inside its boundary
+```
 
-| Documento | Qué contiene |
+**You do not need to run `make ingest` to work on the cognition layer.** Fixtures in `tests/fixtures/` cover that.
+
+## 6. Who owns what
+
+| Area | Owner |
 |---|---|
-| [`docs/00_challenge_brief.md`](docs/00_challenge_brief.md) | El rubro de Factored, decodificado |
-| [`docs/01_data_audit.md`](docs/01_data_audit.md) | Auditoría real del dataset: dónde el diccionario y el dato no coinciden |
-| [`docs/02_architecture.md`](docs/02_architecture.md) | Arquitectura y el porqué de cada decisión |
-| [`docs/03_credit_policy.md`](docs/03_credit_policy.md) | Política de elegibilidad y escalamiento |
-| [`docs/04_evaluation.md`](docs/04_evaluation.md) | Protocolo, baseline y resultados |
-| [`docs/05_security.md`](docs/05_security.md) | Secretos, identidad, autorización, inyección, PII, red |
-| [`docs/knowledge/findings.md`](docs/knowledge/findings.md) | Memoria de hallazgos del proyecto |
-| [`docs/decisions/`](docs/decisions/) | ADRs |
-| [`LIMITATIONS.md`](LIMITATIONS.md) | Qué falta y qué costaría hacerlo real |
+| `agent/cognition/` — Semantic Cognition Matrix | **Federico Vargas** |
+| Everything else | **Eduardo Lozada** |
 
-## Equipo
+**If you are Federico (or Federico's Claude): read [`docs/07_scm_spec.md`](docs/07_scm_spec.md) first.** It contains your task, the exact contract, the acceptance tests you must pass, and how your work feeds the rest of the project. Your entire scope is one file plus its tests.
 
-- **Eduardo Lozada** — plataforma de datos, modelos, agente, evaluación, API y frontend.
-- **Federico Vargas** — Semantic Cognition Matrix (`agent/cognition/`).
+Boundaries are enforced, not suggested: `make review` flags any commit that touches files outside its owner's area.
 
-## Nota sobre los datos
+## 7. What we know about the dataset
 
-El dataset es sintético y fue provisto por Factored para el hackathon. Aun así **se trata como si fuera información personal real**: los identificadores se hashean en logs y trazas, y la política de retención está escrita en `docs/05_security.md`.
+We audited the S3 bucket **before** designing anything. Three findings changed the design:
+
+1. **The call transcripts are unusable as a corpus.** Two unique templates across a 794-row sample spanning three years, one intent, zero Portuguese — and unfilled placeholders (`{monto}`, `{moneda}`, `{limite}`). **We turned that defect into our ground truth**: filling those placeholders from the gold tables produces conversations whose correct answer we know in advance, which is what makes hallucination measurable as a rate rather than an opinion. See [`ADR-0003`](docs/decisions/ADR-0003-ground-truth-desde-plantillas.md).
+2. **Real risk labels exist.** `products.days_past_due` has 125,350 non-null values, ~15 % delinquent at a 30-day cutoff — but it is a *snapshot with no measurement date*, so the temporal cutoff is a declared assumption, not an observed fact. See [`ADR-0004`](docs/decisions/ADR-0004-corte-temporal-y-fuga.md).
+3. **The data dictionary does not match the data.** Row counts differ in 9 of 13 tables (23,495,188 actual vs ~19 M documented), enums are in Spanish where English is documented, MXN does not exist despite 74,907 Mexican customers, and there are zero duplicates where 2 % are promised.
+
+Full audit with reproducible numbers: [`docs/01_data_audit.md`](docs/01_data_audit.md).
+
+## 8. Documentation map
+
+| Document | Contents |
+|---|---|
+| [`CLAUDE.md`](CLAUDE.md) | Operating contract — read this before writing code |
+| [`docs/00_challenge_brief.md`](docs/00_challenge_brief.md) | The Factored rubric, decoded |
+| [`docs/01_data_audit.md`](docs/01_data_audit.md) | Dataset audit: where the dictionary and the data disagree |
+| [`docs/02_architecture.md`](docs/02_architecture.md) | Architecture and the reasoning behind each decision |
+| [`docs/03_credit_policy.md`](docs/03_credit_policy.md) | Eligibility and escalation policy |
+| [`docs/04_evaluation.md`](docs/04_evaluation.md) | Protocol, baseline and results |
+| [`docs/05_security.md`](docs/05_security.md) | Secrets, identity, authorization, injection, PII, network |
+| [`docs/07_scm_spec.md`](docs/07_scm_spec.md) | **Federico's task**: the Semantic Cognition Matrix |
+| [`docs/knowledge/findings.md`](docs/knowledge/findings.md) | Project memory — every finding that changed a decision |
+| [`docs/knowledge/contributions.md`](docs/knowledge/contributions.md) | Contribution ledger: who changed what, and whether it advanced the project |
+| [`docs/decisions/`](docs/decisions/) | Architecture Decision Records |
+| [`LIMITATIONS.md`](LIMITATIONS.md) | What is missing and what it would take to make it real |
+
+**Language convention:** code and this README are in English; internal documentation, policies and business comments are in Spanish, because that is the working language of the team.
+
+## 9. A note on the data
+
+The dataset is synthetic and was provided by Factored for the hackathon. It is nonetheless treated **as if it were real personal data**: identifiers are hashed in logs and traces, the API database user has read-only access to business tables, and the retention policy is written down in [`docs/05_security.md`](docs/05_security.md).
+
+## 10. Deliverables
+
+Repository · live URL · 5 slides · 3-minute video → `hackathon.admin@factored.ai`
+**Deadline: 5 October 2026, 23:59 Colombia time.**

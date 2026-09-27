@@ -9,6 +9,7 @@ help:
 	@echo "build   - dbt: bronze -> silver -> gold"
 	@echo "train   - baseline + PD + capacidad de pago -> MLflow"
 	@echo "eval    - harness: baseline vs tools vs tools+SCM"
+	@echo "review  - quien cambio que, y si respeto su frontera"
 	@echo "serve   - API FastAPI en local"
 	@echo "ui      - frontend Next.js en local"
 	@echo "check   - lint + tests + gitleaks"
@@ -46,6 +47,9 @@ serve:
 
 ui:
 	cd ui && npm run dev
+
+review:
+	$(PY) -m scripts.review_contributions
 
 test:
 	pytest
