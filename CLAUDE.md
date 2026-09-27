@@ -58,7 +58,8 @@ make audit      # perfil de calidad de las 13 tablas → docs/01_data_audit.md
 make build      # dbt: bronze → silver → gold (perfil duckdb por defecto)
 make train      # baseline logreg + PD LightGBM + capacidad → MLflow
 make eval       # harness: baseline vs tools vs tools+SCM
-make review     # quién cambió qué, cruces de frontera, avance vs los 16 hitos
+make checklist  # estado de los 75 ítems del entregable, por dueño y por día
+make review     # quién cambió qué, cruces de frontera, + checklist
 make serve      # API FastAPI local
 make test       # pytest
 make check      # lint + tests + gitleaks
@@ -76,6 +77,19 @@ Hallazgos que cambian decisiones — el detalle vive en `docs/01_data_audit.md`:
 - **El diccionario miente en 7 puntos**: enums en español, MXN inexistente, cero duplicados donde promete 2 %, nulos estructurales muy distintos al 5 % declarado, `contact_reason` duplicada de `reason_category`.
 
 Regla: **si descubres algo que contradice una suposición, escríbelo en `docs/knowledge/findings.md` antes de seguir codificando.**
+
+## Cómo se sigue el avance
+
+| Archivo | Qué es |
+|---|---|
+| `docs/checklist.json` | La lista canónica: 75 ítems con dueño, día y evidencia. Se edita a mano solo para agregar o reformular tareas. |
+| `docs/knowledge/checklist.md` | El estado, generado con `make checklist`. Un ítem pasa a `avanzado` cuando existe su archivo de evidencia y a `terminado` cuando deja de ser esqueleto. |
+| `docs/knowledge/plan_por_dias.md` | Qué ítems debe cerrar cada día y las reglas de corte. |
+| `docs/knowledge/contributions.md` | Quién cambió qué y si respetó su frontera. |
+| `CHANGELOG.md` | Control de cambios: qué cambió, cuándo, quién y qué ítem movió. Se genera con `make changelog`. |
+| `logs/` | Dónde escribe el sistema cuando corre: ingesta, dbt, agente, **trazas por turno** y ledger de acciones. El contenido no se versiona; su estructura y reglas están en `logs/README.md`. |
+
+**Antes de una tarea**, identifica qué ítem mueve. **Al terminarla**, corre `make checklist` y nombra el ítem en el commit: `feat(DAT-06): ...`. Si la evidencia es que unas pruebas pasan y no que un archivo exista, márcalo con `python -m scripts.checklist --done ID --note "..."`.
 
 ## Convenciones
 

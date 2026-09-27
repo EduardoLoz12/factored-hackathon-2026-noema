@@ -63,6 +63,29 @@ Hoy esas pruebas se saltan solas porque el módulo no está implementado. En cua
 
 Las entradas de ejemplo están en `tests/fixtures/scm_inputs.json`. **No necesitas base de datos, ni modelo de lenguaje, ni haber corrido la ingesta** — puedes trabajar recién clonado el repo.
 
+## Tus ítems en el checklist
+
+El entregable se sigue en `docs/knowledge/checklist.md`, generado con `make checklist`. Ocho ítems son tuyos:
+
+| ID | Qué es | Día |
+|---|---|---|
+| `SCM-01` | Tipos, procedencia, contradicciones y estado epistémico definidos | D1 ✅ |
+| `SCM-02` | `assert_fact` con fuente obligatoria y sin sobrescritura silenciosa | D2 |
+| `SCM-03` | `missing_evidence` contra los slots requeridos por intención | D2 |
+| `SCM-04` | `contradictions`: valor, procedencia y precondición | D3 |
+| `SCM-05` | `snapshot` serializable con `epistemic_status` | D3 |
+| `SCM-06` | Las 26 pruebas de aceptación pasando | D4 |
+| `SCM-07` | Endurecido contra entradas ambiguas y contradictorias | D4 |
+| `SCM-08` | Sección neurosimbólica de la documentación | D6 |
+
+Un ítem pasa a `avanzado` solo cuando el archivo existe, y a `terminado` cuando deja de tener `NotImplementedError`. `SCM-06` se marca a mano cuando las pruebas pasen:
+
+```bash
+python -m scripts.checklist --done SCM-06 --note "26/26 en verde"
+```
+
+Nombra el ítem en tus commits: `feat(SCM-03): missing_evidence contra slots requeridos`.
+
 ## Flujo de trabajo
 
 ```bash

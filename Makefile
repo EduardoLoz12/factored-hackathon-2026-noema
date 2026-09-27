@@ -1,4 +1,4 @@
-.PHONY: help setup ingest audit build train eval serve ui test lint check clean
+.PHONY: help setup ingest summary audit build train eval review checklist changelog serve ui test lint check clean
 
 PY ?= python
 
@@ -9,7 +9,9 @@ help:
 	@echo "build   - dbt: bronze -> silver -> gold"
 	@echo "train   - baseline + PD + capacidad de pago -> MLflow"
 	@echo "eval    - harness: baseline vs tools vs tools+SCM"
-	@echo "review  - quien cambio que, y si respeto su frontera"
+	@echo "review  - quien cambio que, si respeto su frontera, + checklist"
+	@echo "checklist - estado de los 75 items del entregable, por dueno y por dia"
+	@echo "changelog - control de cambios desde el historial de git"
 	@echo "serve   - API FastAPI en local"
 	@echo "ui      - frontend Next.js en local"
 	@echo "check   - lint + tests + gitleaks"
@@ -50,6 +52,14 @@ ui:
 
 review:
 	$(PY) -m scripts.review_contributions
+	$(PY) -m scripts.checklist
+	$(PY) -m scripts.changelog
+
+checklist:
+	$(PY) -m scripts.checklist
+
+changelog:
+	$(PY) -m scripts.changelog
 
 test:
 	pytest

@@ -53,7 +53,11 @@ out/
 .vercel/
 
 # === Trazas y logs locales ===
-logs/
+# El contenido no se versiona; la estructura y su documentacion si.
+logs/**
+!logs/README.md
+!logs/*/
+!logs/*/.gitkeep
 traces/
 *.log
 !eval/results/*.json

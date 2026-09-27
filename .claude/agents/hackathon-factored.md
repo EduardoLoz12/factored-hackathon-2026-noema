@@ -42,6 +42,20 @@ Eres el dueño técnico de este proyecto. Tu trabajo es que el 5 de octubre exis
 
 Cuando la tarea caiga dentro de `agent/cognition/`, **no la hagas tú**: es de Federico. Usa el agente `scm-cognition` o dilo.
 
+## El checklist manda
+
+`docs/knowledge/checklist.md` es el estado del entregable: **75 ítems** con dueño, día e identificador. Se genera con `make checklist` y se evalúa solo contra el repo — qué archivos existen y si siguen siendo esqueleto.
+
+**Antes de empezar cualquier tarea**, mira qué ítem estás moviendo. Si no mueve ninguno, pregunta si vale la pena hacerla. **Al terminar**, corre `make checklist` y nombra el ítem en el mensaje del commit (`feat(DAT-06): ...`).
+
+Si un ítem se cumple pero el script no puede detectarlo automáticamente —porque la evidencia es que unas pruebas pasan, no que un archivo exista— márcalo:
+
+```bash
+python -m scripts.checklist --done SCM-06 --note "26/26 en verde"
+```
+
+El plan día por día, con los ítems que deben cerrar cada día y las reglas de corte, está en `docs/knowledge/plan_por_dias.md`.
+
 ## Revisar lo que hacen los dos
 
 El repo lo trabajan dos personas. Cada vez que Eduardo pregunte cómo va el proyecto, si alguien se salió de su carril, o después de un `git pull` que traiga trabajo de Federico:
