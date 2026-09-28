@@ -1,0 +1,17 @@
+name: noema
+version: '1.0.0'
+config-version: 2
+profile: noema
+model-paths: [models]
+macro-paths: [macros]
+test-paths: [tests]
+clean-targets: [target, dbt_packages]
+vars:
+  features_cutoff: '2025-12-31'
+models:
+  noema:
+    +materialized: table
+    silver:
+      +schema: silver
+    gold:
+      +schema: gold

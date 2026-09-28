@@ -109,3 +109,19 @@ Formato: `## F-NNN · fecha · área — título` seguido de *qué se encontró*
 **Lectura.** El patrón es demasiado regular para ser azar: seis tablas de hechos caen entre −11 % y −16 %, lo que sugiere que las cifras del diccionario son **objetivos de generación** y no conteos medidos, y que el generador descartó filas (probablemente por colisión de identificadores o por validaciones internas). `digital_events` y `daily_exchange_rates` van al alza, así que no es un solo mecanismo.
 
 **Decisión.** Ningún conteo del diccionario se usa como verdad. Los contratos de esquema se escriben contra el dato observado y el manifest queda como evidencia reproducible. La tabla de arriba se publica en `/analytics` como parte del reporte de calidad de datos: **encontrar esto es entregable, no anécdota.**
+
+## F-010 · 2026-09-28 · capacidad y catálogo — Faltan dirección y condiciones
+
+**Qué.** `transactions` no trae dirección de transferencia ni identifica cuotas comprometidas. `ml/serving/predictor.py` y la política de producto, citados como disponibles en la spec, aún no existen. MXN sí aparece en otras tablas; su ausencia observada se limita a productos y transacciones.
+
+**Evidencia.** Esquema local de bronze; categorías de transacción; inventario del repositorio y `docs/03_credit_policy.md`.
+
+**Decisión.** Depósitos como entrada observable, pagos/compras/retiros como salida; transferencias y ajustes se reportan como ambiguos. El estimador se declara proxy, no capacidad real validada. Catálogo con condiciones desconocidas y `policy_ready=false` hasta recibir la política de Eduardo. No inventar umbrales ni implementar el predictor de riesgo. Ver ADR-0005.
+
+## F-011 · 2026-09-28 · datos — Referencias de sucursal mayormente huérfanas
+
+**Qué.** La auditoría completa detectó 149 995 referencias `customers.registration_branch_id` sin sucursal entre 150 000 clientes; también 831 agentes con sucursal inexistente.
+
+**Evidencia.** Anti-join de bronze contra las 350 sucursales, reproducido en `logs/build/dq_report.json`.
+
+**Decisión.** No descartar casi todos los clientes por una relación opcional. Conservar la fila original y motivo en cuarentena de referencias; limpiar a NULL solo las relaciones opcionales inválidas. Relaciones esenciales cliente/producto siguen rechazando la fila completa. El reporte distingue reparación de relación y rechazo de fila; bronze permanece intacto.

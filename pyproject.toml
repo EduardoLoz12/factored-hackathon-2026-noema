@@ -27,6 +27,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+data = ["dbt-duckdb>=1.9,<2"]
+cloud = ["dbt-databricks>=1.9,<2", "databricks-sdk>=0.40", "psycopg[binary]>=3.2"]
 dev = [
     "pytest>=8.3",
     "pytest-cov>=5.0",
@@ -40,7 +42,7 @@ dev = [
 # es código Python del proyecto y qué no (ui/ es Next.js, docs/ es documentación).
 [tool.setuptools.packages.find]
 include = ["agent*", "api*", "data_platform*", "eval*", "ml*", "scripts*"]
-exclude = ["ui*", "docs*", "deliverables*", "data*", "tests*", "materiales*", "documentos*"]
+exclude = ["ui*", "docs*", "deliverables*", "data", "data.*", "tests*", "materiales*", "documentos*"]
 
 [tool.ruff]
 line-length = 100
@@ -55,6 +57,10 @@ ignore = ["S101"]  # assert permitido en tests
 # scripts/ invoca `git` local con argumentos constantes del propio script,
 # no con entrada externa. S603/S607 no aplican aquí.
 "scripts/*" = ["S603", "S607"]
+# Identificadores internos constantes; rutas escapadas y valores parametrizados.
+"data_platform/contracts/audit.py" = ["S608"]
+"data_platform/contracts/quarantine.py" = ["S608"]
+"data_platform/serving/*.py" = ["S608"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -63,3 +69,6 @@ addopts = "-q"
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.package-data]
+"data_platform.contracts" = ["columns.json"]

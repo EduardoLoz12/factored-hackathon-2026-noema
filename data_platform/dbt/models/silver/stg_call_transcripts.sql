@@ -1,0 +1,22 @@
+select
+    transcript_id,
+    interaction_id,
+    cast(process_date as DATE) as process_date,
+    customer_id,
+    agent_id,
+    full_text,
+    customer_text,
+    agent_text,
+    detected_language,
+    detected_accent,
+    cast(accent_confidence as DOUBLE) as accent_confidence,
+    detected_keywords,
+    mentioned_entities,
+    detected_intents,
+    main_topics,
+    transcription_model,
+    audio_quality,
+    cast(duration_seconds as DOUBLE) as duration_seconds,
+    _source_file,
+    cast(_ingested_at as TIMESTAMP) as _ingested_at
+from {{ input_parquet('validated/call_transcripts/part.parquet') }}

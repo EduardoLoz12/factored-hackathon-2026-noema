@@ -1,0 +1,16 @@
+noema:
+  target: duckdb
+  outputs:
+    duckdb:
+      type: duckdb
+      path: "{{ env_var('NOEMA_DUCKDB_PATH', '../../data/noema.duckdb') }}"
+      schema: noema
+      threads: 2
+    databricks:
+      type: databricks
+      catalog: "{{ env_var('DATABRICKS_CATALOG', 'workspace') }}"
+      schema: noema
+      host: "{{ env_var('DATABRICKS_HOST', '') }}"
+      http_path: "{{ env_var('DATABRICKS_HTTP_PATH', '') }}"
+      token: "{{ env_var('DATABRICKS_TOKEN', '') }}"
+      threads: 2

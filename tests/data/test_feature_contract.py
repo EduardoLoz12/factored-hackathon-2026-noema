@@ -49,15 +49,17 @@ def _leer():
     if ruta is None:
         return None
     duckdb = pytest.importorskip("duckdb")
-    return duckdb.sql(f"SELECT * FROM '{ruta.as_posix()}/*.parquet'" if ruta.is_dir()
-                      else f"SELECT * FROM '{ruta.as_posix()}'")
+    return duckdb.sql(
+        f"SELECT * FROM '{ruta.as_posix()}/*.parquet'"
+        if ruta.is_dir()
+        else f"SELECT * FROM '{ruta.as_posix()}'"
+    )
 
 
 pytestmark = pytest.mark.skipif(
     _tabla() is None,
     reason=(
-        "credit_features_asof todavía no existe — es DAT-10, de Federico. "
-        "Ver docs/09_etl_spec.md"
+        "credit_features_asof todavía no existe — es DAT-10, de Federico. Ver docs/09_etl_spec.md"
     ),
 )
 
@@ -100,6 +102,6 @@ def test_el_corte_esta_declarado_en_el_entorno_o_en_el_adr():
     """La fecha de corte es un supuesto, no un hecho del dataset: tiene que estar escrita."""
     declarado = os.getenv("FEATURES_CUTOFF")
     adr = Path("docs/decisions/ADR-0004-corte-temporal-y-fuga.md")
-    assert declarado or adr.exists(), (
-        "La fecha de corte debe estar declarada en FEATURES_CUTOFF o en el ADR-0004."
-    )
+    assert (
+        declarado or adr.exists()
+    ), "La fecha de corte debe estar declarada en FEATURES_CUTOFF o en el ADR-0004."

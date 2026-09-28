@@ -1,0 +1,21 @@
+select
+    product_id,
+    customer_id,
+    case product_type when 'Cuenta Ahorro' then 'Cuenta Ahorro' when 'Savings Account' then 'Cuenta Ahorro' when 'Cuenta Corriente' then 'Cuenta Corriente' when 'Checking Account' then 'Cuenta Corriente' when 'Tarjeta Crédito' then 'Tarjeta Crédito' when 'Credit Card' then 'Tarjeta Crédito' when 'Tarjeta Débito' then 'Tarjeta Débito' when 'Debit Card' then 'Tarjeta Débito' when 'Préstamo Personal' then 'Préstamo Personal' when 'Personal Loan' then 'Préstamo Personal' when 'Préstamo Hipotecario' then 'Préstamo Hipotecario' when 'Mortgage Loan' then 'Préstamo Hipotecario' when 'Inversión' then 'Inversión' when 'Investment' then 'Inversión' when 'Seguro' then 'Seguro' when 'Insurance' then 'Seguro' end as product_type,
+    product_number,
+    currency,
+    cast(current_balance as DOUBLE) as current_balance,
+    cast(credit_limit as DOUBLE) as credit_limit,
+    cast(interest_rate as DOUBLE) as interest_rate,
+    cast(opening_date as DATE) as opening_date,
+    cast(expiration_date as DATE) as expiration_date,
+    opening_branch_id,
+    product_status,
+    opening_channel,
+    cast(has_linked_app as BOOLEAN) as has_linked_app,
+    cast(days_past_due as DOUBLE) as days_past_due,
+    cast(last_transaction_date as DATE) as last_transaction_date,
+    cast(last_updated as TIMESTAMP) as last_updated,
+    _source_file,
+    cast(_ingested_at as TIMESTAMP) as _ingested_at
+from {{ input_parquet('validated/products/part.parquet') }}

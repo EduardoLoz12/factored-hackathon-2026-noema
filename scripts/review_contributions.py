@@ -4,7 +4,7 @@ El repo lo trabajan dos personas con áreas separadas. Este script responde tres
 preguntas que el agente del proyecto necesita para saber si todo va sumando:
 
   1. ¿Qué commits hubo, de quién, y qué áreas del proyecto tocaron?
-  2. ¿Alguien cruzó su frontera? (Federico solo debe tocar agent/cognition/)
+  2. ¿Alguien cruzó su frontera? (Federico: datos, capacidad y SCM)
   3. ¿Cómo va el avance contra los hitos del entregable?
 
 Escribe el resultado en docs/knowledge/contributions.md, que es memoria del
@@ -37,9 +37,10 @@ LEDGER = Path("docs/knowledge/contributions.md")
 AREAS: list[tuple[str, str, str]] = [
     ("agent/cognition/", "cognición (SCM)", "federico"),
     ("tests/cognition/", "cognición (SCM)", "federico"),
-    ("tests/data/", "contratos de datos", "eduardo"),
+    ("tests/data/", "contratos de datos", "federico"),
     ("data_platform/", "plataforma de datos", "federico"),
     ("ml/training/capacity.py", "capacidad de pago", "federico"),
+    ("scripts/generate_schemas.py", "plataforma de datos", "federico"),
     ("ml/", "modelos", "eduardo"),
     ("agent/core/", "orquestador", "eduardo"),
     ("agent/tools/", "herramientas", "eduardo"),
@@ -138,9 +139,8 @@ def main() -> int:
         for f in c["files"]:
             area, owner = classify(f)
             areas_touched[c["author"]].add(area)
-            # La frontera es asimétrica y así está escrita en CLAUDE.md: Federico
-            # solo toca la capa de cognición. Eduardo es responsable del resto del
-            # entregable y sí puede andamiar el contrato de esa capa.
+            # CLAUDE.md asigna a Federico datos, capacidad y SCM. Eduardo es
+            # responsable del resto y puede preparar contratos compartidos.
             if who == "federico" and owner == "eduardo":
                 violations.append((c["sha"], c["author"], f, area))
 
@@ -166,7 +166,7 @@ def main() -> int:
             lines.append(f"| `{sha}` | {author} | `{f}` | {area} |")
         lines.append("")
         lines.append(
-            "> Federico solo debe tocar `agent/cognition/` y `tests/cognition/`. "
+            "> Federico solo debe tocar datos/ETL, capacidad y SCM. "
             "Un cruce no es necesariamente un error, pero tiene que ser deliberado y conversado."
         )
     else:
