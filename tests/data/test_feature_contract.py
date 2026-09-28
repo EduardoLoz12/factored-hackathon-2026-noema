@@ -49,17 +49,16 @@ def _leer():
     if ruta is None:
         return None
     duckdb = pytest.importorskip("duckdb")
-    return duckdb.sql(f"SELECT * FROM '{ruta.as_posix()}/*.parquet'" if ruta.is_dir()
-                      else f"SELECT * FROM '{ruta.as_posix()}'")
+    return duckdb.sql(
+        f"SELECT * FROM '{ruta.as_posix()}/*.parquet'"
+        if ruta.is_dir()
+        else f"SELECT * FROM '{ruta.as_posix()}'"
+    )
 
 
-pytestmark = pytest.mark.skipif(
-    _tabla() is None,
-    reason=(
-        "credit_features_asof todavía no existe — es DAT-10, de Federico. "
-        "Ver docs/09_etl_spec.md"
-    ),
-)
+SIN_TABLA = "credit_features_asof aún no existe: es DAT-10. Ver docs/09_etl_spec.md"
+
+pytestmark = pytest.mark.skipif(_tabla() is None, reason=SIN_TABLA)
 
 
 def test_ninguna_columna_prohibida_entra_como_variable():
