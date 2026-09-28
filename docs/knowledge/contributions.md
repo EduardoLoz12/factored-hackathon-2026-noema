@@ -6,6 +6,46 @@ Las revisiones más recientes van arriba.
 
 ---
 
+## Revisión · 2026-09-28 17:59
+
+1 commits · desde `1.day`
+
+| Autor | Commits | Áreas tocadas |
+|---|---:|---|
+| fedevargas93 | 1 | capacidad de pago, cognición (SCM), contratos de datos, documentación, gobierno, plataforma de datos, raíz del proyecto |
+
+### Fronteras
+
+Sin cruces. Cada quien trabajó dentro de su área.
+
+### Avance contra los hitos del entregable
+
+| Hito | Estado |
+|---|---|
+| Ingesta S3 → bronze | existe |
+| Contratos de calidad | existe |
+| Transformaciones dbt | existe |
+| Modelo baseline | pendiente |
+| Modelo de riesgo (PD) | pendiente |
+| Capacidad de pago | existe |
+| Servicio de predicción | pendiente |
+| SCM (Federico) | existe |
+| Motor de reglas | pendiente |
+| Herramientas del agente | pendiente |
+| Orquestador 6 etapas | pendiente |
+| Guardrails / grounding | pendiente |
+| API | pendiente |
+| Frontend | pendiente |
+| Generador de casos | pendiente |
+| Harness de evaluación | pendiente |
+
+**5 de 16 hitos iniciados.**
+
+### Commits
+
+- `3ba73a2` · 2026-09-28 · **fedevargas93** — Nuevo (DAT-03/ML-04/SCM-02): completa datos, capacidad y cognición de Federico
+
+---
 ## Revisión · 2026-09-27 17:47
 
 6 commits · historial completo

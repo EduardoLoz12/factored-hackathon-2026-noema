@@ -41,6 +41,7 @@ AREAS: list[tuple[str, str, str]] = [
     ("data_platform/", "plataforma de datos", "federico"),
     ("ml/training/capacity.py", "capacidad de pago", "federico"),
     ("scripts/generate_schemas.py", "plataforma de datos", "federico"),
+    ("scripts/review_contributions.py", "gobierno", "compartida"),
     ("ml/", "modelos", "eduardo"),
     ("agent/core/", "orquestador", "eduardo"),
     ("agent/tools/", "herramientas", "eduardo"),
