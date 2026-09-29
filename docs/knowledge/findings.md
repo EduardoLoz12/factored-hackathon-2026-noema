@@ -164,9 +164,35 @@ Formato: `## F-NNN · fecha · área — título` seguido de *qué se encontró*
 
 *La etiqueta es casi plana.* `days_past_due` toma **siete valores** (0, 15, 30, 60, 90, 120, 180) y los no-cero se reparten casi en partes iguales (~3 100 cada uno). La tasa de mora a 90 días es 7.4–7.8 % en **todos** los estratos: por tipo de producto, por segmento, por país y por tramo de `credit_score`. Un cliente con score bajo 550 cae en mora el 7.81 % de las veces; uno sobre 750, el 7.42 %.
 
-*El techo.* Sobre 79 492 clientes y 14 variables, con partición retenida del 30 %: regresión logística **AUC 0.5678**, gradient boosting **AUC 0.5816** (0.6449 en entrenamiento — la brecha es sobreajuste a ruido). El baseline de ML-02, solo `credit_score`, da **AUC 0.5033**. El control con etiqueta barajada da 0.4990, así que el 0.58 es señal real, no fuga: viene de la actividad transaccional, no del perfil crediticio.
+*El techo aparente.* Sobre 79 492 clientes y 14 variables, con partición retenida del 30 %: regresión logística AUC 0.5678, gradient boosting AUC 0.5816. El baseline de ML-02, solo `credit_score`, da AUC 0.5033.
 
-**Decisión.** No se presenta un modelo de riesgo como si funcionara. Tres consecuencias: (1) ML-02 se mantiene porque **demostrar que el baseline no discrimina es el resultado**, no un fracaso; (2) ML-03 se entrena y se reporta con su AUC real de ~0.58 y su intervalo, acompañado de la prueba de etiqueta barajada; (3) el peso de la demo se corre hacia donde el jurado sí puede ver diferencia —grounding, tasa de acciones inseguras, verificación tras escritura— que es además donde más pesa el rubro. Esto refuerza la tesis: **el modelo es una herramienta del agente, no el producto.**
+**Corrección — ver [[F-017]].** Ese 0.58 resultó ser un artefacto de agregación, no señal. El techo real es 0.50.
+
+**Decisión.** Superada por F-017.
+
+## F-017 · 2026-09-29 · modelos — `days_past_due` es un sorteo independiente: no hay nada que aprender
+
+**Qué.** La etiqueta de riesgo no guarda relación con ninguna variable del dataset. No es que la señal sea débil: **no existe**. `days_past_due` se comporta exactamente como una Bernoulli(0.075166) sorteada de forma independiente por cada producto de crédito.
+
+**Por qué se investigó.** Porque es ilógico que el `credit_score` del propio banco no prediga la mora de ese banco. La sospecha era un error de medición. No lo había.
+
+**Evidencia, en cuatro pasos.**
+
+*1. El score sí es coherente.* No es ruido: correlaciona con el ingreso (r = 0.356) y ordena limpiamente por segmento — Premium 797.4, Plus 699.2, Student 649.0, Basic 599.5. Su distribución es plausible (422–850, media 647.1, asimetría +0.67). El generador lo construyó bien a partir del perfil del cliente. El problema no está ahí.
+
+*2. La mora no se relaciona con nada.* Diez variables medidas a nivel producto sobre 125 350 filas: `credit_score` r = −0.0038, ingreso −0.0017, saldo −0.0026, límite −0.0001, **utilización +0.0048**, tasa de interés −0.0006, antigüedad del producto +0.0017, antigüedad del cliente −0.0041, número de productos +0.0011, saldo total +0.0009. Todas las AUC caen entre 0.496 y 0.506. Que la utilización de línea —el segundo predictor más fuerte en banca real, después del score— dé 0.4978 es concluyente.
+
+*3. No hay tendencia por tramo de score.* Prueba de Cochran-Armitage sobre cuatro tramos: **z = −0.79, p = 0.43**. La mora va de 7.63 % bajo 600 a 7.32 % sobre 800: **0.31 puntos porcentuales a lo largo de 230 puntos de score**. Un score que funciona separa del orden de 25 % a 1 % entre deciles extremos.
+
+*4. El 0.58 de F-015 era un artefacto de agregación.* La etiqueta del cliente es `max()` sobre sus productos, así que quien tiene más productos de crédito tiene más sorteos y más probabilidad de que alguno salga en mora. Las tasas observadas reproducen la predicción de independencia casi exactamente: 1 producto 7.36 % (predicho 7.52 %), 2 productos 14.76 % (14.47 %), 3 productos 21.18 % (20.90 %), 5 productos 31.60 % (32.34 %). El conteo de productos de crédito solo, sin modelo, da AUC 0.6217. Y al estratificar por ese conteo, **todas** las AUC colapsan: dentro de los 51 164 clientes con un solo producto de crédito, transacciones 0.4942, salidas 0.4937, meses activos 0.4952, score 0.4994.
+
+**Decisión.** El techo real del modelo de riesgo es **AUC = 0.50**. Cualquier cifra por encima proviene de una de dos tautologías —tener producto de crédito, o tener más de uno— y ninguna es riesgo.
+
+Tres consecuencias operativas:
+
+1. **ML-03 no se presenta como modelo de riesgo.** Se entrena, se mide y se reporta que no discrimina, con esta evidencia. Ese es el entregable: el rubro premia explícitamente la honestidad sobre lo que falta, y detectar que la etiqueta es sintética demuestra más criterio que exhibir un AUC inflado que el jurado puede desarmar en una pregunta.
+2. **ML-02 gana sentido, no lo pierde.** El baseline de `credit_score` da 0.5033 y ahora sabemos por qué. La tabla baseline contra propuesto se mantiene, con ambos en 0.50 y la explicación al lado.
+3. **La política de elegibilidad no se apoya en un PD estimado.** `eligibility_v1.yaml` decide con reglas sobre hechos verificables —ingreso, capacidad de pago, mora observada, antigüedad— y no con una probabilidad que no existe. Esto **refuerza** la tesis del proyecto: separar la conversación de la decisión, y que la decisión la tome una política auditable y no un modelo. El peso de la demo y de la evaluación se corre a grounding, tasa de acciones inseguras y verificación tras escritura, que es donde hay diferencia medible y donde más pesa el rubro.
 
 ## F-016 · 2026-09-29 · datos — La normalización de enums español/inglés no tenía nada que normalizar
 
