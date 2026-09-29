@@ -23,18 +23,41 @@ Eres el dueño técnico de este proyecto. Tu trabajo es que el 5 de octubre exis
 
 **La tesis en tres jugadas.**
 - **A** — Los transcripts del dataset traen placeholders sin rellenar (`{monto}`, `{moneda}`, `{limite}`). Se rellenan desde las tablas gold → casos con respuesta correcta conocida → medición exacta de alucinación y, de paso, el set en portugués.
-- **B** — Modelo PD sobre `days_past_due` (125 350 etiquetas reales) + modelo de capacidad de pago, contra un baseline de regresión logística. Viven como **tools** del agente, no como el producto.
+- **B** — El modelo de riesgo y el de capacidad viven como **tools** del agente, no como el producto. **Y ninguno de los dos discrimina** — ver abajo. Eso no rompe la jugada: la refuerza, porque demostrarlo con evidencia es lo que se presenta.
 - **C** — Autonomía controlada: puerta de identidad en código, motor de reglas YAML que decide, relectura tras escribir, abstención medida, expediente estructurado al escalar.
+
+## Lo que se midió el 29-sep y no se re-descubre
+
+Seis hallazgos probados ejecutando, en `docs/knowledge/findings.md` como F-012 a F-017. El detalle para Federico está en `docs/12_cambios_para_federico.md`. No los re-investigues.
+
+**El que cambia el plan — F-017.** `days_past_due` es una **Bernoulli(0.075166) sorteada de forma independiente por producto de crédito**. No se relaciona con nada: diez variables a nivel producto, todas entre AUC 0.496 y 0.506, incluida la utilización de línea. Cochran-Armitage sobre tramos de score da p = 0.43 (7.63 % de mora bajo 600 contra 7.32 % sobre 800). El `credit_score` **sí** es coherente —correlaciona 0.356 con el ingreso y ordena por segmento— así que el roto es la etiqueta, no el score. **El techo real del modelo es AUC = 0.50**; cualquier cifra por encima sale de una tautología (tener producto de crédito, o tener más de uno: el conteo solo da AUC 0.622 porque la etiqueta del cliente es un `max()` sobre sus productos).
+
+Consecuencias, y son de diseño:
+- **ML-03 no se presenta como modelo de riesgo.** Se entrena, se mide y se reporta que no discrimina, con la evidencia. El rubro premia la honestidad sobre lo que falta; exhibir un AUC inflado que el jurado desarma en una pregunta cuesta más.
+- **ML-02 gana sentido.** El baseline de `credit_score` da 0.5033 y ahora se sabe por qué. La tabla baseline contra propuesto se mantiene, ambos en 0.50, con la explicación debajo.
+- **La regla 5 de abajo cambia de forma.** «Falla cerrado sin modelo de riesgo» ya no puede significar «sin PD no se aprueba», porque no hay PD. Significa: la elegibilidad la decide `eligibility_v1.yaml` sobre hechos verificables —ingreso, capacidad de pago, mora observada, antigüedad— y si falta un hecho, se escala. **Esto extiende la tesis: ya no es solo que el LLM no decide; el modelo tampoco.** Merece ADR propio antes de escribir `AG-01`.
+
+**Los otros cinco, en una línea cada uno.**
+- **F-012** — `registration_branch_id` no es llave foránea: 150 000 valores distintos para 150 000 clientes contra 350 sucursales. Irrecuperable. Pero la sucursal **sí** se deriva de `products.opening_branch_id` (válida al 100 %, cubre 93.05 %), y por ahí responde el agente.
+- **F-013** — el `amount_usd` de la fuente trae ruido uniforme de ±2 % inyectado por el generador. El pipeline usa el recalculado, que es el verdadero. Va a `LIMITATIONS.md` con la prueba.
+- **F-014** — dos regímenes de nulo. Estructural (`days_past_due`, `credit_limit`, `merchant_name`) se codifica `no_aplica` y no se imputa; inyectado (`credit_score` 15 %, ingreso 20 %) se imputa con indicador `_faltante`, y está probado que es aleatorio de verdad. `complaints.origin_interaction_id` está vacía al 100 %: el agente no debe prometer esa trazabilidad.
+- **F-015** — el universo etiquetable son **84 926 clientes**, no 150 000; 80 057 al cruzar con features. Mora 10.71 % por cliente, 7.52 % por producto. Tratar el nulo estructural como «al día» infla el denominador un 64 %.
+- **F-016** — no hay enums mezclados español/inglés. El `CASE` de `stg_products` es inerte y se queda por defensivo. La documentación que decía lo contrario ya está corregida.
+
+**Estado de la plataforma de datos:** la rama de Federico está mergeada (`7975169`). `dbt build` corre en 85 s con PASS=25 ERROR=0 y produce `credit_features_asof` con 141 445 filas sin fuga. **No bloquea nada.** El reporte visual de la auditoría está publicado como artifact; pídeselo a Eduardo si lo necesitas.
 
 ## Reglas que haces cumplir siempre
 
 1. Ninguna cifra sale del LLM. Todas vienen de tools.
-2. El LLM no decide elegibilidad. Decide `agent/policies/eligibility_v1.yaml`.
+2. El LLM no decide elegibilidad. Decide `agent/policies/eligibility_v1.yaml`. **Y el modelo tampoco** — ver F-017.
 3. Toda escritura se vuelve a leer antes de afirmarla.
 4. Toda llamada externa en `try/except`, con fallback y log útil.
-5. Falla cerrado: sin modelo de riesgo no se aprueba nada.
+5. Falla cerrado: si falta un hecho verificable, no se aprueba — se escala y se dice.
 6. Cero secretos en git.
 7. Abstenerse es un resultado válido y se mide.
+8. Ninguna lectura o escritura de texto sin `encoding="utf-8"`. En Windows el defecto es `cp1252` y corrompe todo acento español; ya rompió una prueba y dos reportes.
+9. Ningún número se cita sin la consulta que lo produce. Si un resultado no tiene sentido de negocio, la primera hipótesis es que la medición está mal: diseña las pruebas que la descartarían, una por una. Así salieron F-012 a F-017.
+10. `.claude/agents/*.md` y todo archivo que lea una herramienta van en **LF**, nunca CRLF. El `.gitattributes` lo fuerza; si un agente deja de aparecer en la lista sin error visible, revisa eso primero.
 
 ## Frontera de trabajo
 

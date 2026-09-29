@@ -1,0 +1,34 @@
+# Finales de línea.
+#
+# Motivo: `core.autocrlf=true` en Windows convertía a CRLF las definiciones de
+# agente de `.claude/agents/`. El lector de YAML no acepta `---\r` como
+# delimitador de frontmatter, así que los agentes dejaban de registrarse sin
+# ningún error visible: simplemente no aparecían en la lista. Costó una sesión
+# entera descubrirlo (29-sep-2026).
+#
+# Todo archivo que lea una herramienta —no una persona en el Bloc de notas—
+# se fuerza a LF.
+
+* text=auto eol=lf
+
+*.md      text eol=lf
+*.py      text eol=lf
+*.sql     text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+*.json    text eol=lf
+*.toml    text eol=lf
+*.cfg     text eol=lf
+*.ini     text eol=lf
+*.sh      text eol=lf
+Makefile  text eol=lf
+
+# Binarios: que git no los toque.
+*.parquet binary
+*.duckdb  binary
+*.pdf     binary
+*.png     binary
+*.jpg     binary
+*.xlsx    binary
+*.docx    binary
+*.pptx    binary
