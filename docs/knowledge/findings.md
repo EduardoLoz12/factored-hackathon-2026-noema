@@ -125,3 +125,53 @@ Formato: `## F-NNN · fecha · área — título` seguido de *qué se encontró*
 **Evidencia.** Anti-join de bronze contra las 350 sucursales, reproducido en `logs/build/dq_report.json`.
 
 **Decisión.** No descartar casi todos los clientes por una relación opcional. Conservar la fila original y motivo en cuarentena de referencias; limpiar a NULL solo las relaciones opcionales inválidas. Relaciones esenciales cliente/producto siguen rechazando la fila completa. El reporte distingue reparación de relación y rechazo de fila; bronze permanece intacto.
+
+## F-012 · 2026-09-29 · datos — `registration_branch_id` no es una llave foránea
+
+**Qué.** La columna tiene **150 000 valores distintos para 150 000 clientes**, uno propio por cliente, cuando solo existen 350 sucursales. No es una referencia rota: es un identificador generado de cero. Lo mismo ocurre con `service_agents.assigned_branch_id` (833 distintos para 1 200 agentes, 2 coincidencias). Las otras dos referencias a sucursal sí son válidas al 100 %: `products.opening_branch_id` y `transactions.branch_id` usan las 350 sucursales reales.
+
+**Evidencia.** Mismo prefijo `SUC-`, misma longitud (12), mismo alfabeto (`0-9A-Z`), sin espacios ni diferencias de mayúsculas. Normalizar (`strip`, `upper`, quitar guion) no recupera ni una coincidencia más: se mantiene en 5, que es ruido. Es un defecto del generador del dataset, no de nuestra ingesta.
+
+**Decisión.** Confirmada la política de poner a NULL: no hay nada que reparar. Pero la sucursal del cliente **sí se puede derivar** por sus productos: 139 578 de 150 000 clientes (93.05 %) tienen al menos una, y 28 189 tienen exactamente una, sin ambigüedad. El agente responde «¿en qué sucursal…?» por esa ruta, declarando que es la sucursal de apertura del producto y no la de registro. Ver también F-011, que describía el síntoma sin llegar a la causa.
+
+## F-013 · 2026-09-29 · datos — El `amount_usd` de la fuente trae ruido inyectado de ±2 %
+
+**Qué.** Donde el origen reporta su propio monto en dólares, no coincide con el que resulta de multiplicar el monto local por la tasa del día: difiere con error relativo **uniforme en ±2 %** y error absoluto de hasta 200 USD. No es una tasa distinta —el desvío contra `buy_rate` y `sell_rate` es aún mayor (1.26 % y 1.28 % contra 0.98 % del `exchange_rate`)— ni un rezago de fecha.
+
+**Evidencia.** Sobre 1 886 980 transacciones no-USD: sesgo medio +0.0003 (simétrico), desviación 0.011675 contra 0.011547 que predice una uniforme(−2 %, +2 %), curtosis de exceso −1.177 contra −1.2 teórico. KS contra uniforme 0.043, contra normal 0.084. El error absoluto es proporcional al monto (r = 0.81), o sea multiplicativo.
+
+**Decisión.** El pipeline hace lo correcto al usar el valor recalculado desde `daily_exchange_rates`: es reproducible y consistente. El valor de la fuente se conserva como `reported_amount_usd` para poder mostrar la discrepancia. **Va al documento de limitaciones con la prueba**, no como sospecha: es un dato duro sobre cómo se generó el dataset.
+
+## F-014 · 2026-09-29 · datos — Los nulos son de dos clases y hay que tratarlos distinto
+
+**Qué.** 104 de 287 columnas de silver tienen nulos, en dos regímenes claramente separables.
+
+*Estructural* — el nulo significa «no aplica», condicionado a la fila. `days_past_due` y `credit_limit` son 100 % nulos en Cuenta Ahorro, Cuenta Corriente, Tarjeta Débito, Inversión y Seguro, y ~5 % nulos dentro de los tres productos de crédito. `merchant_name` es 100 % nulo salvo en Compra. `complaints.closing_date` solo existe en quejas cerradas.
+
+*Inyectado* — el generador borró valores al azar a tasas redondas, homogéneas entre estratos: `credit_score` 15.0 %, `estimated_monthly_income` 20.0 %, `interest_rate` 10.0 %, `fraud_score` 20.0 %, `ip_address` 5.0 %.
+
+**Evidencia.** La tasa de nulos de `credit_score` va de 14.53 % a 15.95 % en las doce celdas segmento × país. Y no informa: entre clientes con `credit_score` nulo la mora a 90 días es 6.545 %, entre los que lo tienen 6.550 %. Es aleatorio de verdad (MCAR), no un nulo que esconda riesgo.
+
+**Caso aparte:** `complaints.origin_interaction_id` está **vacía al 100 %** en las 67 095 filas. El camino queja → interacción de call center no existe; el agente no puede reconstruir esa trazabilidad.
+
+**Decisión.** El nulo estructural se codifica como categoría (`no_aplica`), nunca se imputa: imputar la mediana de `credit_limit` en una cuenta de ahorro inventa un producto que no existe. El nulo inyectado sí se imputa, y como es MCAR la imputación no sesga. Toda columna imputada lleva su indicador `_faltante` al modelo.
+
+## F-015 · 2026-09-29 · modelos — El universo de la etiqueta es la mitad de lo que parecía, y el techo de señal es AUC ≈ 0.58
+
+**Qué.** Tres correcciones encadenadas sobre la etiqueta de riesgo.
+
+*El universo.* `days_past_due` solo existe en los tres productos de crédito: 131 972 productos, 125 350 con valor. Eso son **84 926 clientes etiquetables**, no 150 000, y 80 057 al cruzar con `credit_features_asof`. Tratar el NULL como «al día» —el error fácil— infla el denominador un 64 % y baja la tasa de mora de **10.71 % a 6.52 %**.
+
+*La etiqueta es casi plana.* `days_past_due` toma **siete valores** (0, 15, 30, 60, 90, 120, 180) y los no-cero se reparten casi en partes iguales (~3 100 cada uno). La tasa de mora a 90 días es 7.4–7.8 % en **todos** los estratos: por tipo de producto, por segmento, por país y por tramo de `credit_score`. Un cliente con score bajo 550 cae en mora el 7.81 % de las veces; uno sobre 750, el 7.42 %.
+
+*El techo.* Sobre 79 492 clientes y 14 variables, con partición retenida del 30 %: regresión logística **AUC 0.5678**, gradient boosting **AUC 0.5816** (0.6449 en entrenamiento — la brecha es sobreajuste a ruido). El baseline de ML-02, solo `credit_score`, da **AUC 0.5033**. El control con etiqueta barajada da 0.4990, así que el 0.58 es señal real, no fuga: viene de la actividad transaccional, no del perfil crediticio.
+
+**Decisión.** No se presenta un modelo de riesgo como si funcionara. Tres consecuencias: (1) ML-02 se mantiene porque **demostrar que el baseline no discrimina es el resultado**, no un fracaso; (2) ML-03 se entrena y se reporta con su AUC real de ~0.58 y su intervalo, acompañado de la prueba de etiqueta barajada; (3) el peso de la demo se corre hacia donde el jurado sí puede ver diferencia —grounding, tasa de acciones inseguras, verificación tras escritura— que es además donde más pesa el rubro. Esto refuerza la tesis: **el modelo es una herramienta del agente, no el producto.**
+
+## F-016 · 2026-09-29 · datos — La normalización de enums español/inglés no tenía nada que normalizar
+
+**Qué.** `stg_products` implementa un `CASE` de dieciséis ramas para unificar `'Savings Account' → 'Cuenta Ahorro'` y pares equivalentes. **No colapsa ningún nivel.** No hay mezcla de idiomas dentro de ninguna columna categórica: `products.product_type` está íntegramente en español (8 niveles), `transactions.transaction_type` íntegramente en inglés (6 niveles), y lo mismo en `product_status`, `opening_channel`, `transaction_status`, `channel`, `segment`, `customer_status`, `education_level` y `marital_status`. El idioma varía **entre** columnas, no dentro de una.
+
+**Evidencia.** Cardinalidad idéntica antes y después en las cinco columnas medidas (8→8, 6→6, 4→4, 4→4, 3→3). El `CASE` es inerte.
+
+**Decisión.** El `CASE` se conserva porque es defensivo y no cuesta nada. Lo que se corrige es la **documentación**: `docs/01_data_audit.md` afirmaba que `product_type` venía en inglés, y el `CLAUDE.md` usaba esa normalización como ejemplo de mensaje de commit. Ambos corregidos. Un jurado que abra `stg_products.sql` y luego los datos habría visto la contradicción.

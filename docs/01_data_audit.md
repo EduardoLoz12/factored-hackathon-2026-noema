@@ -47,7 +47,7 @@ La **estructura** documentada sí se cumple: las 13 tablas existen, con sus colu
 
 | Campo | Dice el diccionario | Dice el dato | Decisión |
 |---|---|---|---|
-| `products.product_type` | `Checking Account`, `Credit Card`, `Personal Loan`… (inglés) | `Cuenta Ahorro` 120 203 · `Tarjeta Crédito` 100 102 · `Cuenta Corriente` 99 979 · `Tarjeta Débito` 39 938 · `Préstamo Personal` 19 960 · `Préstamo Hipotecario` 11 910 · `Inversión` 5 859 · `Seguro` 2 049 | Mapa de normalización en silver |
+| `products.product_type` | `Checking Account`, `Credit Card`, `Personal Loan`… (inglés) | `Cuenta Ahorro` 120 203 · `Tarjeta Crédito` 100 102 · `Cuenta Corriente` 99 979 · `Tarjeta Débito` 39 938 · `Préstamo Personal` 19 960 · `Préstamo Hipotecario` 11 910 · `Inversión` 5 859 · `Seguro` 2 049 | Los 8 niveles están **solo en español**; no hay mezcla que normalizar. El `CASE` de silver no colapsa ningún nivel (F-016) |
 | `currency` | MXN, COP, ARS, USD | **MXN no existe**: USD 220 501 · COP 107 975 · ARS 71 524 — con 74 907 clientes mexicanos | Se reporta; conversión vía `daily_exchange_rates` |
 | `transaction_type` | inglés | inglés (`Withdrawal`, `Payment`, `Purchase`) — **idioma mixto entre tablas** | Normalización por tabla, no global |
 | `customers.credit_score` | 300 – 850 | **422 – 850** | El contrato usa el rango observado |

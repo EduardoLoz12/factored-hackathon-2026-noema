@@ -83,6 +83,9 @@ Hallazgos que cambian decisiones — el detalle vive en `docs/01_data_audit.md`:
 - **Los transcripts no sirven como corpus**: 2 plantillas únicas, 1 intent, cero portugués, placeholders sin rellenar (`{monto}`, `{moneda}`, `{limite}`). Se usan como **plantillas** para generar los casos de evaluación, no como texto de entrenamiento.
 - **Sí hay etiquetas de riesgo**: `products.days_past_due` con 125 350 no nulos, ~15 % en mora.
 - **El diccionario miente en 7 puntos**: enums en español, MXN inexistente, cero duplicados donde promete 2 %, nulos estructurales muy distintos al 5 % declarado, `contact_reason` duplicada de `reason_category`.
+- **No hay enums mezclados español/inglés.** Cada columna categórica está en un solo idioma —`product_type` en español, `transaction_type` en inglés— y la normalización de silver no colapsa ningún nivel (F-016). El `CASE` se conserva por defensivo, no porque haga algo.
+- **`registration_branch_id` no es una llave foránea**: 150 000 valores distintos para 150 000 clientes, contra 350 sucursales. La sucursal del cliente se deriva por `products.opening_branch_id`, que sí es válida al 100 % (F-012).
+- **El techo del modelo de riesgo es AUC ≈ 0.58**, y el baseline de `credit_score` da 0.5033 — la etiqueta casi no discrimina en ningún estrato. El universo etiquetable son 84 926 clientes con producto de crédito, no 150 000, y la tasa real de mora a 90 días es 10.71 % (F-015). Se reporta tal cual: demostrarlo es el entregable.
 
 Regla: **si descubres algo que contradice una suposición, escríbelo en `docs/knowledge/findings.md` antes de seguir codificando.**
 
@@ -104,7 +107,7 @@ Regla: **si descubres algo que contradice una suposición, escríbelo en `docs/k
 - Código en inglés (`snake_case`); documentación, políticas y **mensajes de commit** en español.
 - **Mensajes de commit legibles, sin jerga.** Formato: `Tipo (ÍTEM): qué cambió, en español`.
   Tipos: `Nuevo`, `Corrige`, `Mejora`, `Docs`, `Pruebas`, `Infra`, `Limpieza`, `Revierte`.
-  Bien: `Nuevo (DAT-06): la capa silver normaliza los tipos de producto que venían en español y en inglés`.
+  Bien: `Nuevo (DAT-08): la capa silver convierte todos los montos a dólares con la tasa del día`.
   Mal: `feat(silver): normalize enums`.
   El asunto debe entenderse **sin abrir el diff**. El cuerpo explica el porqué, no el cómo.
 - Ramas `trabajo/`, `arreglo/`, `docs/`. `main` protegida, PR + CI en verde.
