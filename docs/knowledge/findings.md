@@ -201,3 +201,25 @@ Tres consecuencias operativas:
 **Evidencia.** Cardinalidad idéntica antes y después en las cinco columnas medidas (8→8, 6→6, 4→4, 4→4, 3→3). El `CASE` es inerte.
 
 **Decisión.** El `CASE` se conserva porque es defensivo y no cuesta nada. Lo que se corrige es la **documentación**: `docs/01_data_audit.md` afirmaba que `product_type` venía en inglés, y el `CLAUDE.md` usaba esa normalización como ejemplo de mensaje de commit. Ambos corregidos. Un jurado que abra `stg_products.sql` y luego los datos habría visto la contradicción.
+
+## F-018 · 2026-09-29 · modelos — `last_updated` no dice cuándo se registró la mora
+
+**Qué.** El campo `last_updated` de `products` y `customers` es un sello de modificación **sorteado al azar**, sin relación con los eventos del negocio. No sirve para decidir si la etiqueta de mora precede o sigue a las variables.
+
+**Por qué se investigó.** La primera versión de ML-01 usaba ese campo para separar una «cohorte estricta»: solo los productos con `last_updated` posterior al corte tendrían la etiqueta observada después de las variables. Bajo esa lectura, el universo entrenable caía de 76 906 clientes a 7 078 — se descartaba el **91 %** de los datos. Eduardo objetó que descartar 130 000 clientes necesitaba mejor justificación. La tenía.
+
+**Evidencia.**
+
+*El campo no reacciona a la mora.* Si un incumplimiento provocara una escritura de fila, los productos en mora tendrían el sello más reciente. Sobre 125 350 productos con `days_past_due`: media de −182.35 días en los que están en mora a 90 días, −181.63 en los que están al día o con mora leve. **Una diferencia de 0.72 días.** Si el campo registrara el evento, la diferencia sería de meses.
+
+*El campo es uniforme.* Sobre 400 000 productos y nueve años de rango: KS contra una uniforme **0.049**, curtosis de exceso **−1.161** contra −1.2 que predice exactamente una uniforme, histograma plano en 18 cajas. Un campo de auditoría real se concentra donde hubo actividad.
+
+*Lo que sí es coherente.* Nunca es anterior a `opening_date` (0 violaciones en 400 000 filas) y correlaciona 0.65 con `last_transaction_date`. Es plausible como «última escritura de la fila»; no lo es como «cuándo cambió la mora».
+
+**Decisión.** El filtro no se aplica. La lectura correcta de `days_past_due` en una tabla de estado actual es el estado al momento del extracto —junio de 2026—, posterior al corte para todos. **La cohorte de trabajo son los 76 906 clientes con producto de crédito.**
+
+La cohorte de 7 078 se conserva en la misma tabla, marcada, como **análisis de sensibilidad**: si la conclusión aguanta con las dos, no depende de cómo se lea el campo. Aguanta — el baseline de ML-02 da AUC 0.5012 con 76 906 y 0.4693 con 7 078, ambos con el intervalo cruzando 0.5.
+
+Queda en pie, más débil, la precaución sobre las variables de la foto: si `last_updated` es posterior al corte, esa fila **pudo** reescribirse después, así que `credit_score` y `credit_limit` podrían reflejar información posterior. Las marcas `cliente_posterior` y `limite_posterior` viajan en la tabla como precaución declarada, no como prueba.
+
+**Regla que deja.** Ningún filtro que descarte una fracción grande de los datos entra sin una prueba que lo sostenga. «Suena razonable» no basta cuando el costo es el 91 % del universo. Ver [[F-015]] y [[F-017]].

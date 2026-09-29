@@ -82,10 +82,24 @@ VARIABLE = "credit_score"
 def cargar(ruta: Path, cohorte: str) -> pd.DataFrame:
     """Carga el feature store y se queda con la cohorte pedida.
 
-    `estricta` exige que la etiqueta se haya observado después del corte. Es la
-    única temporalmente válida: en el 88 % de los productos el estado de mora se
-    registró *antes* del corte, y entrenar con eso es predecir el pasado con el
-    futuro.
+    `completa` es la cohorte de trabajo: los 76 906 clientes con producto de
+    crédito. `days_past_due` vive en una tabla de estado actual, así que su
+    valor es el del momento del extracto —junio de 2026— que es posterior al
+    corte para todos. Esa es la lectura correcta.
+
+    `estricta` se conserva como análisis de sensibilidad. Exige además que
+    `last_updated` sea posterior al corte, bajo el supuesto de que ese campo
+    indica cuándo se registró el estado de mora. **Ese supuesto no se sostiene**
+    y por eso la cohorte dejó de ser la principal: `last_updated` está repartido
+    de forma uniforme sobre nueve años (KS contra uniforme 0.049, curtosis
+    −1.161 contra −1.2 teórico) y es idéntico entre productos en mora y al día
+    (media −182.3 días contra −181.6). Si un incumplimiento provocara una
+    escritura de fila, los productos en mora tendrían `last_updated` reciente.
+    No lo tienen: es un sello de modificación sorteado, no un registro de
+    cuándo cambió la mora.
+
+    Se mantiene porque si la conclusión aguanta con 7 078 clientes y con 76 906,
+    la conclusión no depende de esa lectura.
     """
     df = pd.read_parquet(ruta)
     if cohorte == "estricta":
@@ -224,8 +238,8 @@ def veredicto(r: dict[str, Any]) -> str:
 def main() -> None:
     p = argparse.ArgumentParser(description="Baseline de riesgo con credit_score (ML-02)")
     p.add_argument("--features", type=Path, default=Path("data/gold/features_asof.parquet"))
-    p.add_argument("--cohorte", choices=["estricta", "completa"], default="estricta")
-    p.add_argument("--salida", type=Path, default=Path("models/baseline_logreg.json"))
+    p.add_argument("--cohorte", choices=["completa", "estricta"], default="completa")
+    p.add_argument("--salida", type=Path, default=None)
     args = p.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -235,6 +249,7 @@ def main() -> None:
             f"No existe {args.features}. Corre primero `python -m ml.features.build_features`."
         )
 
+    salida = args.salida or Path(f"models/baseline_logreg_{args.cohorte}.json")
     df = cargar(args.features, args.cohorte)
     log.info(
         "cohorte %s: %s clientes, %s en mora (%.3f %%)",
@@ -250,8 +265,8 @@ def main() -> None:
     r["generado"] = datetime.now().isoformat(timespec="seconds")
     r["veredicto"] = veredicto(r)
 
-    args.salida.parent.mkdir(parents=True, exist_ok=True)
-    args.salida.write_text(json.dumps(r, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    salida.parent.mkdir(parents=True, exist_ok=True)
+    salida.write_text(json.dumps(r, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     v = r["validacion"]
     log.info("")
@@ -274,7 +289,7 @@ def main() -> None:
     log.info("    control barajado       %.4f", r["control_barajado_auc"])
     log.info("")
     log.info("  %s", r["veredicto"])
-    log.info("  escrito %s", args.salida)
+    log.info("  escrito %s", salida)
 
 
 if __name__ == "__main__":

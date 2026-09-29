@@ -19,10 +19,18 @@ corte, así que para esas filas el valor refleja información que en el corte no
 existía.
 
 **2. La etiqueta viene de esa misma foto.** `days_past_due` es el estado de mora
-al momento del extracto, no al corte. En el 88 % de los productos ese estado se
-registró *antes* del corte, lo que significa que la etiqueta precede a las
-variables: predecir eso es predecir el pasado con el futuro. Solo el 12 %
-restante tiene el orden correcto.
+al momento del extracto —junio de 2026—, que es posterior al corte. Esa es la
+lectura correcta y vale para los 76 906 clientes con producto de crédito.
+
+Se exploró una lectura más restrictiva: que `last_updated` indicara cuándo se
+registró ese estado, y que por lo tanto solo fueran válidas las filas con
+`last_updated` posterior al corte. **Esa lectura no se sostiene.** El campo está
+repartido de forma uniforme sobre nueve años (KS contra uniforme 0.049, curtosis
+−1.161 contra −1.2 teórico) y es estadísticamente idéntico entre productos en
+mora y al día: media −182.3 días contra −181.6. Si un incumplimiento provocara
+una escritura de fila, los productos en mora tendrían `last_updated` reciente.
+No lo tienen. Es un sello de modificación sorteado, no un registro de cuándo
+cambió la mora.
 
 **3. La etiqueta no discrimina.** Ver `docs/knowledge/findings.md` F-017:
 `days_past_due` es una Bernoulli(0.075) sorteada por producto, independiente de
@@ -31,21 +39,23 @@ y porque la tabla sirve para el agente aunque no sirva para predecir.
 
 ## Qué produce
 
-Dos cohortes, y la diferencia entre ambas es el punto:
+Una tabla con las dos cohortes marcadas. No se borra ninguna fila: el filtrado
+lo decide quien entrena.
 
-- **`estricta`** — la etiqueta se observó *después* del corte. Es la única
-  temporalmente válida. Unos 7 250 clientes. Es la que se entrena y se reporta.
-- **`completa`** — incluye las etiquetas observadas antes del corte. Unos 80 000
-  clientes. Se construye para poder mostrar, con números, que el universo grande
-  no vale.
+- **`completa`** — los 76 906 clientes con producto de crédito. Es la cohorte de
+  trabajo.
+- **`estricta`** — además exige `last_updated` posterior al corte. Son 7 078.
+  Se conserva como **análisis de sensibilidad**, no como cohorte principal: si
+  la conclusión aguanta con 7 078 y con 76 906, no depende de cómo se lea ese
+  campo. Y aguanta: AUC 0.5012 y 0.4693, ambas con el intervalo cruzando 0.5.
 
 ## Niveles de confianza de cada variable
 
 - **`asof`** — derivada de hechos anteriores al corte: transacciones filtradas,
   antigüedad desde `opening_date` y `registration_date`. Seguras.
-- **`snapshot`** — viene de la foto. Solo se acepta si su `last_updated` es
-  anterior al corte; si no, la fila lleva su marca `*_posterior` y el modelo
-  puede decidir excluirla.
+- **`snapshot`** — viene de la foto. La marca `*_posterior` dice si esa fila se
+  escribió después del corte. Es una precaución, no una prueba: por lo dicho
+  arriba, el campo acota cuándo *pudo* cambiar el valor, no cuándo cambió.
 - **prohibida** — no entra nunca. La lista vive en `COLUMNAS_PROHIBIDAS` y la
   prueba `tests/data/test_feature_contract.py` la verifica sola.
 
