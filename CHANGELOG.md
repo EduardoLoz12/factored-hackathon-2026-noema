@@ -4,7 +4,7 @@ Generado con `make changelog` desde el historial de git. Agrupa por día y por t
 
 Formato de commit: `Tipo (ÍTEM): qué cambió, en español y sin jerga`. Por ejemplo: `Nuevo (DAT-08): la capa silver convierte todos los montos a dólares con la tasa del día`. Tipos: `Nuevo`, `Corrige`, `Mejora`, `Docs`, `Pruebas`, `Infra`, `Limpieza`, `Revierte`.
 
-Última generación: 2026-09-29 10:32
+Última generación: 2026-09-29 10:53
 
 ## 2026-09-29 — Eduardo
 
@@ -14,6 +14,8 @@ Formato de commit: `Tipo (ÍTEM): qué cambió, en español y sin jerga`. Por ej
 
 ### Otros
 
+- `INF-06` · Corrige (INF-06): dos de los tres agentes no se registraban por culpa de los finales de linea — Eduardo (`7dfd52d`)
+- `INF-07` · Docs (INF-07): bitacora del dia, control de cambios y guia de lo que cambio para Federico — Eduardo (`1d78dd2`)
 - `ML-01` `ML-03` · Docs (ML-01/ML-03): la etiqueta de riesgo es un sorteo — no hay modelo de riesgo posible — Eduardo (`c6324a9`)
 - `DAT-04` `ML-01` · Docs (DAT-04/ML-01): segunda pasada sobre nulos y llaves — cinco hallazgos que cambian el plan del modelo — Eduardo (`c157a5c`)
 

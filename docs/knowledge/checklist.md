@@ -2,17 +2,17 @@
 
 Generado por `make checklist` contra el estado real del repo. Cuando alguien crea o completa un archivo de evidencia, el ítem avanza solo en la siguiente corrida. **No editar estados a mano aquí** — usar `python -m scripts.checklist --done ID --note "..."`.
 
-Última evaluación: 2026-09-29 10:32
+Última evaluación: 2026-09-29 10:53
 
 Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
-## Avance global — 27/76 `█████████░░░░░░░░░░░░░░░`
+## Avance global — 29/76 `█████████░░░░░░░░░░░░░░░`
 
-**27 terminado · 7 avanzado · 42 falta**
+**29 terminado · 7 avanzado · 40 falta**
 
 | Dueño | Terminado | Avanzado | Falta | Total |
 |---|---:|---:|---:|---:|
-| Eduardo | 9 | 4 | 42 | 55 |
+| Eduardo | 11 | 4 | 40 | 55 |
 | Federico | 18 | 3 | 0 | 21 |
 
 ## Plataforma de datos — 11/15 `█████████░░░`
@@ -35,12 +35,12 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [~] | `DAT-14` | Export gold a Postgres con relectura verificada en el destino real | Federico | D5 · 1-oct | fedevargas93 · 2026-09-28 |
 | [~] | `DAT-15` | Prueba que falla si una columna prohibida por fuga entra a credit_features_asof | Eduardo | D3 · 29-sep | Eduardo · 2026-09-28 |
 
-## Modelos — 1/10 `█░░░░░░░░░░░`
+## Modelos — 3/10 `████░░░░░░░░`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
-| [ ] | `ML-01` | Feature store as-of, sin fuga (corte 2025-12-31) | Eduardo | D3 · 29-sep | — |
-| [ ] | `ML-02` | Baseline: regresion logistica solo con credit_score | Eduardo | D3 · 29-sep | — |
+| [x] | `ML-01` | Feature store as-of, sin fuga (corte 2025-12-31) | Eduardo | D3 · 29-sep | sin commit |
+| [x] | `ML-02` | Baseline: regresion logistica solo con credit_score | Eduardo | D3 · 29-sep | sin commit |
 | [ ] | `ML-03` | Modelo de riesgo de incumplimiento (LightGBM) | Eduardo | D4 · 30-sep | — |
 | [x] | `ML-04` | Modelo de capacidad de pago desde flujo transaccional | Federico | D4 · 30-sep | Eduardo · 2026-09-29 |
 | [ ] | `ML-05` | Metricas y calibracion: AUC, PR-AUC, KS, Brier | Eduardo | D4 · 30-sep | — |
