@@ -4,7 +4,7 @@ Generado con `make changelog` desde el historial de git. Agrupa por día y por t
 
 Formato de commit: `Tipo (ÍTEM): qué cambió, en español y sin jerga`. Por ejemplo: `Nuevo (DAT-08): la capa silver convierte todos los montos a dólares con la tasa del día`. Tipos: `Nuevo`, `Corrige`, `Mejora`, `Docs`, `Pruebas`, `Infra`, `Limpieza`, `Revierte`.
 
-Última generación: 2026-09-29 11:02
+Última generación: 2026-09-29 11:47
 
 ## 2026-09-29 — Eduardo
 
@@ -14,6 +14,7 @@ Formato de commit: `Tipo (ÍTEM): qué cambió, en español y sin jerga`. Por ej
 
 ### Otros
 
+- `ML-01` `ML-02` · Corrige (ML-01/ML-02): la cohorte de trabajo vuelve a 76 906 clientes — el filtro que la bajaba a 7 078 no se sostiene — Eduardo (`d95ab93`)
 - `ML-01` `ML-02` · Nuevo (ML-01/ML-02): feature store con corte temporal honesto y baseline que no discrimina — Eduardo (`89c75a6`)
 - `INF-06` · Corrige (INF-06): dos de los tres agentes no se registraban por culpa de los finales de linea — Eduardo (`7dfd52d`)
 - `INF-07` · Docs (INF-07): bitacora del dia, control de cambios y guia de lo que cambio para Federico — Eduardo (`1d78dd2`)

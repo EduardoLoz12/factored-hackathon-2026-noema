@@ -223,3 +223,74 @@ La cohorte de 7 078 se conserva en la misma tabla, marcada, como **análisis de 
 Queda en pie, más débil, la precaución sobre las variables de la foto: si `last_updated` es posterior al corte, esa fila **pudo** reescribirse después, así que `credit_score` y `credit_limit` podrían reflejar información posterior. Las marcas `cliente_posterior` y `limite_posterior` viajan en la tabla como precaución declarada, no como prueba.
 
 **Regla que deja.** Ningún filtro que descarte una fracción grande de los datos entra sin una prueba que lo sostenga. «Suena razonable» no basta cuando el costo es el 91 % del universo. Ver [[F-015]] y [[F-017]].
+
+## F-019 · 2026-09-29 · datos — `days_past_due` no son días de mora: es una etiqueta de cubeta sorteada
+
+**Qué.** El campo no mide días. Toma **siete valores y nada más** —0, 15, 30, 60, 90, 120, 180— y los seis no-cero se reparten de forma **equiprobable**. No hay ningún registro de pagos en el dataset con el cual se hubiera podido calcular una mora real, y el valor no guarda relación con el comportamiento de pago que sí existe.
+
+**Por qué se investigó.** Eduardo, revisando el dato a mano: «ese `days_past_due` son números repetidos de 90, 180, 360 o algo así. ¿Eso son el máximo de días antes de cobrar mora del producto o cómo? Creo que no son los días que lleva de mora el cliente porque no veo un registro diario por cliente de pago o no de la deuda.» Las dos mitades de la observación resultaron correctas, aunque no por la razón propuesta.
+
+**Evidencia.**
+
+*No es un parámetro del producto.* La hipótesis de que fuera un plazo de gracia por tipo de producto no se sostiene: los tres tipos de crédito presentan los siete valores en proporciones casi idénticas (~85 % en cero), y 9 518 clientes tienen valores distintos entre sus propios productos. Tampoco se relaciona con las condiciones: la tasa de interés media es 27.3–27.9 y el límite medio ~43 M en todas las cubetas.
+
+*Las cubetas son equiprobables.* Conteos de 3 114, 3 117, 3 112, 3 233, 3 083 y 3 106 sobre 18 765 no-ceros. **χ² = 4.51 con 5 grados de libertad, p = 0.48**: no se rechaza la uniformidad. Cada cubeta se lleva el 2.46–2.58 % de la cartera. Una cartera real decae geométricamente por tasas de traspaso —de cada cubeta solo una fracción pasa a la siguiente—, así que incluso con un traspaso optimista del 50 % la última cubeta debería tener 0.08 % y no 2.48 %.
+
+*No existe con qué calcularla.* Ninguna tabla trae cuota, fecha de vencimiento, pago mínimo, estado de cuenta ni calendario de amortización. Se buscaron todas las columnas con `pay`, `due`, `install`, `minimum`, `statement`, `billing`, `schedule`, `delinq` o `arrear`: las únicas coincidencias son el propio `days_past_due` y tres umbrales de la política de producto.
+
+*Y no concuerda con los pagos que sí hay.* Un producto con 180 días de mora registra **2.91 pagos de media y 309 días desde el último**; uno al día, 2.87 pagos y 314 días. Idénticos. Además 2.9 pagos en tres años no es un calendario de amortización: una tarjeta real acumula ~36.
+
+**El diccionario dice otra cosa.** Define `days_past_due INTEGER — Days past due (for credits)`. Esa era la intención; el dato generado no la cumple. Es el octavo punto en que el diccionario no coincide con el dato.
+
+**Ninguna otra etiqueta del dataset es aprendible.** Se probaron cinco alternativas antes de cerrar la puerta:
+
+| Objetivo | Tasa | Mejor AUC | Veredicto |
+|---|---:|---:|---|
+| Cliente cerrado o inactivo | 11.93 % | 0.5046 | ruido |
+| `sla_breached` en quejas | 20.11 % | 0.4995 | ruido |
+| NPS detractor | 74.52 % | 0.5036 | ruido |
+| Conversión de campaña | 0.55 % | 0.8101 | dependencia de embudo: hay que abrir para convertir |
+| `is_fraud` | 0.10 % | 0.8469 | dos uniformes de distinto rango: ver F-020 |
+
+El fraude merece su propio hallazgo: ver F-020. Parecía la excepción —`fraud_score` da AUC 0.8469 contra `is_fraud`— pero esa capacidad discriminante también está fabricada.
+
+**Decisión.** Queda cerrado y probado: **este dataset no contiene ningún objetivo supervisado aprendible.** Eso supera a [[F-017]], que lo había establecido solo para el riesgo de crédito.
+
+Tres consecuencias:
+
+1. **No se entrena ML-03 como modelo de riesgo.** Se reporta la medición y la prueba de por qué. El rubro premia explícitamente la honestidad sobre lo que falta, y esta evidencia —cubetas equiprobables con p = 0.48, ausencia de calendario de pagos, cinco objetivos alternativos descartados— demuestra más criterio analítico que cualquier AUC que se pudiera fabricar.
+2. **ML-01 y ML-02 conservan su valor.** El feature store alimenta las herramientas del agente, que necesita cifras verificables sobre el cliente aunque no necesite predecirlas. Y el baseline es la medición que sostiene el punto 1.
+3. **La elegibilidad se decide con reglas sobre hechos observables**, no con una probabilidad estimada. Es la tesis del proyecto llevada hasta el final: ni el LLM ni el modelo deciden.
+
+**Regla que deja.** Antes de tratar una columna como objetivo, mirar su distribución. Siete valores distintos y seis equiprobables no es un fenómeno medido: es un sorteo. Toma dos minutos y evita entrenar contra ruido.
+
+
+## F-020 · 2026-09-29 · datos — `fraud_score` no es la salida de un modelo: son dos uniformes de distinto rango
+
+**Qué.** Al descartar objetivos aprendibles ([[F-019]]) el fraude parecía la excepción: `fraud_score` alcanza **AUC 0.8469** contra `is_fraud` sobre 3 539 851 transacciones. Eduardo lo miró y dijo que se veía como un modelo por detrás. Tiene la forma de uno —score alto, fraude— pero no lo es. El generador hace dos sorteos con rangos distintos:
+
+```
+si is_fraud:  fraud_score ~ Uniforme(0, 100)
+si no:        fraud_score ~ Uniforme(0,  30)
+```
+
+**Evidencia.** Las dos distribuciones son uniformes con precisión de tercera cifra.
+
+| Clase | n | Rango | σ observada | σ teórica | Curtosis | KS |
+|---|---:|---|---:|---:|---:|---:|
+| No fraude | 3 536 426 | [0.00, **30.00**] | 8.6609 | 8.6603 = 30/√12 | −1.2012 | 0.0020 |
+| Fraude | 3 425 | [0.01, 99.99] | 28.9484 | 28.8675 = 100/√12 | −1.2029 | 0.0157 |
+
+La curtosis de exceso de una uniforme es exactamente −1.2 y ambas caen a tres milésimas. El máximo en no-fraude es **30.00 clavado**: `P(score > 30 | no fraude) = 0.000000` sobre tres millones y medio de filas.
+
+*El esquema explica el AUC sin residuo.* Si el 69.28 % de los fraudes cae sobre 30 —donde gana siempre— y el 31 % restante se compara contra una uniforme del mismo tramo —donde gana la mitad de las veces—, la AUC teórica es 0.6928 + 0.3072 × 0.5 = **0.8464**. Observada: **0.8469**.
+
+*Y se ve en los tramos.* Bajo 30 la tasa de fraude es plana en 0.026–0.031 % a lo largo de seis tramos de cinco puntos, porque la razón entre dos densidades uniformes es constante. Entre 30 y 35 salta a 22.32 %, y de 35 en adelante es **100 % en todos los tramos**: ahí no puede haber no-fraudes.
+
+*No hay señal fuera de esa columna.* Un gradient boosting con monto, latitud, longitud, canal, país, estado y hora —sin `fraud_score`— da **AUC 0.4743**.
+
+**Por qué importa la distinción.** Una salida de modelo real nunca es uniforme: se concentra en valores bajos con una cola delgada a la derecha, porque la mayoría de las transacciones son claramente legítimas. Que las dos clases sean uniformes perfectas dentro de su rango es la firma de un generador, no de un clasificador.
+
+**Decisión.** Se confirma F-019 sin excepciones: **ninguna columna de este dataset es un objetivo supervisado aprendible.** `fraud_score` no se usa como variable en ningún modelo ni se presenta como evidencia de que el fraude sea predecible. Sí se puede exponer al agente como dato descriptivo de una transacción, declarando que es un puntaje del sistema de origen y no una predicción propia.
+
+**Regla que deja.** Ante una variable que discrimina sospechosamente bien, mirar su distribución **por clase** antes de celebrarla. Dos uniformes de distinto rango, una variable derivada de la etiqueta y una fuga de información producen todas el mismo síntoma —AUC alto— y se distinguen en un histograma.
