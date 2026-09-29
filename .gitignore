@@ -73,3 +73,9 @@ Thumbs.db
 # Documentos internos generados (Word/PDF de estrategia) — no van al entregable público
 documentos/
 ingest.log
+
+# dbt: id de usuario generado localmente
+data_platform/dbt/.user.yml
+data_platform/dbt/target/
+data_platform/dbt/dbt_packages/
+data_platform/dbt/logs/
