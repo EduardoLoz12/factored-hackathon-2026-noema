@@ -1,6 +1,7 @@
 .PHONY: help setup ingest summary audit build train eval review checklist changelog worklog serve ui test lint check clean
 
 PY ?= python
+DBT ?= dbt
 
 help:
 	@echo "setup   - instala dependencias y hooks"
@@ -33,11 +34,12 @@ ingest-light:
 audit:
 	$(PY) -m data_platform.contracts.audit
 
-build:
-	cd data_platform/dbt && dbt build --target duckdb
+build: audit
+	cd data_platform/dbt && $(DBT) build --profiles-dir . --target duckdb --log-path ../../logs/build/dbt
+	$(PY) -m data_platform.serving.export_local
 
 build-databricks:
-	cd data_platform/dbt && dbt build --target databricks
+	cd data_platform/dbt && $(DBT) build --profiles-dir . --target databricks --log-path ../../logs/build/dbt
 
 train:
 	$(PY) -m ml.training.run_all
@@ -77,3 +79,6 @@ check: lint test
 
 clean:
 	rm -rf .pytest_cache .ruff_cache **/__pycache__ data_platform/dbt/target
+
+train-capacity:
+	$(PY) -m ml.training.capacity

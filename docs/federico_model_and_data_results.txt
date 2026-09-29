@@ -1,0 +1,172 @@
+FEDERICO DELIVERY - MODEL AND DATA RESULTS
+Generated: 2026-09-28
+Branch: trabajo/federico-data-cognition
+
+1. EXECUTIVE RESULT
+
+The local data, capacity-model, and Semantic Cognition Matrix work is complete.
+The full pipeline processed all 13 source tables and 23,495,188 rows. The dbt
+build completed 20 models and 5 data tests with no errors. The repository test
+suite passed with SCM both enabled and disabled.
+
+The capacity model is deliberately conservative. It estimates a sustainable
+monthly payment from observed approved transactions and abstains when history
+is insufficient or ambiguous. It is a cash-flow proxy, not an observed label
+of customer solvency and not an approval decision.
+
+2. MODEL EVALUATION
+
+Model version:                    capacity_v1
+Training examples:                150,000
+Temporal validation examples:      14,820
+Validation period starts:      2025-10-01
+Feature cutoff:                2025-12-31
+Eligible validation examples:         825 (5.57%)
+
+Currency   Model MAE     Baseline MAE   Relative improvement
+--------   ------------  -------------  --------------------
+ARS           28,725.90      29,387.48                 2.25%
+COP          343,242.66     344,184.99                 0.27%
+USD               84.15          84.15                 0.00%
+Aggregate     92,369.45      92,731.04                 0.39%
+
+MAE values are in each currency's native units. The aggregate is dominated by
+the larger numeric scale of COP and must not be used to compare countries.
+The learned model was selected because its aggregate holdout MAE was lower,
+but the improvement over the conservative baseline is modest.
+
+The 5.57% eligible rate is expected from the safety rules: an estimate requires
+three active monthly windows and no ambiguous transfers or adjustments. Other
+cases abstain instead of converting incomplete data into credit capacity.
+
+3. EXAMPLE PREDICTIONS
+
+Examples use synthetic customer identifiers from the provided dataset.
+
+A. Positive estimate
+   Customer:              CLI-E7PQSLAHL7VP
+   Currency:              COP
+   Status:                estimated
+   Affordable payment:    1,308,614.45 COP/month
+   Observed minimum
+   three-month surplus:  16,151,604.28 COP
+   Evidence:              approved transactions before the cutoff
+   Interpretation:        the prediction is bounded by the conservative
+                          cash-flow ceiling; it is not an approval.
+
+B. Smaller positive estimate
+   Customer:              CLI-YXI5AR5Q9F5P
+   Currency:              COP
+   Status:                estimated
+   Affordable payment:      512,593.87 COP/month
+   Observed minimum
+   three-month surplus:   6,107,600.11 COP
+
+C. Valid history but no positive sustainable surplus
+   Customer:              CLI-0ZR8KOSEFPRS
+   Currency:              USD
+   Status:                estimated
+   Affordable payment:             0.00 USD/month
+   Interpretation:        the customer had sufficient unambiguous history,
+                          but the conservative cash-flow ceiling was zero.
+
+D. Ambiguous cash flow
+   Customer:              CLI-NNKQ1P33O6CK
+   Currency:              COP
+   Status:                abstain
+   Affordable payment:    unavailable
+   Reason:                insufficient_or_ambiguous_cashflow
+   Interpretation:        transfers or adjustments make direction/commitment
+                          uncertain, so the model does not manufacture a value.
+
+E. No transaction history
+   Customer:              customer-without-history
+   Currency:              USD
+   Status:                abstain
+   Affordable payment:    unavailable
+   Reason:                no_history
+
+4. WHAT WAS CLEANED AND IMPROVED
+
+Schema and type safety
+- Added reviewed contracts for all 13 tables: columns, required fields,
+  observed ranges, enumerations, primary keys, and foreign keys.
+- Converted bronze strings into typed dates, timestamps, numbers, and booleans
+  in silver. Bronze remains unchanged.
+- Distinguished structurally inapplicable nulls from genuinely missing values.
+  For example, 268,028 null credit limits are structural, while 6,655 are
+  missing on products where the field should apply.
+
+Referential integrity
+- Found 149,995 customers with an invalid optional registration-branch link.
+- Found 831 service agents with an invalid optional assigned-branch link.
+- Preserved all 150,826 original rows and rejection reasons in a reference
+  quarantine, while clearing only the invalid optional relationship in silver.
+- Found zero orphan customer/product references in products and transactions.
+
+Duplicate and row preservation controls
+- Verified zero excess primary-key duplicates across all 13 full tables.
+- Verified every contract-stage input row is either validated or quarantined;
+  no rows disappear silently.
+- Kept all 23,495,188 source rows accounted for at the contract stage.
+
+Enumerations and redundant fields
+- Normalized product types into one Spanish vocabulary.
+- Normalized transaction types from English to a consistent Spanish vocabulary.
+- Removed redundant contact_reason from the call-center silver table because it
+  duplicates reason_category.
+
+Currency handling
+- Recomputed transaction USD values with the exchange rate from the operation
+  date, rather than trusting an undocumented value or using a future rate.
+- Quarantined 607 transactions that lacked an exact-date FX rate.
+- Valued all customer products in customer_360; zero products remained without
+  a USD valuation at the selected valuation date.
+
+Temporal leakage prevention
+- Created 141,445 customer feature rows with an explicit 2025-12-31 cutoff.
+- Required both transaction_date and process_date to precede the cutoff, which
+  excludes late-arriving records that were not available at decision time.
+- Confirmed the latest included event and process dates are 2025-12-30.
+- Excluded current_balance, last_transaction_date, product_status,
+  days_past_due, and all post-cutoff aggregates from model features.
+
+Measured data-quality findings retained for analytics
+- 72,548 customer phone-country mismatches were reported, not auto-corrected.
+- 1,106,307 transactions have operation dates different from process dates.
+- 200,398 products belonging to Mexican customers are denominated in a
+  non-MXN currency; the inconsistency is reported rather than fabricated away.
+- 30,033 customers lack estimated monthly income, confirming why the capacity
+  model uses observed transaction flow instead of declared income.
+
+Gold outputs
+- customer_360:             150,000 rows
+- credit_features_asof:     141,445 rows
+- product_policy:                 9 rows
+- dq_report:                     682 rows
+
+The nine product-policy rows remain policy_ready=false with unknown conditions.
+The source data contains no defensible offer thresholds, and Eduardo's versioned
+credit policy has not yet been supplied. The system must not approve credit from
+these placeholder catalog rows.
+
+5. CURRENT LIMITATIONS AND NEXT INTEGRATIONS
+
+- The model's gain over baseline is small and should be described honestly.
+- Capacity is a proxy built from cash flow, not observed repayment capacity.
+- The model abstains frequently by design; broader useful coverage requires
+  better direction labels for transfers and more consistent monthly history.
+- Eduardo must connect predict_capacity and the SCM to the shared predictor and
+  orchestrator.
+- Databricks and Postgres implementations are ready in plan mode but still need
+  execution and read-back verification against real configured destinations.
+- A versioned credit policy is required before product_policy can become ready.
+
+6. VERIFICATION SUMMARY
+
+- Full audit:                    13 tables, 23,495,188 rows
+- dbt build:                    25/25 models and tests passed
+- Repository tests:             61/61 passed
+- SCM-disabled repository tests:61/61 passed
+- Lint and formatting:          passed
+- Secret scan at commit:        passed

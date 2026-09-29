@@ -1,0 +1,22 @@
+select
+    agent_id,
+    employee_code,
+    first_name,
+    last_name,
+    email,
+    phone,
+    native_accent,
+    country_of_origin,
+    assigned_branch_id,
+    agent_type,
+    experience_level,
+    languages,
+    specialty,
+    cast(hire_date as DATE) as hire_date,
+    cast(avg_csat as DOUBLE) as avg_csat,
+    cast(total_monthly_interactions as DOUBLE) as total_monthly_interactions,
+    agent_status,
+    work_shift,
+    _source_file,
+    cast(_ingested_at as TIMESTAMP) as _ingested_at
+from {{ input_parquet('validated/service_agents/part.parquet') }}

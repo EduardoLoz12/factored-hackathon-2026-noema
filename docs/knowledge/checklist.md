@@ -2,47 +2,47 @@
 
 Generado por `make checklist` contra el estado real del repo. Cuando alguien crea o completa un archivo de evidencia, el ítem avanza solo en la siguiente corrida. **No editar estados a mano aquí** — usar `python -m scripts.checklist --done ID --note "..."`.
 
-Última evaluación: 2026-09-27 17:47
+Última evaluación: 2026-09-28 17:59
 
 Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
-## Avance global — 10/76 `███░░░░░░░░░░░░░░░░░░░░░`
+## Avance global — 27/76 `█████████░░░░░░░░░░░░░░░`
 
-**10 terminado · 8 avanzado · 58 falta**
+**27 terminado · 7 avanzado · 42 falta**
 
 | Dueño | Terminado | Avanzado | Falta | Total |
 |---|---:|---:|---:|---:|
-| Eduardo | 9 | 3 | 43 | 55 |
-| Federico | 1 | 5 | 15 | 21 |
+| Eduardo | 9 | 4 | 42 | 55 |
+| Federico | 18 | 3 | 0 | 21 |
 
-## Plataforma de datos — 2/15 `██░░░░░░░░░░`
+## Plataforma de datos — 11/15 `█████████░░░`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
 | [x] | `DAT-01` | Ingesta S3 a bronze, con manifest y checksums | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
 | [x] | `DAT-02` | Resumen versionable del manifest | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
-| [ ] | `DAT-03` | Contratos de esquema por tabla (pandera) | Federico | D2 · 28-sep | — |
-| [ ] | `DAT-04` | Reporte de calidad a escala: duplicados, nulos, huerfanos de FK, telefono vs pais | Federico | D2 · 28-sep | — |
-| [ ] | `DAT-05` | Cuarentena de registros que violan contrato | Federico | D2 · 28-sep | — |
-| [ ] | `DAT-06` | dbt configurado con perfil duckdb | Federico | D2 · 28-sep | — |
-| [ ] | `DAT-07` | Silver: normalizacion de enums espanol/ingles | Federico | D2 · 28-sep | — |
-| [ ] | `DAT-08` | Silver: conversion FX a USD con daily_exchange_rates | Federico | D3 · 29-sep | — |
-| [ ] | `DAT-09` | Gold: customer_360 | Federico | D3 · 29-sep | — |
-| [ ] | `DAT-10` | Gold: credit_features_asof (con corte temporal) | Federico | D3 · 29-sep | — |
-| [ ] | `DAT-11` | Gold: catalogo y condiciones de producto | Federico | D3 · 29-sep | — |
-| [ ] | `DAT-12` | Gold: dq_report publicable en /analytics | Federico | D3 · 29-sep | — |
-| [ ] | `DAT-13` | Espejo en Databricks: perfil dbt y subida a UC Volume | Federico | D3 · 29-sep | — |
-| [ ] | `DAT-14` | Export de gold a Postgres para serving | Federico | D5 · 1-oct | — |
-| [~] | `DAT-15` | Prueba que falla si una columna prohibida por fuga entra a credit_features_asof | Eduardo | D3 · 29-sep | sin commit |
+| [x] | `DAT-03` | Contratos de esquema por tabla (pandera) | Federico | D2 · 28-sep | fedevargas93 · 2026-09-28 |
+| [x] | `DAT-04` | Reporte de calidad a escala: duplicados, nulos, huerfanos de FK, telefono vs pais | Federico | D2 · 28-sep | fedevargas93 · 2026-09-28 |
+| [x] | `DAT-05` | Cuarentena de registros que violan contrato | Federico | D2 · 28-sep | fedevargas93 · 2026-09-28 |
+| [x] | `DAT-06` | dbt configurado con perfil duckdb | Federico | D2 · 28-sep | fedevargas93 · 2026-09-28 |
+| [x] | `DAT-07` | Silver: normalizacion de enums espanol/ingles | Federico | D2 · 28-sep | fedevargas93 · 2026-09-28 |
+| [x] | `DAT-08` | Silver: conversion FX a USD con daily_exchange_rates | Federico | D3 · 29-sep | fedevargas93 · 2026-09-28 |
+| [x] | `DAT-09` | Gold: customer_360 | Federico | D3 · 29-sep | fedevargas93 · 2026-09-28 |
+| [x] | `DAT-10` | Gold: credit_features_asof (con corte temporal) | Federico | D3 · 29-sep | fedevargas93 · 2026-09-28 |
+| [~] | `DAT-11` | Gold: catalogo y condiciones de producto validadas con politica versionada | Federico | D3 · 29-sep | fedevargas93 · 2026-09-28 |
+| [x] | `DAT-12` | Gold: dq_report publicable en /analytics | Federico | D3 · 29-sep | fedevargas93 · 2026-09-28 |
+| [~] | `DAT-13` | Espejo en Databricks: carga y dbt verificados en el workspace real | Federico | D3 · 29-sep | fedevargas93 · 2026-09-28 |
+| [~] | `DAT-14` | Export gold a Postgres con relectura verificada en el destino real | Federico | D5 · 1-oct | fedevargas93 · 2026-09-28 |
+| [~] | `DAT-15` | Prueba que falla si una columna prohibida por fuga entra a credit_features_asof | Eduardo | D3 · 29-sep | fedevargas93 · 2026-09-28 |
 
-## Modelos — 0/10 `░░░░░░░░░░░░`
+## Modelos — 1/10 `█░░░░░░░░░░░`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
 | [ ] | `ML-01` | Feature store as-of, sin fuga (corte 2025-12-31) | Eduardo | D3 · 29-sep | — |
 | [ ] | `ML-02` | Baseline: regresion logistica solo con credit_score | Eduardo | D3 · 29-sep | — |
 | [ ] | `ML-03` | Modelo de riesgo de incumplimiento (LightGBM) | Eduardo | D4 · 30-sep | — |
-| [ ] | `ML-04` | Modelo de capacidad de pago desde flujo transaccional | Federico | D4 · 30-sep | — |
+| [x] | `ML-04` | Modelo de capacidad de pago desde flujo transaccional | Federico | D4 · 30-sep | fedevargas93 · 2026-09-28 |
 | [ ] | `ML-05` | Metricas y calibracion: AUC, PR-AUC, KS, Brier | Eduardo | D4 · 30-sep | — |
 | [ ] | `ML-06` | SHAP: los 3 factores que sustentan cada prediccion | Eduardo | D4 · 30-sep | — |
 | [ ] | `ML-07` | MLflow: tracking y registry de los tres modelos | Eduardo | D4 · 30-sep | — |
@@ -50,18 +50,18 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [ ] | `ML-09` | predictor.py: predict_risk y predict_capacity | Eduardo | D4 · 30-sep | — |
 | [ ] | `ML-10` | Estabilidad del modelo por pais | Eduardo | D6 · 2-oct | — |
 
-## Cognicion (SCM) — 1/8 `██░░░░░░░░░░`
+## Cognicion (SCM) — 8/8 `████████████`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
-| [x] | `SCM-01` | Tipos, procedencia, contradicciones y estado epistemico definidos | Federico | D1 · 27-sep | Eduardo · 2026-09-27 |
-| [~] | `SCM-02` | assert_fact con fuente obligatoria y sin sobrescritura silenciosa | Federico | D2 · 28-sep | Eduardo · 2026-09-27 |
-| [~] | `SCM-03` | missing_evidence contra los slots requeridos por intencion | Federico | D2 · 28-sep | Eduardo · 2026-09-27 |
-| [~] | `SCM-04` | contradictions: valor, procedencia y precondicion | Federico | D3 · 29-sep | Eduardo · 2026-09-27 |
-| [~] | `SCM-05` | snapshot serializable con epistemic_status | Federico | D3 · 29-sep | Eduardo · 2026-09-27 |
-| [~] | `SCM-06` | Las 26 pruebas de aceptacion pasando | Federico | D4 · 30-sep | Eduardo · 2026-09-27 |
-| [ ] | `SCM-07` | Endurecido contra entradas ambiguas y contradictorias | Federico | D4 · 30-sep | — |
-| [ ] | `SCM-08` | Seccion neurosimbolica de la documentacion | Federico | D6 · 2-oct | — |
+| [x] | `SCM-01` | Tipos, procedencia, contradicciones y estado epistemico definidos | Federico | D1 · 27-sep | fedevargas93 · 2026-09-28 |
+| [x] | `SCM-02` | assert_fact con fuente obligatoria y sin sobrescritura silenciosa | Federico | D2 · 28-sep | fedevargas93 · 2026-09-28 |
+| [x] | `SCM-03` | missing_evidence contra los slots requeridos por intencion | Federico | D2 · 28-sep | fedevargas93 · 2026-09-28 |
+| [x] | `SCM-04` | contradictions: valor, procedencia y precondicion | Federico | D3 · 29-sep | fedevargas93 · 2026-09-28 |
+| [x] | `SCM-05` | snapshot serializable con epistemic_status | Federico | D3 · 29-sep | fedevargas93 · 2026-09-28 |
+| [x] | `SCM-06` | Las 26 pruebas de aceptacion pasando | Federico | D4 · 30-sep | Eduardo · 2026-09-27 | 26 pruebas de aceptación y casos adversos en verde
+| [x] | `SCM-07` | Endurecido contra entradas ambiguas y contradictorias | Federico | D4 · 30-sep | fedevargas93 · 2026-09-28 |
+| [x] | `SCM-08` | Seccion neurosimbolica de la documentacion | Federico | D6 · 2-oct | fedevargas93 · 2026-09-28 |
 
 ## Agente — 0/13 `░░░░░░░░░░░░`
 
@@ -127,12 +127,11 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
-| [x] | `INF-01` | Repo publico, estructura y contrato operativo | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
+| [x] | `INF-01` | Repo publico, estructura y contrato operativo | Eduardo | D1 · 27-sep | fedevargas93 · 2026-09-28 |
 | [x] | `INF-02` | CI: secretos, lint, tests, dependencias | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
 | [x] | `INF-03` | Auditoria del dataset documentada | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
 | [x] | `INF-04` | Decisiones de arquitectura registradas | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
 | [x] | `INF-05` | Contrato de seguridad escrito | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
 | [x] | `INF-06` | Onboarding de Federico: spec, esqueleto, fixtures, agente | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
-| [x] | `INF-07` | Revision de contribuciones y checklist vivo | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
-| [ ] | `INF-08` | Cuenta de Databricks conectada (bloqueado: falta host y token) | Eduardo | D2 · 28-sep | — |
-
+| [x] | `INF-07` | Revision de contribuciones y checklist vivo | Eduardo | D1 · 27-sep | fedevargas93 · 2026-09-28 |
+| [~] | `INF-08` | Cuenta de Databricks conectada (bloqueado: falta host y token) | Eduardo | D2 · 28-sep | fedevargas93 · 2026-09-28 |

@@ -117,11 +117,11 @@
         {
           "id": "DAT-11",
           "dia": 3,
-          "tarea": "Gold: catalogo y condiciones de producto",
+          "tarea": "Gold: catalogo y condiciones de producto validadas con politica versionada",
           "evidence": [
             "data_platform/dbt/models/gold/product_policy.sql"
           ],
-          "done": "paths",
+          "done": "manual",
           "owner": "federico"
         },
         {
@@ -137,21 +137,21 @@
         {
           "id": "DAT-13",
           "dia": 3,
-          "tarea": "Espejo en Databricks: perfil dbt y subida a UC Volume",
+          "tarea": "Espejo en Databricks: carga y dbt verificados en el workspace real",
           "evidence": [
             "data_platform/databricks/upload_to_volume.py"
           ],
-          "done": "nostub",
+          "done": "manual",
           "owner": "federico"
         },
         {
           "id": "DAT-14",
           "dia": 5,
-          "tarea": "Export de gold a Postgres para serving",
+          "tarea": "Export gold a Postgres con relectura verificada en el destino real",
           "evidence": [
             "data_platform/serving/export_to_postgres.py"
           ],
-          "done": "nostub",
+          "done": "manual",
           "owner": "federico"
         },
         {

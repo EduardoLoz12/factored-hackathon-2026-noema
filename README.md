@@ -100,11 +100,27 @@ make review     # who changed what, and whether it stayed inside its boundary
 | `agent/cognition/` — Semantic Cognition Matrix | **Federico Vargas** | [`docs/07_scm_spec.md`](docs/07_scm_spec.md) |
 | Risk models, agent, evaluation, API, frontend, deliverables | **Eduardo Lozada** | — |
 
-**If you are Federico (or Federico's Claude):** you have two fronts, each with its own agent and its own spec. Data and ETL → agent `data-etl`, spec [`docs/09_etl_spec.md`](docs/09_etl_spec.md). Cognition → agent `scm-cognition`, spec [`docs/07_scm_spec.md`](docs/07_scm_spec.md). Both contain the task, the contract, the acceptance tests and the dates. Start there; you do not need anything else from the rest of the repo.
+**If you are Federico (or Federico's coding agent):** you have two fronts, each with its own agent and its own spec. Data and ETL → agent `data-etl`, spec [`docs/09_etl_spec.md`](docs/09_etl_spec.md). Cognition → agent `scm-cognition`, spec [`docs/07_scm_spec.md`](docs/07_scm_spec.md). Both contain the task, the contract, the acceptance tests and the dates. Start there; you do not need anything else from the rest of the repo.
 
 **Critical dependency:** the risk model (Eduardo, day 4) trains on `credit_features_asof` (Federico, day 3). That is the single point where a delay by one blocks the other. `tests/data/test_feature_contract.py` mechanically verifies that this table carries no leaking columns.
 
 Boundaries are enforced, not suggested: `make review` flags any commit that touches files outside its owner's area.
+
+### ChatGPT Contributor
+
+**OpenAI Codex in ChatGPT** contributed as Federico Vargas's coding agent. Codex is
+[OpenAI's coding agent for software development](https://developers.openai.com/api/docs/guides/code-generation).
+
+Its contribution covered Federico's assigned scope: data contracts and full-dataset auditing,
+quarantine controls, dbt silver and gold transformations, the payment-capacity model, SCM
+implementation and hardening, tests, technical documentation, and reproducible handoff notes.
+
+Federico remains the human owner and reviewer of this work. The contribution is recorded in
+Git history and was accepted only after the full audit, dbt tests, Python tests, lint,
+formatting, and secret scanning passed. See
+[`docs/11_federico_team_handoff.md`](docs/11_federico_team_handoff.md) for the implementation
+summary and [`docs/federico_model_and_data_results.txt`](docs/federico_model_and_data_results.txt)
+for measured results.
 
 ## 7. What we know about the dataset
 
