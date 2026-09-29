@@ -137,8 +137,8 @@ def main() -> int:
     lineas.append("")
     lineas.append(
         "Formato de commit: `Tipo (ÍTEM): qué cambió, en español y sin jerga`. "
-        "Por ejemplo: `Nuevo (DAT-06): la capa silver normaliza los tipos de producto "
-        "que venían en español y en inglés`. "
+        "Por ejemplo: `Nuevo (DAT-08): la capa silver convierte todos los montos a "
+        "dólares con la tasa del día`. "
         "Tipos: `Nuevo`, `Corrige`, `Mejora`, `Docs`, `Pruebas`, `Infra`, `Limpieza`, `Revierte`."
     )
     lineas.append("")

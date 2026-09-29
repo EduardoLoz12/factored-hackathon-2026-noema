@@ -2,7 +2,7 @@
 
 Generado por `make checklist` contra el estado real del repo. Cuando alguien crea o completa un archivo de evidencia, el ítem avanza solo en la siguiente corrida. **No editar estados a mano aquí** — usar `python -m scripts.checklist --done ID --note "..."`.
 
-Última evaluación: 2026-09-28 17:59
+Última evaluación: 2026-09-29 10:32
 
 Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
@@ -21,8 +21,8 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 |---|---|---|---|---|---|
 | [x] | `DAT-01` | Ingesta S3 a bronze, con manifest y checksums | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
 | [x] | `DAT-02` | Resumen versionable del manifest | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
-| [x] | `DAT-03` | Contratos de esquema por tabla (pandera) | Federico | D2 · 28-sep | fedevargas93 · 2026-09-28 |
-| [x] | `DAT-04` | Reporte de calidad a escala: duplicados, nulos, huerfanos de FK, telefono vs pais | Federico | D2 · 28-sep | fedevargas93 · 2026-09-28 |
+| [x] | `DAT-03` | Contratos de esquema por tabla (pandera) | Federico | D2 · 28-sep | Eduardo · 2026-09-29 |
+| [x] | `DAT-04` | Reporte de calidad a escala: duplicados, nulos, huerfanos de FK, telefono vs pais | Federico | D2 · 28-sep | Eduardo · 2026-09-29 |
 | [x] | `DAT-05` | Cuarentena de registros que violan contrato | Federico | D2 · 28-sep | fedevargas93 · 2026-09-28 |
 | [x] | `DAT-06` | dbt configurado con perfil duckdb | Federico | D2 · 28-sep | fedevargas93 · 2026-09-28 |
 | [x] | `DAT-07` | Silver: normalizacion de enums espanol/ingles | Federico | D2 · 28-sep | fedevargas93 · 2026-09-28 |
@@ -33,7 +33,7 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [x] | `DAT-12` | Gold: dq_report publicable en /analytics | Federico | D3 · 29-sep | fedevargas93 · 2026-09-28 |
 | [~] | `DAT-13` | Espejo en Databricks: carga y dbt verificados en el workspace real | Federico | D3 · 29-sep | fedevargas93 · 2026-09-28 |
 | [~] | `DAT-14` | Export gold a Postgres con relectura verificada en el destino real | Federico | D5 · 1-oct | fedevargas93 · 2026-09-28 |
-| [~] | `DAT-15` | Prueba que falla si una columna prohibida por fuga entra a credit_features_asof | Eduardo | D3 · 29-sep | fedevargas93 · 2026-09-28 |
+| [~] | `DAT-15` | Prueba que falla si una columna prohibida por fuga entra a credit_features_asof | Eduardo | D3 · 29-sep | Eduardo · 2026-09-28 |
 
 ## Modelos — 1/10 `█░░░░░░░░░░░`
 
@@ -42,7 +42,7 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [ ] | `ML-01` | Feature store as-of, sin fuga (corte 2025-12-31) | Eduardo | D3 · 29-sep | — |
 | [ ] | `ML-02` | Baseline: regresion logistica solo con credit_score | Eduardo | D3 · 29-sep | — |
 | [ ] | `ML-03` | Modelo de riesgo de incumplimiento (LightGBM) | Eduardo | D4 · 30-sep | — |
-| [x] | `ML-04` | Modelo de capacidad de pago desde flujo transaccional | Federico | D4 · 30-sep | fedevargas93 · 2026-09-28 |
+| [x] | `ML-04` | Modelo de capacidad de pago desde flujo transaccional | Federico | D4 · 30-sep | Eduardo · 2026-09-29 |
 | [ ] | `ML-05` | Metricas y calibracion: AUC, PR-AUC, KS, Brier | Eduardo | D4 · 30-sep | — |
 | [ ] | `ML-06` | SHAP: los 3 factores que sustentan cada prediccion | Eduardo | D4 · 30-sep | — |
 | [ ] | `ML-07` | MLflow: tracking y registry de los tres modelos | Eduardo | D4 · 30-sep | — |
@@ -127,11 +127,12 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
-| [x] | `INF-01` | Repo publico, estructura y contrato operativo | Eduardo | D1 · 27-sep | fedevargas93 · 2026-09-28 |
+| [x] | `INF-01` | Repo publico, estructura y contrato operativo | Eduardo | D1 · 27-sep | Eduardo · 2026-09-29 |
 | [x] | `INF-02` | CI: secretos, lint, tests, dependencias | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
-| [x] | `INF-03` | Auditoria del dataset documentada | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
+| [x] | `INF-03` | Auditoria del dataset documentada | Eduardo | D1 · 27-sep | Eduardo · 2026-09-29 |
 | [x] | `INF-04` | Decisiones de arquitectura registradas | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
 | [x] | `INF-05` | Contrato de seguridad escrito | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
 | [x] | `INF-06` | Onboarding de Federico: spec, esqueleto, fixtures, agente | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
-| [x] | `INF-07` | Revision de contribuciones y checklist vivo | Eduardo | D1 · 27-sep | fedevargas93 · 2026-09-28 |
+| [x] | `INF-07` | Revision de contribuciones y checklist vivo | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
 | [~] | `INF-08` | Cuenta de Databricks conectada (bloqueado: falta host y token) | Eduardo | D2 · 28-sep | fedevargas93 · 2026-09-28 |
+

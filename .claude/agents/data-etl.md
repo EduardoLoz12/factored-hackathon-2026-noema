@@ -10,9 +10,22 @@ Eres el dueño de la capa de datos: `data_platform/` completo, más `ml/training
 
 ## Lo primero que haces
 
-Lee **`docs/09_etl_spec.md`**: es tu tarea completa, con los contratos, las columnas que deben salir y las fechas. Y lee **`docs/01_data_audit.md`**, donde está medido —no supuesto— qué tiene el dato realmente.
+Lee **`docs/12_cambios_para_federico.md`**: la primera entrega ya está mergeada y ese documento dice qué se verificó, qué cambió al entrar y **qué ya no hay que hacer**. Empezar sin leerlo significa rehacer trabajo terminado.
 
-No empieces a escribir SQL antes de leer las dos.
+Después **`docs/09_etl_spec.md`** —tu tarea completa, con contratos, columnas y fechas— y **`docs/01_data_audit.md`**, donde está medido, no supuesto, qué tiene el dato.
+
+No empieces a escribir SQL antes de leer los tres.
+
+## Lo que ya se midió y no se re-descubre
+
+Estos seis hallazgos están probados y viven en `docs/knowledge/findings.md`. No los re-investigues; constrúyelos encima.
+
+- **F-012 — `registration_branch_id` no es una llave foránea.** 150 000 valores distintos para 150 000 clientes, contra 350 sucursales. Normalizar no recupera nada. Ponerla a NULL es la política final. La sucursal del cliente **sí se deriva** de `products.opening_branch_id`, válida al 100 % y con 93.05 % de cobertura: vale como columna de `customer_360`.
+- **F-013 — el `amount_usd` de la fuente trae ruido uniforme de ±2 %**, inyectado por el generador. Recalcularlo desde `daily_exchange_rates` es correcto. Conservación exacta: razón 1.000000, error máximo 0.00.
+- **F-014 — los nulos son dos fenómenos.** Estructural (`days_past_due`, `credit_limit`, `merchant_name`) se codifica como categoría `no_aplica` y **nunca se imputa**. Inyectado (`credit_score` 15 %, ingreso 20 %, `interest_rate` 10 %) se imputa con indicador `_faltante`; está probado que es aleatorio de verdad. Y `complaints.origin_interaction_id` está vacía al 100 %.
+- **F-015 — el universo de la etiqueta son 84 926 clientes**, no 150 000: `days_past_due` solo existe en productos de crédito. Mora 10.71 % por cliente, 7.52 % por producto.
+- **F-016 — no hay enums mezclados español/inglés.** El `CASE` de `stg_products` no colapsa ningún nivel y se queda como está por defensivo. La documentación que decía lo contrario ya está corregida.
+- **F-017 — no hay modelo de riesgo posible: el techo es AUC 0.50.** `days_past_due` es una Bernoulli(0.075166) sorteada por producto, independiente de todo. Consecuencia para ti: **ML-04 se presenta como baseline de capacidad, no como modelo.** En este dataset los modelos no mandan, y demostrarlo es el entregable.
 
 ## Tu tarea, en una frase
 
@@ -34,8 +47,10 @@ Y la calidad de datos **es entregable en sí misma**: uno de los cuatro pilares 
 2. **Las filas malas no se borran**: van a `data/quarantine/` con la razón del rechazo. Perder una fila en silencio es peor que tener una fila mala marcada.
 3. **Ningún conteo del diccionario se usa como verdad.** Los contratos se escriben contra el dato observado.
 4. **La regla de fuga de información** (`docs/09_etl_spec.md` §6) no se negocia sin un ADR. Hay una prueba que la verifica sola: `pytest tests/data/test_feature_contract.py`. No la desactives.
-5. **Nulo estructural no es nulo faltante.** `credit_limit` nulo en una cuenta de ahorros es correcto; `credit_score` nulo no lo es.
+5. **Nulo estructural no es nulo faltante.** `credit_limit` nulo en una cuenta de ahorros es correcto; `credit_score` nulo no lo es. La separación exacta entre los dos regímenes está medida en F-014.
 6. **`estimated_monthly_income` no se usa para la capacidad de pago**: falta en 20 % de los clientes y es declarado, no observado. Se estima del flujo transaccional.
+7. **Ninguna lectura o escritura de texto sin `encoding="utf-8"`.** En Windows el defecto es `cp1252` y corrompe todo acento español. Ya rompió una prueba y dos reportes.
+8. **`scripts/review_contributions.py` no se edita desde una rama de trabajo.** Si el mapa de fronteras está mal, se discute y se cambia en un commit propio.
 
 ## Frontera
 

@@ -6,6 +6,70 @@ Las revisiones más recientes van arriba.
 
 ---
 
+## Revisión · 2026-09-29 10:32
+
+16 commits · historial completo
+
+| Autor | Commits | Áreas tocadas |
+|---|---:|---|
+| Eduardo Lozada | 11 | API, agentes, cognición (SCM), contratos de datos, documentación, evaluación, fixtures, frontend, guardrails, herramientas, integración continua, modelos, multilingüe, observabilidad, orquestador, plataforma de datos, políticas, raíz del proyecto, utilidades |
+| fedevargas93 | 5 | capacidad de pago, cognición (SCM), contratos de datos, documentación, plataforma de datos, raíz del proyecto, utilidades |
+
+### Cruces de frontera
+
+| Commit | Autor | Archivo | Área |
+|---|---|---|---|
+| `b5eee82` | fedevargas93 | `scripts/review_contributions.py` | utilidades |
+| `3ba73a2` | fedevargas93 | `scripts/generate_schemas.py` | utilidades |
+| `3ba73a2` | fedevargas93 | `scripts/review_contributions.py` | utilidades |
+| `3ba73a2` | fedevargas93 | `tests/data/test_feature_contract.py` | contratos de datos |
+| `3ba73a2` | fedevargas93 | `tests/data/test_pipeline.py` | contratos de datos |
+
+> Federico solo debe tocar `agent/cognition/` y `tests/cognition/`. Un cruce no es necesariamente un error, pero tiene que ser deliberado y conversado.
+
+### Avance contra los hitos del entregable
+
+| Hito | Estado |
+|---|---|
+| Ingesta S3 → bronze | existe |
+| Contratos de calidad | existe |
+| Transformaciones dbt | existe |
+| Modelo baseline | pendiente |
+| Modelo de riesgo (PD) | pendiente |
+| Capacidad de pago | existe |
+| Servicio de predicción | pendiente |
+| SCM (Federico) | existe |
+| Motor de reglas | pendiente |
+| Herramientas del agente | pendiente |
+| Orquestador 6 etapas | pendiente |
+| Guardrails / grounding | pendiente |
+| API | pendiente |
+| Frontend | pendiente |
+| Generador de casos | pendiente |
+| Harness de evaluación | pendiente |
+
+**5 de 16 hitos iniciados.**
+
+### Commits
+
+- `c6324a9` · 2026-09-29 · **Eduardo Lozada** — Docs (ML-01/ML-03): la etiqueta de riesgo es un sorteo — no hay modelo de riesgo posible
+- `e5c411a` · 2026-09-29 · **Eduardo Lozada** — Limpieza: el id de usuario que genera dbt no se versiona
+- `c157a5c` · 2026-09-29 · **Eduardo Lozada** — Docs (DAT-04/ML-01): segunda pasada sobre nulos y llaves — cinco hallazgos que cambian el plan del modelo
+- `1912b85` · 2026-09-28 · **fedevargas93** — Docs: acredita a Codex como agente colaborador de Federico
+- `f8ef800` · 2026-09-28 · **fedevargas93** — Docs (ML-04): agrega entrega técnica para el equipo
+- `f763872` · 2026-09-28 · **fedevargas93** — Docs (ML-04): registra resultados del modelo y limpieza de datos
+- `b5eee82` · 2026-09-28 · **fedevargas93** — Docs (INF-07): registra avance y fronteras de la entrega de Federico
+- `3ba73a2` · 2026-09-28 · **fedevargas93** — Nuevo (DAT-03/ML-04/SCM-02): completa datos, capacidad y cognición de Federico
+- `05d54d5` · 2026-09-28 · **Eduardo Lozada** — Corrige: el formateador y el limite de ancho se contradecian en una prueba
+- `0a76652` · 2026-09-27 · **Eduardo Lozada** — Mejora: Federico pasa a ser dueno de la limpieza, el ETL y la capacidad de pago
+- `637dd0f` · 2026-09-27 · **Eduardo Lozada** — Nuevo (INF-07): bitacora de trabajo, carpeta de logs y control de cambios legible
+- `cc4b84f` · 2026-09-27 · **Eduardo Lozada** — feat(INF-07): checklist vivo, plan por dias, logs y control de cambios
+- `e091828` · 2026-09-27 · **Eduardo Lozada** — fix(build): declarar paquetes explícitos — pip install -e fallaba
+- `93cedac` · 2026-09-27 · **Eduardo Lozada** — feat: onboarding de Federico, contrato del SCM y revisión de contribuciones
+- `d44be93` · 2026-09-27 · **Eduardo Lozada** — chore: repo en la raíz de la carpeta de trabajo + resumen del manifest
+- `bef23c5` · 2026-09-27 · **Eduardo Lozada** — feat: scaffold del proyecto, ingesta S3 y auditoría del dataset
+
+---
 ## Revisión · 2026-09-28 17:59
 
 1 commits · desde `1.day`

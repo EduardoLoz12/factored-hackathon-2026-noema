@@ -2,14 +2,36 @@
 
 Generado con `make changelog` desde el historial de git. Agrupa por día y por tipo, y liga cada cambio al ítem del checklist que movió.
 
-Formato de commit: `Tipo (ÍTEM): qué cambió, en español y sin jerga`. Por ejemplo: `Nuevo (DAT-06): la capa silver normaliza los tipos de producto que venían en español y en inglés`. Tipos: `Nuevo`, `Corrige`, `Mejora`, `Docs`, `Pruebas`, `Infra`, `Limpieza`, `Revierte`.
+Formato de commit: `Tipo (ÍTEM): qué cambió, en español y sin jerga`. Por ejemplo: `Nuevo (DAT-08): la capa silver convierte todos los montos a dólares con la tasa del día`. Tipos: `Nuevo`, `Corrige`, `Mejora`, `Docs`, `Pruebas`, `Infra`, `Limpieza`, `Revierte`.
 
-Última generación: 2026-09-28 17:59
+Última generación: 2026-09-29 10:32
 
-## 2026-09-28 — fedevargas93
+## 2026-09-29 — Eduardo
+
+### Limpieza
+
+- el id de usuario que genera dbt no se versiona — Eduardo (`e5c411a`)
 
 ### Otros
 
+- `ML-01` `ML-03` · Docs (ML-01/ML-03): la etiqueta de riesgo es un sorteo — no hay modelo de riesgo posible — Eduardo (`c6324a9`)
+- `DAT-04` `ML-01` · Docs (DAT-04/ML-01): segunda pasada sobre nulos y llaves — cinco hallazgos que cambian el plan del modelo — Eduardo (`c157a5c`)
+
+## 2026-09-28 — Eduardo, fedevargas93
+
+### Corregido
+
+- el formateador y el limite de ancho se contradecian en una prueba — Eduardo (`05d54d5`)
+
+### Documentacion
+
+- acredita a Codex como agente colaborador de Federico — fedevargas93 (`1912b85`)
+
+### Otros
+
+- `ML-04` · Docs (ML-04): agrega entrega técnica para el equipo — fedevargas93 (`f8ef800`)
+- `ML-04` · Docs (ML-04): registra resultados del modelo y limpieza de datos — fedevargas93 (`f763872`)
+- `INF-07` · Docs (INF-07): registra avance y fronteras de la entrega de Federico — fedevargas93 (`b5eee82`)
 - `DAT-03` `ML-04` `SCM-02` · Nuevo (DAT-03/ML-04/SCM-02): completa datos, capacidad y cognición de Federico — fedevargas93 (`3ba73a2`)
 
 ## 2026-09-27 — Eduardo
@@ -35,3 +57,4 @@ Formato de commit: `Tipo (ÍTEM): qué cambió, en español y sin jerga`. Por ej
 ### Otros
 
 - `INF-07` · Nuevo (INF-07): bitacora de trabajo, carpeta de logs y control de cambios legible — Eduardo (`637dd0f`)
+
