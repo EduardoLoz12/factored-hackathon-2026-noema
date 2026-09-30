@@ -235,3 +235,8 @@ Aquí la respuesta a la 5 fue **no** —la etiqueta es un sorteo sintético— y
     bronze devuelve cero filas sin avisar. Ver F-035.
 18. Un agregado que sale EXACTAMENTE cero es sospechoso del filtro, no un
     hallazgo. Los ceros redondos son de código; un fenómeno real deja cola.
+
+19. El contrato temporal cubre DOS cosas: cuándo se observó el hecho, y con qué
+    fecha se valoró el importe. Una conversión de moneda es una observación más
+    y su fecha tiene que respetar el corte. Ver F-036: customer_360 valora con
+    una cotización cinco meses posterior al corte.

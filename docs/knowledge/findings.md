@@ -1420,3 +1420,53 @@ Con los valores correctos: media 3.31 pagos, mediana 2, cumplimiento mediano 3.8
 **Regla que deja.** Al filtrar una capa derivada por un valor de enum, **comprobar que ese valor existe en esa capa**, no en la de origen. Una consulta de una línea —`select distinct <columna>`— antes de escribir el filtro. Y ante un agregado que sale **exactamente** cero, sospechar del filtro antes de creerse el hallazgo: los ceros redondos son de código, no de negocio.
 
 **Evidencia.** `select transaction_type, count(*) from noema_silver.transactions_with_fx group by 1` contra la misma consulta sobre `data/bronze/transactions`.
+
+## F-036 · 2026-09-30 · datos — `customer_360` valora con una cotización cinco meses posterior al corte, y no convierte el ingreso
+
+**Qué.** Dos defectos en la capa gold de Federico, encontrados al revisar si el cierre de la deuda de ML-01 rompía algo de su lado. No rompía nada, pero destapó esto. Quedan documentados en `docs/12_cambios_para_federico.md` §8 y **no se tocan**: son de su frontera.
+
+### 1 · El ingreso viaja en moneda local
+
+`customer_360` convierte el saldo y no el ingreso:
+
+| País | `estimated_monthly_income` mediano | `total_balance_usd` mediano |
+|---|---:|---:|
+| Colombia | **9 192 466** | 7 562 |
+| Argentina | **801 955** | 7 727 |
+| México | **39 220** | 7 717 |
+
+El saldo está bien —las tres medianas son del mismo orden, que es el control—. El ingreso no: un cliente colombiano parece **234 veces más rico** que uno mexicano por la unidad de cuenta. Es el mismo defecto que F-025 en el feature store, en otra capa.
+
+La causa es la misma: `stg_customers` **no trae columna de moneda**, solo `country`, así que hay que derivarla. En `ml/features/build_features.py` se resolvió con `MONEDA_POR_PAIS` y una CTE de tasas.
+
+**Dónde debería vivir la conversión.** En silver, no en el feature store. Si la capa de datos expusiera `estimated_monthly_income_usd`, ni ML-01 ni la política tendrían que convertir por su cuenta, y no habría dos implementaciones del mismo mapa país → moneda que puedan divergir. Se propone así en el aviso.
+
+### 2 · La fecha de valuación es posterior al corte
+
+```sql
+select distinct valuation_date from noema_gold.customer_360;
+-- 2026-06-17
+```
+
+Sale de `select max(date) from stg_daily_exchange_rates`, y esa tabla llega hasta **2026-06-17**. El corte del proyecto es **2025-12-31**: son **cinco meses y medio de cotización futura** usados para valorar saldos del corte.
+
+**ADR-0005 lo prohíbe explícitamente:** «FX usa fecha de operación; nunca una cotización futura».
+
+Es fuga de información de la clase sutil: no introduce una columna prohibida —`test_feature_contract.py` no la detecta— sino una **fecha**. El contrato temporal del proyecto vigila qué columnas entran y desde cuándo se observan los hechos, pero no vigila con qué fecha se valora un importe.
+
+`transactions_with_fx` sí lo hace bien: usa la fecha de la operación. El patrón correcto ya está en la misma capa, solo que `customer_360` no lo sigue.
+
+### Por qué importa más de lo que parece
+
+Las dos afectan a decisiones que el agente va a pronunciar. La política de elegibilidad compara ingreso contra carga y contra exposición; con el ingreso en moneda local, **todo umbral sobre ingreso está mal entre países**. Y valorar con una cotización futura convierte una cifra que el cliente ve en una que no se podía conocer al corte.
+
+### Regla que deja
+
+El contrato temporal debe cubrir **dos** cosas, no una:
+
+1. **Cuándo se observó el hecho** — ya está: doble filtro de fecha de evento y de proceso, y la prueba de columnas prohibidas.
+2. **Con qué fecha se valoró el importe** — no estaba. Una conversión de moneda es una observación más, y su fecha tiene que respetar el corte igual que la del hecho.
+
+Conviene añadir a `tests/data/test_feature_contract.py` una prueba de que ninguna fecha de valuación de gold supere el corte. Queda como tarea sobre el contrato de datos.
+
+**Evidencia.** `select distinct valuation_date from noema_gold.customer_360` y la tabla de medianas de ingreso por país, ambas reproducibles contra `data/noema.duckdb`.

@@ -244,3 +244,116 @@ La curtosis de una uniforme es −1.2 exacta; las seis caen entre −1.195 y −
 **Contexto más amplio.** Esto es parte de una cadena de doce hallazgos (F-023 a F-034): la variable objetivo de este dataset no existe, no está en las alternativas, y no se puede construir. La causa raíz es F-031 — productos y transacciones se generaron por separado y se unieron sin coherencia temporal, con el 18.7 % de las transacciones ocurriendo antes de que exista la cuenta que las contiene. Léete F-029 y F-031 antes de tocar `capacity.py`.
 
 **Lo que sí es coherente en el dataset**, por si sirve: las **tasas de interés**. Rangos disjuntos y ordenados como en banca real — tarjeta 18–45 %, personal 12–28 %, hipotecario 6–12 %. Es el único bloque que pasó la validación, y por eso la política las usa como condiciones de catálogo.
+
+---
+
+## 8. Aviso del 30-sep sobre la capa de datos — tres cosas, dos son bugs
+
+Federico: esto es de tu frontera, así que lo documento y no lo toco. Las tres son
+verificables con la consulta que va al lado.
+
+### 8.1 · `customer_360.estimated_monthly_income` está en moneda local
+
+El saldo sí lo convertiste —`total_balance_usd` da 7 562, 7 727 y 7 717 en los tres
+países, que es correcto— pero el ingreso viaja crudo:
+
+| País | `estimated_monthly_income` mediano | `total_balance_usd` mediano |
+|---|---:|---:|
+| Colombia | **9 192 466** | 7 562 |
+| Argentina | **801 955** | 7 727 |
+| México | **39 220** | 7 717 |
+
+```sql
+select country, median(estimated_monthly_income), median(total_balance_usd)
+from noema_gold.customer_360 group by 1;
+```
+
+Un cliente colombiano parece **234 veces más rico** que uno mexicano por la pura
+unidad de cuenta. Cualquier regla, umbral o comparación que use esa columna
+—incluida una ratio sobre ingreso— está mal entre países.
+
+El problema es que `stg_customers` **no trae columna de moneda**, solo `country`.
+Hay que derivarla. En `ml/features/build_features.py` está resuelto con
+`MONEDA_POR_PAIS = {"Argentina": "ARS", "Colombia": "COP", "México": "MXN"}` y una
+CTE `tasas`; si quieres, copia el patrón, o exponlo tú en silver como
+`estimated_monthly_income_usd` y yo dejo de convertirlo por mi lado. Lo segundo es
+mejor: la conversión es de la capa de datos, no del feature store.
+
+Ver F-025 en `docs/knowledge/findings.md`.
+
+### 8.2 · `customer_360` valora con una cotización del futuro
+
+```sql
+select distinct valuation_date from noema_gold.customer_360;
+-- 2026-06-17
+```
+
+`valuation_date` sale de `select max(date) from stg_daily_exchange_rates`, y esa
+tabla llega hasta **2026-06-17**. El corte del proyecto es **2025-12-31**: son
+**cinco meses y medio de cotización posterior al corte** usados para valorar
+saldos del corte.
+
+ADR-0005 lo prohíbe con estas palabras: *«FX usa fecha de operación; nunca una
+cotización futura»*. Es fuga de información, de las sutiles: no mete una columna
+prohibida, mete una **fecha**.
+
+La corrección es acotar la fecha de valuación al corte:
+
+```sql
+with valuation_date as (
+    select max(date) as date from {{ ref('stg_daily_exchange_rates') }}
+    where date <= '{{ var("corte", "2025-12-31") }}'
+)
+```
+
+`transactions_with_fx` sí lo hace bien —usa la fecha de la operación—, así que el
+patrón correcto ya está en tu propia capa.
+
+### 8.3 · Silver traduce `transaction_type` y deja `transaction_status` en inglés
+
+Esto no es un bug tuyo: tus modelos usan los valores correctos (`'Depósito'`,
+`'Pago'`, `'Compra'`, `'Retiro'`). Es una **trampa para quien venga después**, y me
+la comí yo.
+
+| Columna | Bronze | Silver |
+|---|---|---|
+| `transaction_type` | Purchase · Withdrawal · Transfer · **Payment** · Deposit · Adjustment | Compra · Retiro · Transferencia · **Pago** · Depósito · Ajuste |
+| `transaction_status` | Approved · Declined · Pending · Reversed | **iguales** |
+
+Escribí `where transaction_type = 'Payment'` mirando bronze. Devolvió **cero filas
+de 4 425 008, sin error**. Con `LEFT JOIN` y `coalesce(..., 0)` el resultado fue una
+tabla de ceros que parecía un hallazgo real —y lo parecía mucho, porque F-029 dice
+que casi nadie paga—. Lo destapó que el agregado saliera **exactamente** cero: los
+ceros redondos son de código, no de negocio.
+
+Dos formas de cerrarlo, y las dos son tuyas:
+
+1. **Documentarlo en `docs/09_etl_spec.md`**: una tabla de equivalencias bronze →
+   silver por columna categórica. Es lo mínimo.
+2. **Dejar los enums en un solo idioma.** Traducir `transaction_status` también, o
+   no traducir ninguno. La asimetría es lo que engaña: quien ve `Approved` en
+   inglés asume que `Payment` también está en inglés.
+
+Yo lo he blindado de mi lado con constantes `TIPO_PAGO` y `ESTADO_APROBADO`, pero eso
+solo protege mi módulo. Ver F-035.
+
+### 8.4 · Dos tablas se llaman casi igual
+
+Hay dos artefactos distintos con nombre parecido, y conviene no confundirlos:
+
+| Tabla | Dueño | Qué es |
+|---|---|---|
+| `noema_gold.credit_features_asof` | Federico (DAT-10) | modelo dbt |
+| `data/gold/features_asof.parquet` | Eduardo (ML-01) | feature store del modelo |
+
+El mío cambió hoy y sus columnas ya no son las de ayer: `ingreso_declarado` pasó a
+**`ingreso_usd`**, `limite_total` a **`limite_total_usd`**, `etiqueta_posterior` a
+**`tiene_observacion_posterior`** —no era la mora, era un indicador de cobertura—, y
+salieron `n_sucursales`, `ticket_sd_usd_180d`, `ticket_max_usd_180d` y `tx_180d` por
+redundancia. Si algo tuyo lo leía, avísame; según mi revisión no es el caso.
+
+### Prioridad
+
+**8.1 y 8.2 son bugs y afectan a decisiones del agente**: uno rompe toda comparación
+de ingreso entre países, el otro mete una cotización futura en un cálculo del corte.
+**8.3 es deuda de documentación** que ya se cobró una víctima. **8.4 es informativo.**
