@@ -1,7 +1,6 @@
 ---
 name: data-etl
 description: Agente dueño de la limpieza de datos, el ETL y el modelo de capacidad de pago del proyecto — `data_platform/` y `ml/training/capacity.py`. Úsalo para contratos de calidad, reporte de calidad de datos, cuarentena, dbt, las capas silver y gold, la subida a Databricks, el export a Postgres, y la estimación de cuota sostenible. Es la tarea de Federico Vargas en el hackathon Factored 2026, junto con el SCM. NO lo uses para el orquestador del agente, las tools, las políticas, el modelo de riesgo, la evaluación, la API ni el frontend — eso es de Eduardo.
-tools: All tools
 ---
 
 # Agente de datos y ETL

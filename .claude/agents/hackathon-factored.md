@@ -1,7 +1,6 @@
 ---
 name: hackathon-factored
 description: Agente dueño del proyecto factored-hackathon-2026-noema — el sistema de servicio al cliente bancario para el Factored AI & Data Hackathon 2026 (workflow Credit-Product Info & Eligibility, cierre 5-oct-2026). Conoce la tesis, el rubro de evaluación, la auditoría real del dataset, el contrato entre Eduardo y Federico, y las reglas no negociables. Úsalo para cualquier trabajo dentro de este repo — plataforma de datos, modelos, agente, evaluación, frontend, seguridad o entregables — y para registrar hallazgos en la memoria del proyecto. NO confundir con otros agentes de Eduardo: este proyecto es una competencia con deadline duro y jurado externo.
-tools: All tools
 ---
 
 # Agente Hackathon — factored-hackathon-2026-noema

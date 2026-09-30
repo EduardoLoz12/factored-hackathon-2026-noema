@@ -1,0 +1,299 @@
+# Política de elegibilidad — versión 1
+#
+# Decide si un cliente puede recibir un producto de crédito adicional y hasta
+# qué monto. NO es un modelo: es un cálculo de capacidad de endeudamiento sobre
+# hechos verificables, con umbrales que son decisión de negocio.
+#
+# Por qué una política y no un modelo: está demostrado que este dataset no
+# contiene una decisión de suscripción aprendible. Ver docs/knowledge/findings.md,
+# hallazgos F-027 a F-034. En particular F-034: predecir qué producto tiene un
+# cliente a partir de su perfil da AUC 0.4973 contra un control de 0.5000, y el
+# límite asignado no depende del score ni del ingreso.
+#
+# Cambiar un umbral aquí cambia el comportamiento del sistema sin tocar código.
+# Toda modificación sube la versión y queda en el historial de git.
+
+version: 1
+vigente_desde: 2026-09-30
+corte_datos: 2025-12-31
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Umbrales de suscripción — los parámetros que el negocio ajusta
+# ─────────────────────────────────────────────────────────────────────────────
+umbrales:
+  # Carga máxima de cuotas sobre el ingreso mensual. 40 % es el estándar de
+  # suscripción en banca de consumo.
+  dti_maximo: 0.40
+
+  # Por encima de este DTI no se ofrece nada, ni siquiera si el cálculo diera
+  # margen positivo. Banda de seguridad.
+  dti_corte_duro: 0.60
+
+  # Número máximo de productos de crédito simultáneos por cliente.
+  max_productos_credito: 4
+
+  # Exposición total concedida sobre ingreso anual.
+  exposicion_maxima_sobre_ingreso_anual: 3.0
+
+  # Meses mínimos de relación con el banco antes de conceder un segundo producto.
+  antiguedad_minima_meses: 6
+
+  # Fracción mínima de cuotas registradas frente a las esperadas. Se evalúa solo
+  # cuando hay historial de pagos; ver `abstencion` más abajo.
+  cumplimiento_minimo: 0.05
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Catálogo de productos ofertables
+#
+# `tasa_anual` y `plazo_meses` son condiciones de oferta, no datos del cliente.
+# Las tasas son las medianas observadas por tipo de producto, que en este dataset
+# sí resultaron coherentes: rangos disjuntos y ordenados tarjeta > personal >
+# hipotecario (F-034).
+# ─────────────────────────────────────────────────────────────────────────────
+catalogo:
+  - producto: Tarjeta Crédito
+    amortizacion: revolvente
+    tasa_anual: 31.52
+    plazo_meses: 48
+    monto_minimo_usd: 500
+    monto_maximo_usd: 100000
+    segmentos: [Basic, Plus, Premium, Student]
+
+  - producto: Préstamo Personal
+    amortizacion: cuota_fija
+    tasa_anual: 20.10
+    plazo_meses: 48
+    monto_minimo_usd: 1000
+    monto_maximo_usd: 150000
+    segmentos: [Basic, Plus, Premium]
+
+  - producto: Préstamo Hipotecario
+    amortizacion: cuota_fija
+    tasa_anual: 8.98
+    plazo_meses: 240
+    monto_minimo_usd: 20000
+    monto_maximo_usd: 500000
+    segmentos: [Plus, Premium]
+
+# Tipo de amortización de los productos YA vigentes, para calcular su obligación
+# mensual. Una tarjeta es revolvente: su obligación no es amortizar toda la
+# línea, sino el pago mínimo. Tratarla como cuota fija infla el DTI hasta
+# valores imposibles.
+amortizacion_vigentes:
+  Tarjeta Crédito: revolvente
+  Préstamo Personal: cuota_fija
+  Préstamo Hipotecario: cuota_fija
+
+# Pago mínimo de un producto revolvente, como fracción del saldo dispuesto.
+pago_minimo_revolvente: 0.05
+
+# Piso del pago mínimo, en USD. Ninguna tarjeta con saldo pesa menos que esto.
+pago_minimo_piso_usd: 25
+
+# Fracción de la línea NO dispuesta que se computa como obligación potencial.
+# Una línea disponible es deuda que el cliente puede tomar mañana sin pedir
+# permiso, así que la suscripción prudente la considera en parte. A 0 se ignora.
+estres_linea_no_dispuesta: 0.10
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Posición financiera del cliente — reservas
+#
+# La capacidad de pago no está solo en el crédito. Lo que el cliente tiene en
+# cuentas e inversiones es un colchón: en suscripción se mide como "reservas",
+# los meses de cuota que podría cubrir con sus activos si perdiera el ingreso.
+#
+# Nota sobre `current_balance`: está vetada como VARIABLE DE MODELO, porque un
+# producto en default arrastra un saldo que codifica el desenlace. Describir la
+# posición financiera actual para un cálculo de política es otro uso y no es
+# fuga: no se predice nada, se mide lo que hay al corte.
+# ─────────────────────────────────────────────────────────────────────────────
+activos:
+  # Disponible de inmediato, se computa al 100 %.
+  liquidos:
+    - Cuenta Ahorro
+    - Cuenta Corriente
+    - Tarjeta Débito
+
+  # Recuperable con fricción: se aplica un descuento por liquidación.
+  semiliquidos:
+    Inversión: 0.70
+
+  # Meses de cuota que las reservas deben cubrir, por producto. Es práctica
+  # estándar exigir reservas en hipotecario y no exigirlas en tarjeta.
+  reservas_minimas_meses:
+    Tarjeta Crédito: 0
+    Préstamo Personal: 1
+    Préstamo Hipotecario: 3
+
+  # Factor compensatorio: con reservas holgadas se admite un DTI algo mayor.
+  # Es el criterio de suscripción clásico — el colchón compensa la carga.
+  compensacion:
+    reservas_meses_minimas: 6
+    dti_maximo_ampliado: 0.45
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Plazos de los productos ya vigentes, para calcular su cuota
+#
+# `expiration_date` solo existe en tarjetas (95 % de cobertura, 36 a 60 meses).
+# En préstamos tiene cobertura cero, así que el plazo se fija aquí y se declara
+# como supuesto en toda respuesta que dependa de él.
+# ─────────────────────────────────────────────────────────────────────────────
+plazos_supuestos:
+  Tarjeta Crédito: 48        # solo si falta expiration_date
+  Préstamo Personal: 48
+  Préstamo Hipotecario: 240
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Reglas de abstención
+#
+# Abstenerse es un resultado válido del sistema. Se mide aparte y no se penaliza.
+# Nunca se sustituye un dato faltante por un cero ni por una media.
+# ─────────────────────────────────────────────────────────────────────────────
+abstencion:
+  - id: sin_ingreso
+    condicion: ingreso_usd es nulo o menor o igual a cero
+    mensaje: >-
+      No tenemos registrado un ingreso para evaluar tu solicitud.
+      Un asesor puede ayudarte a actualizarlo.
+
+  - id: sin_exposicion_valorable
+    condicion: tiene productos de crédito pero falta el límite de alguno
+    mensaje: >-
+      No podemos calcular tu carga actual porque falta información de uno de tus
+      productos. Lo derivamos a un asesor.
+
+  - id: sin_historial_de_pago
+    condicion: no hay pagos registrados en el producto
+    # No bloquea: la regla de cumplimiento simplemente no se evalúa, y la
+    # respuesta lo dice. Ver F-029: el 29 % de los productos no registra pagos.
+    bloquea: false
+    mensaje: >-
+      No registramos pagos en este producto, así que no evaluamos tu historial
+      de cumplimiento en esta decisión.
+
+  - id: producto_inactivo
+    condicion: la última transacción real es anterior a 180 días del corte
+    bloquea: false
+    mensaje: >-
+      Este producto no registra movimientos recientes.
+
+  - id: estado_de_mora_no_determinable
+    condicion: siempre
+    bloquea: false
+    # Se declara siempre. El dataset no permite determinar mora: F-027 (siete
+    # cruces fallidos), F-029 (no hay calendario de pagos), F-030 (kappa 0.0001
+    # entre la mora construida y la columna del dataset).
+    mensaje: >-
+      Esta evaluación no considera estado de mora, porque la información
+      disponible no permite determinarlo de forma fiable.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Orden de evaluación. La primera regla que falla decide, y su `motivo` es lo
+# que el agente le explica al cliente.
+# ─────────────────────────────────────────────────────────────────────────────
+reglas:
+  - id: R1_antiguedad
+    aplica_si: n_productos_credito >= 1
+    exige: antiguedad_cliente_meses >= umbrales.antiguedad_minima_meses
+    motivo: >-
+      Tu relación con el banco es de {antiguedad_cliente_meses} meses y pedimos
+      al menos {umbral} para un producto adicional.
+
+  - id: R2_numero_de_productos
+    exige: n_productos_credito < umbrales.max_productos_credito
+    motivo: >-
+      Ya tienes {n_productos_credito} productos de crédito activos y el máximo
+      es {umbral}.
+
+  - id: R3_corte_duro_de_dti
+    exige: dti_actual < umbrales.dti_corte_duro
+    motivo: >-
+      Tus cuotas comprometidas son el {dti_actual} de tu ingreso mensual, por
+      encima del límite de {umbral}.
+
+  - id: R4_exposicion_sobre_ingreso
+    exige: exposicion_usd <= umbrales.exposicion_maxima_sobre_ingreso_anual * ingreso_anual_usd
+    motivo: >-
+      El crédito que ya tienes concedido equivale a {veces_ingreso} veces tu
+      ingreso anual y el tope es {umbral}.
+
+  - id: R5_margen_disponible
+    exige: margen_mensual_usd > 0
+    motivo: >-
+      Con tus cuotas actuales de {carga_mensual_usd} USD no queda margen bajo el
+      tope de {umbral} de tu ingreso.
+
+  - id: R6_cumplimiento
+    aplica_si: hay historial de pagos
+    exige: cumplimiento >= umbrales.cumplimiento_minimo
+    motivo: >-
+      Registramos {cuotas_pagadas} pagos de las {cuotas_esperadas} que
+      corresponderían desde la apertura, bajo supuesto de vencimiento mensual.
+
+  - id: R7_monto_minimo
+    por_producto: true
+    exige: monto_maximo_usd >= catalogo.monto_minimo_usd
+    motivo: >-
+      El monto que podrías asumir para este producto ({monto_maximo_usd} USD)
+      está por debajo del mínimo de {umbral} USD.
+
+  - id: R8_segmento
+    por_producto: true
+    exige: segmento_cliente en catalogo.segmentos
+    motivo: >-
+      Este producto no está disponible para tu segmento.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Cómo se calcula cada magnitud. Toda cifra que el agente pronuncie sale de
+# aquí, de un tool, y el GroundingChecker la valida contra el resultado del tool.
+# ─────────────────────────────────────────────────────────────────────────────
+calculo:
+  moneda: USD
+  # Tasas medianas a 30 días del corte. Todo importe se convierte antes de
+  # cualquier comparación: el dato crudo viene en moneda local (F-025).
+  tasas_a_usd:
+    ARS: 0.00284668
+    COP: 0.00025036
+    MXN: 0.05890935
+
+  cuota_mensual: >-
+    amortización francesa sobre el límite concedido:
+    P * i * (1+i)^n / ((1+i)^n - 1), con i = tasa_anual / 100 / 12
+    y n = plazo remanente en meses
+
+  plazo_remanente: >-
+    meses entre el corte y expiration_date cuando existe; en su defecto,
+    plazos_supuestos[producto] menos la madurez, con piso en 1 mes
+
+  madurez_meses: >-
+    meses entre opening_date y el corte. Cobertura del 100 % y coherente por
+    construcción. Se valida contra max(transaction_date) real: si la última
+    actividad es anterior a 180 días del corte, se marca producto_inactivo.
+    No se usa last_updated ni last_transaction_date: la primera tiene un 6.42 %
+    de valores posteriores al corte y la segunda un 17.29 % de incoherencias
+    (F-028).
+
+  carga_mensual_usd: suma de las cuotas de los productos de crédito vigentes
+  dti_actual: carga_mensual_usd / ingreso_mensual_usd
+  margen_mensual_usd: max(0, umbrales.dti_maximo * ingreso_mensual_usd - carga_mensual_usd)
+
+  monto_maximo_por_producto: >-
+    inversa de la amortización sobre el margen disponible:
+    C * ((1+i)^n - 1) / (i * (1+i)^n), acotado por catalogo.monto_maximo_usd
+
+  capacidad_de_pago: >-
+    cuando predict_capacity (ML-04) devuelve una estimación, el margen usado es
+    el menor entre margen_mensual_usd y la capacidad estimada. Si se abstiene,
+    se usa solo margen_mensual_usd y la respuesta declara que no se incorporó
+    capacidad observada. ML-04 es un estimador sobre flujo sintético (F-029) y
+    se abstiene en el 94 % de los casos.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Lo que esta política NO hace, y se declara en toda respuesta
+# ─────────────────────────────────────────────────────────────────────────────
+limitaciones_declaradas:
+  - No evalúa estado de mora. El dataset no permite determinarlo (F-027, F-029, F-030).
+  - No usa ningún modelo de riesgo de incumplimiento. No existe uno válido (F-026, F-033).
+  - El plazo de los préstamos es un supuesto de política, no un dato.
+  - El cumplimiento de pago usa vencimiento mensual como supuesto declarado (F-030).
+  - Las tasas de oferta son las medianas observadas por tipo de producto.

@@ -2,17 +2,17 @@
 
 Generado por `make checklist` contra el estado real del repo. Cuando alguien crea o completa un archivo de evidencia, el ítem avanza solo en la siguiente corrida. **No editar estados a mano aquí** — usar `python -m scripts.checklist --done ID --note "..."`.
 
-Última evaluación: 2026-09-29 10:53
+Última evaluación: 2026-09-30 13:12
 
 Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
-## Avance global — 29/76 `█████████░░░░░░░░░░░░░░░`
+## Avance global — 32/76 `██████████░░░░░░░░░░░░░░`
 
-**29 terminado · 7 avanzado · 40 falta**
+**32 terminado · 7 avanzado · 37 falta**
 
 | Dueño | Terminado | Avanzado | Falta | Total |
 |---|---:|---:|---:|---:|
-| Eduardo | 11 | 4 | 40 | 55 |
+| Eduardo | 14 | 4 | 37 | 55 |
 | Federico | 18 | 3 | 0 | 21 |
 
 ## Plataforma de datos — 11/15 `█████████░░░`
@@ -35,13 +35,13 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [~] | `DAT-14` | Export gold a Postgres con relectura verificada en el destino real | Federico | D5 · 1-oct | fedevargas93 · 2026-09-28 |
 | [~] | `DAT-15` | Prueba que falla si una columna prohibida por fuga entra a credit_features_asof | Eduardo | D3 · 29-sep | Eduardo · 2026-09-28 |
 
-## Modelos — 3/10 `████░░░░░░░░`
+## Modelos — 4/10 `█████░░░░░░░`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
-| [x] | `ML-01` | Feature store as-of, sin fuga (corte 2025-12-31) | Eduardo | D3 · 29-sep | sin commit |
-| [x] | `ML-02` | Baseline: regresion logistica solo con credit_score | Eduardo | D3 · 29-sep | sin commit |
-| [ ] | `ML-03` | Modelo de riesgo de incumplimiento (LightGBM) | Eduardo | D4 · 30-sep | — |
+| [x] | `ML-01` | Feature store as-of, sin fuga (corte 2025-12-31) | Eduardo | D3 · 29-sep | Eduardo · 2026-09-29 |
+| [x] | `ML-02` | Baseline: regresion logistica solo con credit_score | Eduardo | D3 · 29-sep | Eduardo · 2026-09-29 |
+| [x] | `ML-03` | Modelo de riesgo de incumplimiento (LightGBM) | Eduardo | D4 · 30-sep | — | se entrega como informe de validacion: la variable objetivo no existe (F-027 a F-034)
 | [x] | `ML-04` | Modelo de capacidad de pago desde flujo transaccional | Federico | D4 · 30-sep | Eduardo · 2026-09-29 |
 | [ ] | `ML-05` | Metricas y calibracion: AUC, PR-AUC, KS, Brier | Eduardo | D4 · 30-sep | — |
 | [ ] | `ML-06` | SHAP: los 3 factores que sustentan cada prediccion | Eduardo | D4 · 30-sep | — |
@@ -63,12 +63,12 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [x] | `SCM-07` | Endurecido contra entradas ambiguas y contradictorias | Federico | D4 · 30-sep | fedevargas93 · 2026-09-28 |
 | [x] | `SCM-08` | Seccion neurosimbolica de la documentacion | Federico | D6 · 2-oct | fedevargas93 · 2026-09-28 |
 
-## Agente — 0/13 `░░░░░░░░░░░░`
+## Agente — 2/13 `██░░░░░░░░░░`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
-| [ ] | `AG-01` | Politica de elegibilidad versionada en YAML | Eduardo | D4 · 30-sep | — |
-| [ ] | `AG-02` | Motor de reglas determinista, testeable sin LLM | Eduardo | D4 · 30-sep | — |
+| [x] | `AG-01` | Politica de elegibilidad versionada en YAML | Eduardo | D4 · 30-sep | sin commit | politica versionada en YAML: umbrales, catalogo, 8 reglas, abstencion, activos y reservas
+| [x] | `AG-02` | Motor de reglas determinista, testeable sin LLM | Eduardo | D4 · 30-sep | — | motor determinista sin LLM, 58 pruebas en verde
 | [ ] | `AG-03` | Registro de tools con allowlist por rol | Eduardo | D5 · 1-oct | — |
 | [ ] | `AG-04` | Las nueve herramientas implementadas | Eduardo | D5 · 1-oct | — |
 | [ ] | `AG-05` | AccessGuard: identidad, 3 intentos, JWT con customer_id dentro | Eduardo | D5 · 1-oct | — |
@@ -135,4 +135,3 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [x] | `INF-06` | Onboarding de Federico: spec, esqueleto, fixtures, agente | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
 | [x] | `INF-07` | Revision de contribuciones y checklist vivo | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
 | [~] | `INF-08` | Cuenta de Databricks conectada (bloqueado: falta host y token) | Eduardo | D2 · 28-sep | fedevargas93 · 2026-09-28 |
-

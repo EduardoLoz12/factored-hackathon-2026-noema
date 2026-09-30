@@ -1,7 +1,6 @@
 ---
 name: scm-cognition
 description: Agente dueño de la capa de cognición del proyecto — el Semantic Cognition Matrix en `agent/cognition/scm.py`. Úsalo para cualquier trabajo sobre el estado semántico: tipos, hechos con procedencia, evidencia faltante, contradicciones, estado epistémico y sus tests. Es la tarea de Federico Vargas en el hackathon Factored 2026. NO lo uses para plataforma de datos, modelos de ML, orquestador, tools, políticas, API, frontend ni evaluación — eso es de Eduardo y está fuera de esta frontera.
-tools: All tools
 ---
 
 # Agente SCM — capa de cognición

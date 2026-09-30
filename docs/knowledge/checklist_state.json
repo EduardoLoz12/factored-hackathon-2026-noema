@@ -3,5 +3,20 @@
     "status": "terminado",
     "note": "26 pruebas de aceptación y casos adversos en verde",
     "at": "2026-09-28 17:53"
+  },
+  "AG-01": {
+    "status": "terminado",
+    "note": "politica versionada en YAML: umbrales, catalogo, 8 reglas, abstencion, activos y reservas",
+    "at": "2026-09-30 13:12"
+  },
+  "AG-02": {
+    "status": "terminado",
+    "note": "motor determinista sin LLM, 58 pruebas en verde",
+    "at": "2026-09-30 13:12"
+  },
+  "ML-03": {
+    "status": "terminado",
+    "note": "se entrega como informe de validacion: la variable objetivo no existe (F-027 a F-034)",
+    "at": "2026-09-30 13:12"
   }
 }

@@ -211,3 +211,36 @@ Si `make` no existe en tu entorno Windows, los pasos equivalentes son
    **antes** de seguir codificando. F-012 a F-017 salieron de dudar de un resultado
    que no cuadraba, no de revisar código.
 4. Ningún número de estos documentos se cita sin la consulta que lo produce.
+
+---
+
+## 7. Aviso del 30-sep sobre ML-04 — los montos del dataset son uniformes
+
+Federico: esto afecta al modelo de capacidad y hay que reportarlo, no arreglarlo.
+
+**Qué encontramos.** Los seis tipos de transacción tienen montos que son **sorteos uniformes sobre un rango fijo por tipo**. Contrastados contra la uniforme teórica de su propio rango:
+
+| Tipo | n | Mín | Máx | σ observada | σ teórica | Curtosis | KS p |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Purchase | 462 526 | 5.00 | 500.00 | 143.11 | **142.89** | −1.204 | 0.142 |
+| Withdrawal | 411 832 | 20.00 | 500.00 | 138.50 | **138.56** | −1.199 | 0.794 |
+| Transfer | 382 069 | 100.02 | 9 999.96 | 2 858.03 | **2 857.87** | −1.200 | 0.395 |
+| Payment | 314 610 | 50.00 | 2 000.00 | 563.52 | **562.92** | −1.200 | 0.197 |
+| **Deposit** | 260 364 | 50.02 | 4 999.99 | **1 426.72** | **1 428.93** | −1.195 | 0.741 |
+| Adjustment | 56 151 | 10.03 | 1 000.00 | 285.94 | **285.78** | −1.199 | 0.858 |
+
+La curtosis de una uniforme es −1.2 exacta; las seis caen entre −1.195 y −1.204. Las seis desviaciones coinciden con `(máx−mín)/√12` hasta el segundo decimal. Kolmogorov-Smirnov no rechaza la uniformidad en ninguno.
+
+**Por qué te afecta.** `capacity.py` se construye sobre montos de `Deposit` y `Withdrawal`, y los dos son uniformes e independientes del pasado. Eso explica sin residuo por qué el MAE de validación le gana al baseline por **0.39 %** (92 369.45 contra 92 731.04) y por qué en USD las dos cifras coinciden hasta el decimal (84.15 las dos): **no hay nada que estimar, porque el flujo futuro es independiente del pasado por construcción**.
+
+**Qué NO hay que hacer.** No toques el modelo. El corte temporal doble, el techo duro `min(min_surplus, 0.30 × mean_deposits)` y la puerta de abstención están bien hechos y son lo que se evalúa. Buscar una configuración que mejore el MAE es perseguir ruido.
+
+**Qué SÍ hay que hacer.** Reportarlo como **estimador sobre datos sintéticos**, con dos cifras al frente:
+1. El desglose por moneda, porque el MAE agregado mezcla ARS, COP y USD y no es comparable.
+2. **La tasa de abstención: de 14 820 filas de validación solo 825 pasan la puerta — el 5.6 %.** El sistema se abstiene en el **94 %** de los casos. Eso no es un defecto: es el comportamiento esperado y así se presenta. La política lo trata como rama de primera clase.
+
+**Cómo se conecta.** `predict_capacity` ya está enganchado a `agent/policies/engine.py`: cuando estima, el margen de elegibilidad es el **menor** entre el de política y el tuyo; cuando se abstiene, se usa solo el de política y la respuesta lo declara. **Tu estimador solo puede restringir, nunca ampliar.** Hay pruebas de las dos direcciones en `tests/policies/`.
+
+**Contexto más amplio.** Esto es parte de una cadena de doce hallazgos (F-023 a F-034): la variable objetivo de este dataset no existe, no está en las alternativas, y no se puede construir. La causa raíz es F-031 — productos y transacciones se generaron por separado y se unieron sin coherencia temporal, con el 18.7 % de las transacciones ocurriendo antes de que exista la cuenta que las contiene. Léete F-029 y F-031 antes de tocar `capacity.py`.
+
+**Lo que sí es coherente en el dataset**, por si sirve: las **tasas de interés**. Rangos disjuntos y ordenados como en banca real — tarjeta 18–45 %, personal 12–28 %, hipotecario 6–12 %. Es el único bloque que pasó la validación, y por eso la política las usa como condiciones de catálogo.
