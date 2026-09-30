@@ -105,7 +105,7 @@ def cargar(ruta: Path, cohorte: str) -> pd.DataFrame:
     if cohorte == "estricta":
         # `mora_90_estricta` se agrega solo sobre productos observados después
         # del corte. Es una columna distinta de `mora_90` a propósito.
-        df = df[df.etiqueta_posterior == 1].copy()
+        df = df[df.tiene_observacion_posterior == 1].copy()
         df["mora_90"] = df.mora_90_estricta.astype(int)
     elif cohorte == "completa":
         df = df[df.etiquetable == 1].copy()

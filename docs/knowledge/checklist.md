@@ -2,7 +2,7 @@
 
 Generado por `make checklist` contra el estado real del repo. Cuando alguien crea o completa un archivo de evidencia, el ítem avanza solo en la siguiente corrida. **No editar estados a mano aquí** — usar `python -m scripts.checklist --done ID --note "..."`.
 
-Última evaluación: 2026-09-30 13:12
+Última evaluación: 2026-09-30 13:29
 
 Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
@@ -39,7 +39,7 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
-| [x] | `ML-01` | Feature store as-of, sin fuga (corte 2025-12-31) | Eduardo | D3 · 29-sep | Eduardo · 2026-09-29 |
+| [x] | `ML-01` | Feature store as-of, sin fuga (corte 2025-12-31) | Eduardo | D3 · 29-sep | Eduardo · 2026-09-29 | deuda cerrada: moneda a USD, poda por redundancia, etiqueta_posterior renombrada y bloque de cuotas
 | [x] | `ML-02` | Baseline: regresion logistica solo con credit_score | Eduardo | D3 · 29-sep | Eduardo · 2026-09-29 |
 | [x] | `ML-03` | Modelo de riesgo de incumplimiento (LightGBM) | Eduardo | D4 · 30-sep | — | se entrega como informe de validacion: la variable objetivo no existe (F-027 a F-034)
 | [x] | `ML-04` | Modelo de capacidad de pago desde flujo transaccional | Federico | D4 · 30-sep | Eduardo · 2026-09-29 |
@@ -67,7 +67,7 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
-| [x] | `AG-01` | Politica de elegibilidad versionada en YAML | Eduardo | D4 · 30-sep | sin commit | politica versionada en YAML: umbrales, catalogo, 8 reglas, abstencion, activos y reservas
+| [x] | `AG-01` | Politica de elegibilidad versionada en YAML | Eduardo | D4 · 30-sep | Eduardo · 2026-09-30 | politica versionada en YAML: umbrales, catalogo, 8 reglas, abstencion, activos y reservas
 | [x] | `AG-02` | Motor de reglas determinista, testeable sin LLM | Eduardo | D4 · 30-sep | — | motor determinista sin LLM, 58 pruebas en verde
 | [ ] | `AG-03` | Registro de tools con allowlist por rol | Eduardo | D5 · 1-oct | — |
 | [ ] | `AG-04` | Las nueve herramientas implementadas | Eduardo | D5 · 1-oct | — |
@@ -132,6 +132,6 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [x] | `INF-03` | Auditoria del dataset documentada | Eduardo | D1 · 27-sep | Eduardo · 2026-09-29 |
 | [x] | `INF-04` | Decisiones de arquitectura registradas | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
 | [x] | `INF-05` | Contrato de seguridad escrito | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
-| [x] | `INF-06` | Onboarding de Federico: spec, esqueleto, fixtures, agente | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
+| [x] | `INF-06` | Onboarding de Federico: spec, esqueleto, fixtures, agente | Eduardo | D1 · 27-sep | Eduardo · 2026-09-30 |
 | [x] | `INF-07` | Revision de contribuciones y checklist vivo | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
 | [~] | `INF-08` | Cuenta de Databricks conectada (bloqueado: falta host y token) | Eduardo | D2 · 28-sep | fedevargas93 · 2026-09-28 |

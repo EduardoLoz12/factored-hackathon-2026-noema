@@ -1395,3 +1395,28 @@ La política fija los umbrales —cuántos productos como máximo, qué carga so
 Antes de construir un modelo de elegibilidad, comprobar que **la decisión histórica esté codificada en los datos**. Si el perfil del cliente no explica qué producto tiene ni con qué límite, no hay política que aprender: hay una política que escribir. Se comprueba con dos consultas —AUC de «tiene el producto» contra atributos del cliente, y tabla cruzada de límite por score × ingreso— y ambas caben en una tarde.
 
 **Evidencia.** `logs/eval/elegibilidad.json`.
+
+## F-035 · 2026-09-30 · datos — Silver traduce `transaction_type` al español y deja el estado en inglés: un filtro con los valores de bronze devuelve cero filas en silencio
+
+**Qué.** Al construir el bloque de cuotas sobre `noema_silver.transactions_with_fx` el filtro `transaction_type = 'Payment'` devolvió **cero filas**, sobre una tabla de 4 425 008. No hubo error, no hubo aviso: el `LEFT JOIN` rellenó con nulos y el `coalesce` los convirtió en ceros. El resultado parecía plausible —«los clientes no pagan», que es coherente con F-029— y solo se destapó al mirar la distribución: **mediana de cuotas pagadas exactamente 0 y `pagado_usd` exactamente 0** para todos los clientes con producto de crédito.
+
+**La causa.** La capa silver **traduce** los niveles de `transaction_type` y **no** los de `transaction_status`:
+
+| Columna | Bronze | Silver |
+|---|---|---|
+| `transaction_type` | Purchase · Withdrawal · Transfer · **Payment** · Deposit · Adjustment | Compra · Retiro · Transferencia · **Pago** · Depósito · Ajuste |
+| `transaction_status` | Approved · Declined · Pending · Reversed | **iguales** |
+
+Los conteos coinciden uno a uno —Compra 1 083 406 contra Purchase 1 083 406, Pago 738 964 contra Payment 738 964—, así que **F-016 sigue siendo correcto**: la normalización no colapsa ningún nivel. Pero sí renombra, y eso F-016 no lo decía.
+
+**Por qué es peligroso.** Un filtro por un valor que no existe no falla: devuelve el conjunto vacío. Combinado con `LEFT JOIN` más `coalesce(..., 0)` —que es la forma correcta de tratar la ausencia de pagos— produce una tabla de ceros indistinguible de un hallazgo real. Y en este proyecto **había un hallazgo real muy parecido** (F-029: el 29 % de los productos no registra ningún pago), lo que hacía el error aún más creíble.
+
+**Cómo se detectó.** Mirando la mediana. Que `cuotas_pagadas` y `pagado_usd` fueran **exactamente** 0 y no «casi 0» es la firma de un filtro vacío, no de un comportamiento. Un fenómeno real deja cola; un conjunto vacío no.
+
+Con los valores correctos: media 3.31 pagos, mediana 2, cumplimiento mediano 3.81 %, y **20.86 %** de clientes con producto de crédito sin ningún pago — coherente con F-029 a nivel producto.
+
+**Corrección.** `TIPO_PAGO = "Pago"` y `ESTADO_APROBADO = "Approved"` como constantes en `ml/features/build_features.py`, con el comentario que explica la asimetría. El `tx` CTE ya usaba los valores en español y por eso funcionaba; el bloque nuevo se escribió mirando bronze.
+
+**Regla que deja.** Al filtrar una capa derivada por un valor de enum, **comprobar que ese valor existe en esa capa**, no en la de origen. Una consulta de una línea —`select distinct <columna>`— antes de escribir el filtro. Y ante un agregado que sale **exactamente** cero, sospechar del filtro antes de creerse el hallazgo: los ceros redondos son de código, no de negocio.
+
+**Evidencia.** `select transaction_type, count(*) from noema_silver.transactions_with_fx group by 1` contra la misma consulta sobre `data/bronze/transactions`.

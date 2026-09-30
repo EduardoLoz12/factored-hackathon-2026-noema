@@ -107,6 +107,38 @@ COLUMNAS_PROHIBIDAS = {
 SNAPSHOT_CLIENTE = ("credit_score", "estimated_monthly_income")
 SNAPSHOT_PRODUCTO = ("credit_limit",)
 
+# Moneda en la que está expresado el ingreso declarado, por país del cliente.
+#
+# `estimated_monthly_income` viene en moneda local y `stg_customers` no trae
+# columna de moneda, así que hay que derivarla del país. Los productos sí traen
+# `currency` y se convierten con ella directamente.
+#
+# Sin esta conversión un cliente colombiano parece 234 veces más rico que uno
+# mexicano por la pura unidad de cuenta: mediana 9 200 526 COP contra 39 475 MXN.
+# Ver F-025.
+MONEDA_POR_PAIS = {
+    "Argentina": "ARS",
+    "Colombia": "COP",
+    "México": "MXN",
+}
+
+# Variables que se retiran del feature store por redundancia. Cada una repite
+# información ya presente en otra, con VIF por encima de 10 o correlación sobre
+# 0.84. Se conserva la de mejor cobertura o la de VIF menor. Ver F-025.
+# Silver TRADUCE `transaction_type` al español —Compra, Retiro, Transferencia,
+# Pago, Depósito, Ajuste— y deja `transaction_status` en inglés. Usar los valores
+# de bronze aquí devuelve cero filas en silencio, que es exactamente lo que pasó
+# al construir el bloque de cuotas. Las constantes están para que no vuelva.
+TIPO_PAGO = "Pago"
+ESTADO_APROBADO = "Approved"
+
+RETIRADAS_POR_REDUNDANCIA = {
+    "n_sucursales": "duplica n_productos (r = 0.9913): cada producto arrastra su sucursal",
+    "ticket_sd_usd_180d": "duplica ticket_max_usd_180d (r = 0.9444)",
+    "ticket_max_usd_180d": "duplica volumen_usd_180d y ticket_medio (r = 0.8288)",
+    "tx_180d": "duplica meses_activos_180d (r = 0.8404); se conserva el de VIF menor",
+}
+
 
 def _sql_cohortes(corte: str, sig: str) -> str:
     """Construye la consulta completa. Se deja en un solo SQL a propósito.
@@ -116,12 +148,28 @@ def _sql_cohortes(corte: str, sig: str) -> str:
     en claridad.
     """
     tipos = ", ".join(f"'{t}'" for t in PRODUCTOS_DE_CREDITO)
+    # Mapa país → moneda para convertir el ingreso declarado. `stg_customers` no
+    # trae columna de moneda; los productos sí, y se convierten con la suya.
+    caso_moneda = " ".join(f"when '{p}' then '{m}'" for p, m in MONEDA_POR_PAIS.items())
     # `sig` = día siguiente al corte. Las variables cubren el día del corte
     # completo, así que una etiqueta solo lo *sigue* si se observó desde el
     # día siguiente. Sin esto, una observación a las 14:00 del día del corte
     # pasaría el filtro con cero días de separación.
     sql = f"""
     with
+    -- Tasa de cambio a USD por moneda, mediana de los 30 días previos al corte.
+    -- Se usa la mediana y no la del día exacto para no quedar a merced de un
+    -- festivo sin cotización. Nunca una fecha posterior al corte.
+    tasas as (
+        select source_currency                                               as moneda,
+               median(exchange_rate)                                          as a_usd
+        from noema_silver.stg_daily_exchange_rates
+        where target_currency = 'USD'
+          and date <= DATE '{corte}'
+          and date >  DATE '{corte}' - INTERVAL 30 DAY
+        group by 1
+    ),
+
     -- Etiqueta. Solo productos de crédito con valor: el nulo de una cuenta de
     -- ahorro significa «no aplica» y contarlo como «al día» infla el
     -- denominador un 64 % (F-015).
@@ -129,8 +177,8 @@ def _sql_cohortes(corte: str, sig: str) -> str:
     -- validez temporal hay que imponerla DENTRO de la agregación, no marcarla
     -- después: un cliente con un producto observado antes del corte y otro
     -- después produciría una etiqueta que mezcla una observación válida con una
-    -- inválida. Por eso se agregan dos etiquetas separadas y `etiqueta_posterior`
-    -- se deriva de que exista la estricta, no de un `max()` de marcas.
+    -- inválida. Por eso se agregan dos etiquetas separadas y la marca de
+    -- cobertura se deriva de que exista la estricta, no de un `max()` de marcas.
     etiqueta as (
         select
             customer_id,
@@ -175,8 +223,6 @@ def _sql_cohortes(corte: str, sig: str) -> str:
             sum(case when transaction_type in ('Transferencia','Ajuste')
                      then 1 else 0 end)                                      as tx_ambiguas_180d,
             avg(converted_amount_usd) as ticket_medio_usd_180d,
-            stddev(converted_amount_usd)                                     as ticket_sd_usd_180d,
-            max(converted_amount_usd)                                        as ticket_max_usd_180d,
             count(distinct channel)                                          as canales_180d,
             sum(case when transaction_status = 'Declined'  then 1 else 0 end) as tx_rechazadas_180d,
             sum(case when transaction_status = 'Reversed'  then 1 else 0 end) as tx_reversadas_180d,
@@ -196,17 +242,55 @@ def _sql_cohortes(corte: str, sig: str) -> str:
             customer_id,
             count(*)                                                        as n_productos,
             count(*) filter (where product_type in ({tipos}))                as n_credito,
-            sum(credit_limit)                                               as limite_total,
+            -- El límite viene en la moneda del producto. Sin convertir, sumar
+            -- una tarjeta en COP con una hipoteca en USD no significa nada.
+            sum(credit_limit * coalesce(fx.a_usd, case when p.currency = 'USD'
+                                                      then 1.0 end))        as limite_total_usd,
+            count(*) filter (where credit_limit is not null
+                               and fx.a_usd is null
+                               and p.currency <> 'USD')                      as limites_sin_tasa,
             max(date_diff('day', opening_date, DATE '{corte}')) as antiguedad_producto_dias,
             min(date_diff('day', opening_date, DATE '{corte}')) as producto_mas_nuevo_dias,
             avg(interest_rate)                                              as tasa_interes_media,
             max(case when last_updated >= DATE '{sig}' then 1 else 0 end) as limite_posterior,
             -- Sucursal derivada: `registration_branch_id` no es llave foránea
             -- (F-012), pero `opening_branch_id` sí lo es y cubre el 93 %.
-            mode(opening_branch_id)                                          as sucursal_derivada,
-            count(distinct opening_branch_id)                                as n_sucursales
-        from noema_silver.stg_products
+            -- `n_sucursales` se retiró por redundancia: duplicaba n_productos
+            -- con r = 0.9913. Ver RETIRADAS_POR_REDUNDANCIA.
+            mode(opening_branch_id)                                          as sucursal_derivada
+        from noema_silver.stg_products p
+        left join tasas fx on fx.moneda = p.currency
         where opening_date <= DATE '{corte}'
+        group by 1
+    ),
+
+    -- Comportamiento de pago sobre productos de crédito. Hecho DESCRIPTIVO, no
+    -- predictor: se incorpora porque el agente necesita poder decirle al cliente
+    -- cuántas cuotas registra, y la política puede decidir sobre el cumplimiento.
+    -- No discrimina riesgo y no debe usarse como tal (F-030, F-033).
+    --
+    -- El supuesto es vencimiento mensual, y se declara como supuesto: el dataset
+    -- no tiene calendario de pagos (F-029).
+    cuotas as (
+        select
+            p.customer_id,
+            sum(date_diff('month', p.opening_date, DATE '{corte}'))          as cuotas_esperadas,
+            coalesce(sum(g.n), 0)                                            as cuotas_pagadas,
+            coalesce(sum(g.pagado_usd), 0)                                   as pagado_usd
+        from noema_silver.stg_products p
+        left join (
+            select product_id,
+                   count(*)                                                  as n,
+                   sum(converted_amount_usd)                                 as pagado_usd
+            from noema_silver.transactions_with_fx
+            where transaction_type   = '{TIPO_PAGO}'
+              and transaction_status = '{ESTADO_APROBADO}'
+              and transaction_date  <= DATE '{corte}'
+              and process_date      <= DATE '{corte}'
+            group by 1
+        ) g on g.product_id = p.product_id
+        where p.product_type in ({tipos})
+          and p.opening_date <= DATE '{corte}'
         group by 1
     ),
 
@@ -237,16 +321,12 @@ def _sql_cohortes(corte: str, sig: str) -> str:
         coalesce(k.n_credito, 0)                                             as n_productos_credito,
         k.antiguedad_producto_dias,
         k.producto_mas_nuevo_dias,
-        k.n_sucursales,
-        coalesce(t.tx_180d, 0)                                               as tx_180d,
         coalesce(t.meses_activos_180d, 0)                                    as meses_activos_180d,
         coalesce(t.volumen_usd_180d, 0)                                      as volumen_usd_180d,
         coalesce(t.entradas_usd_180d, 0)                                     as entradas_usd_180d,
         coalesce(t.salidas_usd_180d, 0)                                      as salidas_usd_180d,
         coalesce(t.tx_ambiguas_180d, 0)                                      as tx_ambiguas_180d,
         t.ticket_medio_usd_180d,
-        t.ticket_sd_usd_180d,
-        t.ticket_max_usd_180d,
         coalesce(t.canales_180d, 0)                                          as canales_180d,
         coalesce(t.tx_rechazadas_180d, 0)                                    as tx_rechazadas_180d,
         coalesce(t.tx_reversadas_180d, 0)                                    as tx_reversadas_180d,
@@ -259,9 +339,25 @@ def _sql_cohortes(corte: str, sig: str) -> str:
 
         -- ── nivel snapshot: de la foto, con su marca ──
         c.credit_score,
-        c.estimated_monthly_income                                           as ingreso_declarado,
-        k.limite_total,
+        -- Ingreso convertido a USD. `stg_customers` no trae moneda, así que se
+        -- deriva del país con MONEDA_POR_PAIS. Sin esto, un cliente colombiano
+        -- parece 234 veces más rico que uno mexicano (F-025).
+        c.estimated_monthly_income * fxc.a_usd                               as ingreso_usd,
+        case when c.estimated_monthly_income is not null and fxc.a_usd is null
+             then 1 else 0 end                                               as ingreso_sin_tasa,
+        k.limite_total_usd,
+        coalesce(k.limites_sin_tasa, 0)                                      as limites_sin_tasa,
         k.tasa_interes_media,
+
+        -- ── comportamiento de pago: hecho descriptivo, NO predictor ──
+        -- Supuesto declarado: vencimiento mensual. No hay calendario de pagos
+        -- en el dataset (F-029), así que las cuotas esperadas son los meses
+        -- transcurridos desde la apertura de cada producto de crédito.
+        cu.cuotas_esperadas,
+        coalesce(cu.cuotas_pagadas, 0)                                       as cuotas_pagadas,
+        coalesce(cu.pagado_usd, 0)                                           as pagado_usd,
+        case when cu.cuotas_esperadas > 0
+             then cu.cuotas_pagadas::DOUBLE / cu.cuotas_esperadas end        as cumplimiento,
         case when c.last_updated >= DATE '{sig}' then 1 else 0 end as cliente_posterior,
         coalesce(k.limite_posterior, 0)                                      as limite_posterior,
 
@@ -289,7 +385,11 @@ def _sql_cohortes(corte: str, sig: str) -> str:
         e.mora_90_estricta,
         coalesce(e.n_credito_estricto, 0)                                    as n_credito_estricto,
         e.dias_hasta_etiqueta,
-        case when e.mora_90_estricta is not null then 1 else 0 end           as etiqueta_posterior,
+        -- NO es la mora: es un indicador de COBERTURA. Vale 1 cuando existe una
+        -- observación válida después del corte. Se llamaba `etiqueta_posterior`
+        -- y ese nombre hizo que se usara como variable objetivo durante un rato
+        -- (F-023). La mora es `mora_90` o `mora_90_estricta`.
+        case when e.mora_90_estricta is not null then 1 else 0 end   as tiene_observacion_posterior,
         case when e.customer_id is null then 0 else 1 end                    as etiquetable
 
     from noema_silver.stg_customers c
@@ -297,6 +397,8 @@ def _sql_cohortes(corte: str, sig: str) -> str:
     left join tx       t using(customer_id)
     left join cartera  k using(customer_id)
     left join quejas   q using(customer_id)
+    left join cuotas   cu using(customer_id)
+    left join tasas    fxc on fxc.moneda = case c.country {caso_moneda} end
     where c.registration_date <= DATE '{corte}'
     """  # noqa: S608 — lo único interpolado son fechas ya validadas por
     # date.fromisoformat y constantes del módulo; no hay entrada de usuario.
@@ -343,12 +445,12 @@ def resumen(con: duckdb.DuckDBPyConnection, corte: date) -> dict[str, Any]:
     total, etiquetables, estrictos = uno("""
         select count(*),
                sum(etiquetable),
-               sum(case when etiquetable = 1 and etiqueta_posterior = 1 then 1 else 0 end)
+               sum(case when etiquetable = 1 and tiene_observacion_posterior = 1 then 1 else 0 end)
         from features""")
 
     tasa_estricta, pos_estrictos = uno("""
         select avg(mora_90_estricta), sum(mora_90_estricta) from features
-        where etiqueta_posterior = 1""")
+        where tiene_observacion_posterior = 1""")
 
     tasa_completa, pos_completos = uno("""
         select avg(mora_90), sum(mora_90) from features where etiquetable = 1""")

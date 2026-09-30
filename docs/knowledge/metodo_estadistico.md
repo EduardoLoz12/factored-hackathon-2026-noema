@@ -228,3 +228,10 @@ Aquí la respuesta a la 5 fue **no** —la etiqueta es un sorteo sintético— y
     si el total de eventos esta acotado. Si lo esta, el objetivo es el
     complemento de lo que no se conto, y cualquier variable de composicion lo
     predice sin saber nada. Ver F-033: `pagos = total - no_pagos`.
+
+17. Al filtrar una capa derivada por un valor de enum, comprobar que ese valor
+    existe EN ESA CAPA, no en la de origen. Silver traduce `transaction_type`
+    al español y deja `transaction_status` en inglés; un filtro por el valor de
+    bronze devuelve cero filas sin avisar. Ver F-035.
+18. Un agregado que sale EXACTAMENTE cero es sospechoso del filtro, no un
+    hallazgo. Los ceros redondos son de código; un fenómeno real deja cola.

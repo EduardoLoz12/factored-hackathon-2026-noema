@@ -29,6 +29,30 @@ Y una tercera, ya corregida en el análisis pero pendiente en el código: **`eti
 
 **Evidencia.** `logs/eval/catalogo_feature_store.json` · `logs/eval/catalogo_numericas.csv` · `logs/eval/eda_variables.csv` · `logs/eval/vif.json` · `logs/eval/fx_revalidacion.json` · hallazgos F-021 a F-025 en [`findings.md`](findings.md).
 
+### Deuda de ML-01 — cerrada el 30-sep
+
+Los tres defectos que el diccionario destapó están corregidos en `ml/features/build_features.py`, y el feature store se reconstruyó.
+
+**1 · Moneda a USD.** `ingreso_declarado` → **`ingreso_usd`** (convertido por país con `MONEDA_POR_PAIS`, porque `stg_customers` no trae moneda) y `limite_total` → **`limite_total_usd`** (convertido por la `currency` del producto). Las tasas salen de `stg_daily_exchange_rates`, mediana de los 30 días previos al corte, nunca una fecha posterior. Control de que funcionó:
+
+| País | Ingreso mediano USD | Límite mediano USD |
+|---|---:|---:|
+| México | 2 324 | 41 379 |
+| Colombia | 2 300 | 40 363 |
+| Argentina | 2 293 | 40 831 |
+
+Antes: Colombia 9 200 526 contra México 39 475. Ahora son del mismo orden, como debe ser. Dos banderas nuevas — `ingreso_sin_tasa` y `limites_sin_tasa` — cuentan lo que se quedó sin convertir; ambas dan cero y hay una prueba que lo exige.
+
+**2 · Poda por redundancia.** Retiradas cuatro variables, con su motivo en `RETIRADAS_POR_REDUNDANCIA`: `n_sucursales` (r = 0.9913 con `n_productos`), `ticket_sd_usd_180d` (r = 0.9444 con `ticket_max`), `ticket_max_usd_180d` (r = 0.8288 con `volumen`) y `tx_180d` (r = 0.8404 con `meses_activos_180d`, se conserva el de VIF menor). `sin_actividad_180d` ahora se contrasta contra `meses_activos_180d`.
+
+**3 · Renombre.** `etiqueta_posterior` → **`tiene_observacion_posterior`**, con el comentario que explica que no es la mora sino un indicador de cobertura. Actualizado en `baseline_logreg.py` y en los tests.
+
+**4 · Bloque de cuotas añadido** como hecho descriptivo, no predictor: `cuotas_esperadas`, `cuotas_pagadas`, `pagado_usd` y `cumplimiento`, con el supuesto de vencimiento mensual declarado en el comentario. Media 3.31 pagos, mediana 2, cumplimiento mediano 3.81 %, y 20.86 % de clientes con crédito sin ningún pago.
+
+El feature store queda en **48 columnas**. Suite completa: **141 pruebas en verde**, 4 saltadas. Baseline regenerado: AUC 0.5056, IC95 [0.4927, 0.5193], control barajado 0.5064 — sigue sin discriminar.
+
+Y salió un hallazgo nuevo en el camino: **F-035**, silver traduce `transaction_type` al español y deja `transaction_status` en inglés, así que un filtro con el valor de bronze devuelve cero filas en silencio. Lo destapó que el agregado saliera *exactamente* cero.
+
 ## Política de Elegibilidad — qué fija
 
 **AG-01 y AG-02, cerrados el 30-sep-2026.**

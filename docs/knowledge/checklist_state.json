@@ -18,5 +18,10 @@
     "status": "terminado",
     "note": "se entrega como informe de validacion: la variable objetivo no existe (F-027 a F-034)",
     "at": "2026-09-30 13:12"
+  },
+  "ML-01": {
+    "status": "terminado",
+    "note": "deuda cerrada: moneda a USD, poda por redundancia, etiqueta_posterior renombrada y bloque de cuotas",
+    "at": "2026-09-30 13:29"
   }
 }
