@@ -1,0 +1,1558 @@
+<!doctype html>
+<!DOCTYPE html>
+
+<html><head><!-- Standalone repository copy of the user-provided Claude artifact H9vyqKfvR3bDbtb43uD37C --><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><title>Bronze contra Silver</title></head><body>
+
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&amp;family=Source+Sans+3:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+/* Layout: columna única de lectura (68ch) con figuras a sangre completa hasta 1120px;
+   rieles de sección numerados a la izquierda en pantallas anchas. */
+:root{
+  --bg:#FCFCFB; --surface:#F5F4F1; --ink:#1A1A19; --ink-2:#4A4844; --ink-3:#7C7970;
+  --rule:#DFDDD6; --rule-2:#EAE8E2;
+  --raw:#C25A12; --clean:#1A6DBF;
+  --ok:#2E6F45; --warn:#A8710C; --crit:#A32E22;
+  --raw-soft:rgba(194,90,18,.14); --clean-soft:rgba(26,109,191,.14);
+  --f-display:"Newsreader",Georgia,"Times New Roman",serif;
+  --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141413; --surface:#1E1E1C; --ink:#EDEBE6; --ink-2:#B5B2AA; --ink-3:#85827A;
+  --rule:#32312D; --rule-2:#26251F;
+  --raw:#CE6E2E; --clean:#4E93D6;
+  --ok:#5CA271; --warn:#CE9A32; --crit:#D2685A;
+  --raw-soft:rgba(206,110,46,.18); --clean-soft:rgba(78,147,214,.18);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141413; --surface:#1E1E1C; --ink:#EDEBE6; --ink-2:#B5B2AA; --ink-3:#85827A;
+  --rule:#32312D; --rule-2:#26251F;
+  --raw:#CE6E2E; --clean:#4E93D6;
+  --ok:#5CA271; --warn:#CE9A32; --crit:#D2685A;
+  --raw-soft:rgba(206,110,46,.18); --clean-soft:rgba(78,147,214,.18);
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:0 72px}
+.col{max-width:68ch}
+h1,h2,h3{font-family:var(--f-display);font-weight:500;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.1rem,5.5vw,3.4rem);line-height:1.08;letter-spacing:-.018em}
+h2{font-size:clamp(1.45rem,3vw,1.95rem);line-height:1.18;letter-spacing:-.012em}
+h3{font-size:1.06rem;font-weight:600;line-height:1.3}
+p{margin:0}
+.lede{font-family:var(--f-display);font-size:clamp(1.08rem,2.1vw,1.3rem);line-height:1.5;color:var(--ink-2)}
+.eyebrow{font-family:var(--f-mono);font-size:.7rem;font-weight:500;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+small{font-size:.83rem;color:var(--ink-2);line-height:1.5}
+
+header.top{border-bottom:1px solid var(--rule);padding-block:44px 34px;margin-bottom:0}
+.kicker{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:baseline;margin-bottom:22px}
+.stamp{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.06em;color:var(--ink-3)}
+
+/* Veredicto */
+.verdict{display:flex;gap:16px;align-items:flex-start;border-left:3px solid var(--clean);
+  background:var(--surface);padding:18px 20px;margin-top:30px;border-radius:0 4px 4px 0}
+.verdict h3{margin-bottom:6px}
+
+/* Tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:1px;
+  background:var(--rule);border-block:1px solid var(--rule);margin-block:0}
+.tile{background:var(--bg);padding:20px 18px 18px;min-width:0}
+.tile .v{font-family:var(--f-mono);font-size:1.62rem;font-weight:500;line-height:1.05;letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;display:block;margin-bottom:5px}
+.tile .k{font-size:.79rem;color:var(--ink-2);line-height:1.35;display:block}
+.tile .sub{font-family:var(--f-mono);font-size:.7rem;color:var(--ink-3);margin-top:5px;display:block}
+
+section{padding-top:52px}
+.shead{display:flex;gap:14px;align-items:baseline;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--rule)}
+.snum{font-family:var(--f-mono);font-size:.78rem;color:var(--ink-3);flex:none;padding-top:.3em}
+.stack{display:flex;flex-direction:column;gap:16px}
+
+/* Figuras */
+figure{margin:28px 0 0;min-width:0}
+figcaption{font-size:.83rem;color:var(--ink-2);line-height:1.5;margin-top:10px;max-width:72ch}
+.fbox{border:1px solid var(--rule);border-radius:3px;background:var(--surface);padding:16px 14px 12px;overflow-x:auto}
+.ftitle{font-size:.88rem;font-weight:600;margin-bottom:2px}
+.fsub{font-size:.78rem;color:var(--ink-3);margin-bottom:14px}
+svg{display:block;max-width:100%;height:auto;overflow:visible}
+
+/* Leyenda */
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;margin-bottom:14px;font-size:.8rem}
+.lg{display:inline-flex;align-items:center;gap:7px;color:var(--ink-2)}
+.sw{width:13px;height:13px;border-radius:2px;flex:none;display:inline-block}
+
+/* Tablas */
+.tw{overflow-x:auto;border:1px solid var(--rule);border-radius:3px;margin-top:22px}
+table{border-collapse:collapse;width:100%;font-size:.84rem;min-width:520px}
+th,td{padding:8px 12px;text-align:right;border-bottom:1px solid var(--rule-2);white-space:nowrap}
+th{font-family:var(--f-mono);font-size:.7rem;font-weight:500;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink-3);background:var(--surface);position:sticky;top:0;border-bottom:1px solid var(--rule)}
+th:first-child,td:first-child{text-align:left}
+tbody tr:last-child td{border-bottom:0}
+td.n{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+tr.tot td{font-weight:600;background:var(--surface)}
+
+/* Chips de estado */
+.chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--f-mono);font-size:.68rem;
+  letter-spacing:.05em;padding:2px 7px;border-radius:2px;border:1px solid;white-space:nowrap}
+.chip::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;flex:none}
+.c-ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 38%,transparent)}
+.c-wa{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 38%,transparent)}
+.c-cr{color:var(--crit);border-color:color-mix(in srgb,var(--crit) 38%,transparent)}
+
+/* Nota lateral */
+.note{border-left:2px solid var(--rule);padding:2px 0 2px 16px;color:var(--ink-2);font-size:.9rem}
+.note strong{color:var(--ink)}
+
+/* Tooltip */
+#tip{position:fixed;z-index:60;pointer-events:none;opacity:0;transition:opacity .09s;
+  background:var(--ink);color:var(--bg);font-family:var(--f-mono);font-size:.73rem;line-height:1.5;
+  padding:7px 10px;border-radius:3px;max-width:260px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+#tip b{font-weight:600}
+.hit{cursor:crosshair}
+
+/* Implicaciones */
+.impl{display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:3px;margin-top:24px}
+.impl>div{background:var(--bg);padding:16px 18px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start}
+.impl .tag{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.06em;color:var(--ink-3);padding-top:.25em;white-space:nowrap}
+
+footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);display:flex;flex-wrap:wrap;
+  gap:10px 26px;justify-content:space-between;align-items:baseline;font-size:.78rem;color:var(--ink-3)}
+footer a{color:var(--ink-2)}
+a{color:var(--clean)}
+:focus-visible{outline:2px solid var(--clean);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (min-width:900px){.shead{margin-left:-34px}.snum{width:20px}}
+@media (max-width:560px){
+  .tile .v{font-size:1.35rem}
+  .wrap{padding-inline:16px}
+}
+</style>
+<div class="wrap">
+<header class="top">
+<div class="kicker">
+<span class="eyebrow">Hackathon Factored 2026 · equipo noema</span>
+<span class="stamp">29-sep-2026 · DuckDB 1.4 · dbt 1.10</span>
+</div>
+<div class="col stack">
+<h1>Bronze contra Silver</h1>
+<p class="lede">Qué le hizo realmente la capa limpia a 23 495 188 filas del dataset de LATAM Bank, medido columna por columna contra el crudo.</p>
+<p>Federico entregó la plataforma de datos el 28 de septiembre. Antes de entrenar el modelo de riesgo sobre su tabla de features hay que responder tres preguntas separadas: si se perdió masa de datos y si esa pérdida fue selectiva, si la calidad medible mejoró, y si la distribución sobrevivió intacta. Las tres se contestan abajo con el pipeline corrido de punta a punta — <span class="mono">PASS=25, ERROR=0</span> en 85 segundos.</p>
+</div>
+<div class="verdict col">
+<div>
+<h3>La limpieza no movió las distribuciones. Movió dos columnas.</h3>
+<p><small>El desplazamiento distribucional máximo sobre nueve variables numéricas es <span class="mono">KS D = 0.0020</span>. Doce de trece tablas retienen el 100 % de sus filas. Lo que sí cambió son dos columnas, en direcciones opuestas: el monto en dólares pasó de 57 % nulo a 0 %, y la sucursal de registro pasó de 0 % nula a 99.997 %. El resto del pipeline es tipado, no limpieza.</small></p>
+</div>
+</div>
+</header>
+<div class="tiles">
+<div class="tile"><span class="v">23 495 188</span><span class="k">filas auditadas en bronze</span><span class="sub">13 tablas · 7 671 archivos</span></div>
+<div class="tile"><span class="v">99.9974 %</span><span class="k">retención global a silver</span><span class="sub">607 filas a cuarentena</span></div>
+<div class="tile"><span class="v">0.0020</span><span class="k">KS D máximo, crudo vs limpio</span><span class="sub">sobre 9 variables numéricas</span></div>
+<div class="tile"><span class="v">84 926</span><span class="k">clientes con etiqueta de riesgo</span><span class="sub">no 150 000 · mora real 10.71 %</span></div>
+<div class="tile"><span class="v">0.50</span><span class="k">techo real del modelo de riesgo</span><span class="sub">la etiqueta es un sorteo</span></div>
+</div>
+<section id="s1">
+<div class="shead"><span class="snum">01</span><h2>Masa de datos</h2></div>
+<div class="col stack">
+<p>La primera sospecha ante cualquier pipeline de limpieza es que haya descartado filas y que el descarte no sea aleatorio. Si la pérdida se concentra en un país, una moneda o un estado de transacción, la capa limpia introduce sesgo de selección y todo lo que se entrene encima hereda ese sesgo.</p>
+<p>Aquí no ocurre, por una razón simple: <strong>casi no se descarta nada</strong>. Doce de trece tablas pasan íntegras. La única pérdida son 607 transacciones, el 0.0137 % de esa tabla.</p>
+</div>
+<div class="tw">
+<table>
+<thead><tr><th>Tabla</th><th>Bronze</th><th>Silver</th><th>Δ filas</th><th>Retención</th><th>Archivos</th></tr></thead>
+<tbody id="tbl-ret"></tbody>
+</table>
+</div>
+<div class="col stack" style="margin-top:26px">
+<p class="note"><strong>Las 607 no son aleatorias, y eso es mejor que si lo fueran.</strong> Todas caen el 2026-06-18 y se reparten entre COP (360) y ARS (247). La tabla de tipos de cambio termina el 2026-06-17. Es un artefacto de borde: el último día de transacciones no tiene tasa con la cual convertirse. No es un problema de calidad del dato original, y no toca el período de entrenamiento, que corta el 2025-12-31.</p>
+<p>La prueba de homogeneidad sobre moneda, país y estado de transacción da χ² = 0 con retención 1.000 en todos los niveles: la pérdida es tan pequeña y tan localizada en el tiempo que ningún estrato se desbalancea. <strong>Sin sesgo de selección.</strong></p>
+</div>
+</section>
+<section id="s2">
+<div class="shead"><span class="snum">02</span><h2>Lo que sí cambió</h2></div>
+<div class="col stack">
+<p>Si las filas sobreviven y las distribuciones no se mueven, la pregunta es qué hizo el pipeline. La respuesta está en dos columnas, y van en direcciones contrarias.</p>
+</div>
+<figure>
+<div class="fbox">
+<div class="ftitle">Tasa de nulos, antes y después</div>
+<div class="fsub">Toda columna compartida entre bronze y silver en las tres tablas del modelo. Intervalo de Wilson al 95 %; a estos <em>n</em> el intervalo es más fino que la línea.</div>
+<div class="legend">
+<span class="lg"><span class="sw" style="background:var(--raw)"></span>bronze (crudo)</span>
+<span class="lg"><span class="sw" style="background:var(--clean)"></span>silver (limpio)</span>
+</div>
+<div id="c-nulos"></div>
+</div>
+<figcaption>Solo dos columnas se mueven. <span class="mono">amount_usd</span> se rellena por completo: el pipeline calcula el monto en dólares para las 4 424 401 transacciones, incluidas las 2 537 456 que llegaban sin él. <span class="mono">registration_branch_id</span> recorre el camino inverso.</figcaption>
+</figure>
+<div class="col stack" style="margin-top:28px">
+<h3>El caso de la sucursal</h3>
+<p>La lectura inicial era que <span class="mono">registration_branch_id</span> apuntaba a sucursales inexistentes. Es más simple que eso: <strong>la columna tiene 150 000 valores distintos para 150 000 clientes</strong>. Uno propio por cliente, contra 350 sucursales que existen. No es una referencia rota — no es una referencia.</p>
+<p>Se descartaron las explicaciones baratas antes de concluir. Mismo prefijo <span class="mono">SUC-</span>, misma longitud de doce caracteres, mismo alfabeto <span class="mono">0-9A-Z</span>, sin espacios ni diferencias de mayúsculas. Normalizar con <span class="mono">strip</span>, <span class="mono">upper</span> y quitar el guion no recupera ni una coincidencia: se queda en cinco, que a ese tamaño de espacio es ruido. La prueba definitiva es que las otras dos referencias a sucursal sí funcionan.</p>
+</div>
+<figure>
+<div class="fbox">
+<div class="ftitle">Las cuatro columnas que apuntan a una sucursal</div>
+<div class="fsub">Porcentaje de valores distintos que existen en la tabla de 350 sucursales.</div>
+<div id="c-suc"></div>
+</div>
+<figcaption>Dos son llaves foráneas perfectas y usan exactamente las 350 sucursales. Las otras dos traen identificadores inventados, uno por fila. Es un defecto del generador del dataset, no de la ingesta ni del pipeline.</figcaption>
+</figure>
+<div class="col stack" style="margin-top:26px">
+<p class="note"><strong>Pero la sucursal sí se recupera por otra ruta.</strong> A través de <span class="mono">products.opening_branch_id</span>, que es válida al 100 %: 139 578 de los 150 000 clientes (93.05 %) tienen al menos una sucursal derivable, y 28 189 tienen exactamente una, sin ambigüedad. El agente puede responder «¿en qué sucursal…?» por ahí, diciendo que es la sucursal de apertura del producto y no la de registro. Lo que se pierde es la sucursal de registro como variable, no la noción de sucursal.</p>
+<p class="note">La consecuencia práctica: <strong>la sucursal queda inutilizable como variable</strong>. No hay segmentación geográfica por oficina, ni efecto de canal de origen. El modelo de riesgo tiene que prescindir de ella, y el agente no puede decirle a un cliente en qué sucursal se registró.</p>
+<h3 style="margin-top:12px">El caso del dólar: ruido inyectado, no otra tasa</h3>
+<p>Esta es la contribución real del pipeline. El crudo trae <span class="mono">amount_usd</span> solo en el 42.7 % de las transacciones. La capa limpia lo recalcula para todas, multiplicando el monto local por la tasa del día, y conserva el valor original bajo <span class="mono">reported_amount_usd</span> — lineaje explícito, sin sobrescribir la fuente.</p>
+<p>La conservación es exacta: la razón entre la suma convertida y la suma esperada da <span class="mono">1.000000</span> en las tres monedas, con error absoluto máximo <span class="mono">0.00</span>.</p>
+</div>
+<div class="tw">
+<table>
+<thead><tr><th>Moneda</th><th>Transacciones</th><th>Tasa media</th><th>σ tasa</th><th>Suma local</th><th>Suma USD</th><th>Conservación</th></tr></thead>
+<tbody>
+<tr><td>USD</td><td class="n">2 437 979</td><td class="n">1.000000</td><td class="n">0.000000</td><td class="n">4 085 207 957</td><td class="n">4 085 207 957</td><td class="n">1.000000</td></tr>
+<tr><td>COP</td><td class="n">1 194 084</td><td class="n">0.000250</td><td class="n">0.000003</td><td class="n">7 996 806 M</td><td class="n">1 998 134 939</td><td class="n">1.000000</td></tr>
+<tr><td>ARS</td><td class="n">792 338</td><td class="n">0.002858</td><td class="n">0.000033</td><td class="n">464 554 M</td><td class="n">1 327 905 000</td><td class="n">1.000000</td></tr>
+</tbody>
+</table>
+</div>
+<div class="col stack" style="margin-top:26px">
+<p>Donde la fuente sí trae su propio <span class="mono">amount_usd</span>, no coincide con el recalculado. La primera hipótesis razonable es que el origen use otra tasa — la de compra, la de venta, o la del día anterior. <strong>Ninguna de las tres explica el desvío.</strong> Contra la tasa media el error relativo es de 0.98 %; contra la de compra sube a 1.26 % y contra la de venta a 1.28 %. Si el origen usara compra o venta, el error contra esa tasa sería el menor, no el mayor.</p>
+<p>La forma del error dice lo que realmente pasó.</p>
+</div>
+<figure>
+<div class="fbox">
+<div class="ftitle">Distribución del error relativo contra el monto recalculado</div>
+<div class="fsub">200 000 transacciones no-USD. Si el desvío viniera de una tasa distinta, la distribución estaría desplazada y concentrada. Si viniera de redondeo, decrecería hacia los extremos.</div>
+<div id="c-fxruido"></div>
+</div>
+<figcaption>Es una uniforme en ±2 %, plana hasta los bordes y con corte limpio. El generador del dataset multiplicó el monto verdadero por un factor aleatorio entre 0.98 y 1.02.</figcaption>
+</figure>
+<div class="col stack" style="margin-top:26px">
+<p class="note"><strong>La evidencia es concluyente.</strong> Desviación observada 0.011675 contra 0.011547 que predice exactamente una uniforme(−2 %, +2 %). Curtosis de exceso −1.177 contra −1.2 teórico de una uniforme (una normal daría 0). KS contra uniforme 0.043, contra normal 0.084 — el doble. Sesgo medio +0.0003, o sea simétrica. Y el error absoluto crece proporcional al monto (r = 0.81), o sea multiplicativo, no aditivo.</p>
+<p>Esto reclasifica la decisión del pipeline: no es «defendible», es <strong>la única correcta</strong>. El <span class="mono">amount_usd</span> de la fuente está deliberadamente corrompido; el recalculado es el valor verdadero. Va al documento de limitaciones con esta prueba, como dato sobre cómo se generó el dataset.</p>
+</div>
+</section>
+<section id="s2b">
+<div class="shead"><span class="snum">03</span><h2>Los nulos son de dos clases</h2></div>
+<div class="col stack">
+<p>104 de las 287 columnas de silver tienen nulos. Meterlos en un solo saco y aplicarles la misma imputación es el error más caro que se puede cometer antes de entrenar, porque son dos fenómenos distintos que exigen tratamientos opuestos.</p>
+<p><strong>Nulo estructural:</strong> significa «no aplica», y depende de la fila. Una cuenta de ahorro no tiene límite de crédito ni días de mora. Un retiro en cajero no tiene comercio. Imputar aquí inventa un producto que no existe.</p>
+<p><strong>Nulo inyectado:</strong> el generador borró valores al azar, a tasas redondas. Aquí imputar es correcto y no sesga, siempre que el faltante sea realmente aleatorio — cosa que hay que probar, no suponer.</p>
+</div>
+<figure>
+<div class="fbox">
+<div class="ftitle">Nulo estructural: depende del tipo de producto</div>
+<div class="fsub">Tasa de nulos de tres columnas de <span class="mono">products</span>, por tipo. El patrón separa las dos clases a simple vista.</div>
+<div class="legend">
+<span class="lg"><span class="sw" style="background:var(--raw)"></span><span class="mono">days_past_due</span></span>
+<span class="lg"><span class="sw" style="background:var(--clean)"></span><span class="mono">credit_limit</span></span>
+<span class="lg"><span class="sw" style="background:var(--ink-3)"></span><span class="mono">interest_rate</span></span>
+</div>
+<div id="c-estr"></div>
+</div>
+<figcaption>Los cinco productos que no son de crédito dan 100 % de nulos en mora y límite — el nulo <em>es</em> la información. Dentro de los tres productos de crédito baja a ~5 %, que ya es la tasa inyectada. <span class="mono">interest_rate</span> se queda en 10 % en todos por igual: esa columna es puramente inyectada.</figcaption>
+</figure>
+<figure>
+<div class="fbox">
+<div class="ftitle">Nulo inyectado: homogéneo entre estratos</div>
+<div class="fsub">Tasa de nulos de dos columnas de <span class="mono">customers</span>, en las doce celdas segmento × país. Si el faltante escondiera información, algún estrato se despegaría.</div>
+<div class="legend">
+<span class="lg"><span class="sw" style="background:var(--raw)"></span><span class="mono">credit_score</span> · objetivo 15 %</span>
+<span class="lg"><span class="sw" style="background:var(--clean)"></span><span class="mono">estimated_monthly_income</span> · objetivo 20 %</span>
+</div>
+<div id="c-mcar"></div>
+</div>
+<figcaption>Entre 14.53 % y 15.95 % para el score, entre 19.09 % y 20.79 % para el ingreso. La prueba directa: entre clientes con <span class="mono">credit_score</span> nulo la mora es 6.545 %, entre los que lo tienen 6.550 %. El faltante no informa — es aleatorio de verdad, y por eso se puede imputar sin sesgar.</figcaption>
+</figure>
+<div class="col stack" style="margin-top:26px">
+<p class="note"><strong>Una columna está completamente vacía.</strong> <span class="mono">complaints.origin_interaction_id</span> es nula en las 67 095 filas, sin excepción. El camino queja → interacción de call center no existe en el dataset, así que el agente no puede reconstruir esa trazabilidad y no debe prometerla.</p>
+<p>La regla que queda para el modelo: el nulo estructural se codifica como categoría <span class="mono">no_aplica</span> y nunca se imputa; el inyectado se imputa y lleva su indicador <span class="mono">_faltante</span> como variable adicional.</p>
+</div>
+</section>
+<section id="s3">
+<div class="shead"><span class="snum">04</span><h2>Las distribuciones</h2></div>
+<div class="col stack">
+<p>Esta es la pregunta que importa para el modelo. Una transformación puede preservar el conteo de filas y aun así desplazar la distribución — recortando colas, imputando medias, redondeando. Si eso pasa, el modelo entrenado sobre silver no describe la población que el agente va a ver en producción.</p>
+<p>Con <em>n</em> del orden de 10⁶ cualquier prueba de hipótesis rechaza: el <em>p</em>-valor deja de informar. Lo que se reporta abajo es <strong>tamaño de efecto</strong> — el estadístico D de Kolmogórov-Smirnov, la distancia de Wasserstein estandarizada por la desviación combinada, y el desplazamiento de mediana en esas mismas unidades.</p>
+</div>
+<figure>
+<div class="fbox">
+<div class="ftitle">Desplazamiento distribucional por variable</div>
+<div class="fsub">Tamaño de efecto entre bronze y silver. La referencia es el umbral de 0.01, por debajo del cual la diferencia es indistinguible de ruido de muestreo.</div>
+<div id="c-efecto"></div>
+</div>
+<figcaption>Ninguna variable llega a una centésima del umbral. Las cuatro variables de <span class="mono">customers</span> y <span class="mono">products</span> dan exactamente cero: sus columnas pasan por un <span class="mono">cast</span> de tipo y nada más.</figcaption>
+</figure>
+<figure>
+<div class="fbox">
+<div class="ftitle">Cajas comparadas</div>
+<div class="fsub">Cinco números de Tukey con bigotes a 1.5·IQR. Escala log₁₀ donde la asimetría lo exige (marcado en el eje). Cada par es crudo arriba, limpio abajo.</div>
+<div class="legend">
+<span class="lg"><span class="sw" style="background:var(--raw)"></span>bronze</span>
+<span class="lg"><span class="sw" style="background:var(--clean)"></span>silver</span>
+<span class="lg" style="color:var(--ink-3)">— mediana</span>
+</div>
+<div id="c-cajas"></div>
+</div>
+<figcaption>Las cajas se superponen hasta el pixel. En <span class="mono">transactions.amount</span> la mediana pasa de 5 398.23 a 5 391.10 — una diferencia de 7 pesos sobre una escala cuyo IQR es de 868 000, atribuible a las 607 filas de cuarentena.</figcaption>
+</figure>
+<figure>
+<div class="fbox">
+<div class="ftitle">Función de distribución acumulada empírica</div>
+<div class="fsub">50 cuantiles entre p0.5 y p99.5, crudo contra limpio. Si el pipeline hubiera recortado colas o imputado, las curvas se separarían en los extremos.</div>
+<div class="legend">
+<span class="lg"><span class="sw" style="background:var(--raw)"></span>bronze</span>
+<span class="lg"><span class="sw" style="background:var(--clean)"></span>silver</span>
+</div>
+<div id="c-ecdf"></div>
+</div>
+<figcaption>Las curvas son coincidentes en todo el rango, extremos incluidos. La cola derecha de los montos es la esperada de un dataset multimoneda sin normalizar: asimetría 4.24 y curtosis de exceso 19.10 en escala lineal, que es lo que obliga a leer estas variables en log.</figcaption>
+</figure>
+<div class="tw">
+<table>
+<thead><tr><th>Variable</th><th>n crudo</th><th>n limpio</th><th>Mediana crudo</th><th>Mediana limpio</th><th>Asimetría</th><th>Curtosis</th><th>Outliers Tukey</th><th>KS D</th></tr></thead>
+<tbody id="tbl-mom"></tbody>
+</table>
+</div>
+<figcaption style="margin-top:10px">La tasa de outliers por criterio de Tukey no se mueve en ninguna variable. Es la prueba directa de que no hubo winsorización ni recorte: si el pipeline hubiera tocado las colas, esta columna caería.</figcaption>
+</section>
+<section id="s4">
+<div class="shead"><span class="snum">05</span><h2>Lo que no ocurrió</h2></div>
+<div class="col stack">
+<p>El contrato del proyecto describe la capa silver como la que «normaliza los tipos de producto que venían en español y en inglés». El modelo <span class="mono">stg_products</span> implementa esa normalización con un <span class="mono">CASE</span> de dieciséis ramas que mapea <span class="mono">'Savings Account' → 'Cuenta Ahorro'</span> y así con cada par.</p>
+<p><strong>Ese CASE no hace nada.</strong> No hay mezcla de idiomas que resolver.</p>
+</div>
+<figure>
+<div class="fbox">
+<div class="ftitle">Cardinalidad antes y después</div>
+<div class="fsub">Número de niveles distintos por columna categórica. Una normalización real colapsa niveles; esta no colapsa ninguno.</div>
+<div id="c-card"></div>
+</div>
+<figcaption>Cinco columnas, cero colapso. Las ocho categorías de <span class="mono">product_type</span> están íntegramente en español en el crudo; las seis de <span class="mono">transaction_type</span>, íntegramente en inglés. El idioma es consistente <em>dentro</em> de cada columna — lo que varía es entre columnas, y eso ningún <span class="mono">CASE</span> lo arregla.</figcaption>
+</figure>
+<div class="col stack" style="margin-top:26px">
+<p class="note">Esto no es un defecto del pipeline: el <span class="mono">CASE</span> es defensivo y no rompe nada. Es un defecto de <strong>la documentación</strong>, que afirma haber resuelto un problema que el dataset no tiene. Hay que corregirlo en el contrato del proyecto antes de que llegue a las slides, porque un jurado que abra <span class="mono">stg_products.sql</span> y luego los datos va a ver la contradicción.</p>
+<p>La auditoría de contratos tampoco encuentra nada: <strong>las trece tablas pasan con cero registros en cuarentena</strong> sobre 23 495 188 filas. El mecanismo de cuarentena existe y funciona — lo demuestran las 607 filas del borde FX — pero a nivel de contrato de esquema el dataset ya venía conforme. Vale reportarlo como resultado, no esconderlo como ausencia.</p>
+</div>
+</section>
+<section id="s5">
+<div class="shead"><span class="snum">06</span><h2>La tabla que alimenta el modelo</h2></div>
+<div class="col stack">
+<p><span class="mono">credit_features_asof</span> es el punto donde la plataforma de datos se conecta con el modelo de riesgo. Tiene 141 445 filas, una por cliente con actividad, y siete variables construidas sobre una ventana de 180 días.</p>
+<p>Lo primero que hay que verificar en una tabla así es que no sepa el futuro. El corte declarado es el 2025-12-31; la fecha máxima de evento observada es <span class="mono">2025-12-30</span> y la de procesamiento también. El filtro se aplica sobre ambas, que es lo correcto: filtrar solo por fecha de evento dejaría entrar información que en el momento del corte todavía no estaba disponible en el sistema. <strong>Sin fuga.</strong></p>
+</div>
+<div class="col stack" style="margin-top:22px">
+<h3>Primero, el universo de la etiqueta es la mitad de lo que parece</h3>
+<p><strong>La tabla no trae variable objetivo.</strong> Hay que construir el <span class="mono">join</span> a <span class="mono">days_past_due</span> por fuera, y ahí está la primera trampa: esa columna solo existe en los tres productos de crédito. En una cuenta de ahorro es nula porque no aplica, no porque el cliente esté al día.</p>
+<p>Escribir <span class="mono">max(case when days_past_due &gt;= 90 then 1 else 0 end)</span> —el reflejo natural— convierte cada nulo estructural en un «no está en mora». Eso infla el denominador un 64 % y baja la tasa aparente de <strong>10.71 % a 6.52 %</strong>. Es el mismo error que cometió la primera versión de esta auditoría.</p>
+</div>
+<div class="tw">
+<table>
+<thead><tr><th>Etapa</th><th>Filas</th><th>Comentario</th></tr></thead>
+<tbody>
+<tr><td>Productos totales</td><td class="n">400 000</td><td style="text-align:left;color:var(--ink-3)">—</td></tr>
+<tr><td>Productos de crédito</td><td class="n">131 972</td><td style="text-align:left;color:var(--ink-3)">tarjeta, préstamo personal, hipotecario</td></tr>
+<tr><td>Con <span class="mono">days_past_due</span></td><td class="n">125 350</td><td style="text-align:left;color:var(--ink-3)">el 5 % restante es nulo inyectado</td></tr>
+<tr><td>Clientes etiquetables</td><td class="n">84 926</td><td style="text-align:left;color:var(--ink-3)">no 150 000</td></tr>
+<tr class="tot"><td>Cruzados con features</td><td class="n">80 057</td><td style="text-align:left;color:var(--ink-2)">tasa de mora real <strong>10.71 %</strong></td></tr>
+</tbody>
+</table>
+</div>
+<div class="col stack" style="margin-top:28px">
+<h3>Segundo, la etiqueta casi no discrimina</h3>
+<p><span class="mono">days_past_due</span> toma siete valores y nada más: 0, 15, 30, 60, 90, 120 y 180. Los no-cero se reparten en partes casi iguales, unos 3 100 cada uno. Eso ya sugiere una variable generada por sorteo sobre un menú fijo, no un comportamiento de pago.</p>
+</div>
+<figure>
+<div class="fbox">
+<div class="ftitle">Tasa de mora a 90 días por estrato</div>
+<div class="fsub">Cuatro cortes distintos de la cartera. Una etiqueta con estructura de riesgo tendría que separarse en alguno de ellos, sobre todo en el tramo de score.</div>
+<div id="c-estratos"></div>
+</div>
+<figcaption>No se separa en ninguno. Entre 7.39 % y 7.82 % en los cuatro cortes. Un cliente con <span class="mono">credit_score</span> bajo 550 cae en mora el <strong>7.81 %</strong> de las veces; uno sobre 750, el <strong>7.42 %</strong>. La diferencia es de cuatro décimas de punto en dirección correcta pero magnitud nula: <strong>el score no informa sobre la mora en este dataset</strong>.</figcaption>
+</figure>
+<figure>
+<div class="fbox">
+<div class="ftitle">Poder discriminante, variable por variable</div>
+<div class="fsub">AUC de cada variable tomada sola, sobre los 80 057 clientes con etiqueta correcta. La línea en 0.5 es el azar.</div>
+<div id="c-auc"></div>
+</div>
+<figcaption>Con la etiqueta corregida la señal cae respecto de la medición ingenua. La mejor variable llega a 0.542. <span class="mono">tenure_days</span> da 0.498, indistinguible de una moneda al aire.</figcaption>
+</figure>
+<div class="col stack" style="margin-top:28px">
+<h3>Tercero, el techo del modelo</h3>
+<p>Entrenando sobre 79 492 clientes con 14 variables y midiendo en una partición retenida del 30 %, el gradient boosting llega a <strong>AUC 0.582</strong> y el baseline de <span class="mono">credit_score</span> a 0.503.</p>
+<p>Un 0.58 es poco, pero sería señal. <strong>No lo es</strong>, y descubrir por qué ocupa el resto de esta sección.</p>
+</div>
+</section>
+<section id="s7">
+<div class="shead"><span class="snum">07</span><h2>Por qué el score no predice la mora</h2></div>
+<div class="col stack">
+<p>Que el <span class="mono">credit_score</span> del propio banco no prediga la mora de ese banco es, sencillamente, imposible. Cuando un resultado es imposible la primera hipótesis es que la medición esté mal, no que la realidad sea rara. Esta sección son las cuatro pruebas que se hicieron para encontrar ese error de medición.</p>
+<p>No lo había.</p>
+<h3 style="margin-top:14px">Uno · El score sí es coherente</h3>
+<p>Lo primero era descartar que el score fuera ruido generado al azar. No lo es. Correlaciona <strong>0.356</strong> con el ingreso mensual y ordena limpiamente por segmento comercial. Su distribución es plausible: rango 422–850, media 647.1, asimetría +0.67.</p>
+</div>
+<figure>
+<div class="fbox">
+<div class="ftitle">El score por segmento comercial</div>
+<div class="fsub">Media y desviación por segmento, sobre 127 508 clientes con score.</div>
+<div id="c-score"></div>
+</div>
+<figcaption>Premium, Plus, Student y Basic quedan perfectamente ordenados y separados. El generador construyó el score a partir del perfil del cliente, y lo hizo bien. <strong>El problema no está en el score.</strong></figcaption>
+</figure>
+<div class="col stack" style="margin-top:26px">
+<h3>Dos · La mora no se relaciona con nada</h3>
+<p>Si el score está bien, quizá el problema sea que la mora depende de otra cosa. Se midieron diez variables a nivel de producto, sobre las 125 350 filas con <span class="mono">days_past_due</span>.</p>
+</div>
+<figure>
+<div class="fbox">
+<div class="ftitle">Poder discriminante de cada variable, a nivel producto</div>
+<div class="fsub">AUC contra mora a 90 días. La banda gris marca el rango donde una variable es indistinguible del azar.</div>
+<div id="c-nada"></div>
+</div>
+<figcaption>Las diez caen entre 0.496 y 0.506. La lectura decisiva es la <strong>utilización de línea</strong> en 0.4978: en banca real es el segundo predictor más fuerte después del score, y aquí no discrimina en absoluto.</figcaption>
+</figure>
+<div class="col stack" style="margin-top:26px">
+<h3>Tres · No hay tendencia por tramo de score</h3>
+<p>Una relación podría existir y ser no lineal, invisible a la correlación. Se probó por tramos con el test de tendencia de Cochran-Armitage.</p>
+</div>
+<figure>
+<div class="fbox">
+<div class="ftitle">Mora a 90 días por tramo de score</div>
+<div class="fsub">Cuatro tramos. Un score que funciona produce una pendiente pronunciada y descendente.</div>
+<div id="c-tramos"></div>
+</div>
+<figcaption><strong>z = −0.79, p = 0.43.</strong> La mora va de 7.63 % bajo 600 a 7.32 % sobre 800: treinta y una centésimas de punto porcentual a lo largo de 230 puntos de score. En una cartera real esa diferencia va del orden de 25 % a 1 % entre deciles extremos.</figcaption>
+</figure>
+<div class="col stack" style="margin-top:26px">
+<h3>Cuatro · El 0.58 era un artefacto de agregación</h3>
+<p>Queda explicar de dónde salía el 0.582 del modelo. La etiqueta del cliente se construye como <span class="mono">max()</span> sobre sus productos: está en mora si <em>alguno</em> lo está. Quien tiene más productos de crédito tiene más sorteos, y por lo tanto más probabilidad de que alguno salga en mora — sin ser más riesgoso.</p>
+<p>Si la mora fuera un sorteo independiente por producto con probabilidad fija, la tasa por cliente tendría que seguir exactamente <span class="mono">1 − (1 − p)<sup>k</sup></span>.</p>
+</div>
+<figure>
+<div class="fbox">
+<div class="ftitle">Mora observada contra la predicción de independencia</div>
+<div class="fsub">Tasa por cliente según su número de productos de crédito, contra <span class="mono">1 − (1 − 0.075166)<sup>k</sup></span>. Sin ajustar ningún parámetro: la <em>p</em> es la tasa por producto observada.</div>
+<div class="legend">
+<span class="lg"><span class="sw" style="background:var(--raw)"></span>observado</span>
+<span class="lg"><span class="sw" style="background:var(--clean)"></span>predicho por independencia</span>
+</div>
+<div id="c-bern"></div>
+</div>
+<figcaption>Coinciden. La curva no se ajustó a los datos — sale de aplicar la fórmula con la tasa por producto. Por eso el conteo de productos de crédito, <strong>sin modelo alguno</strong>, da AUC 0.622: es toda la «señal» que el modelo encontró.</figcaption>
+</figure>
+<figure>
+<div class="fbox">
+<div class="ftitle">Las mismas variables, dentro de cada estrato</div>
+<div class="fsub">AUC calculada por separado entre clientes con el mismo número de productos de crédito. Controlar esa variable elimina el artefacto.</div>
+<div id="c-estrat"></div>
+</div>
+<figcaption>Todo colapsa a 0.50. Entre los 51 164 clientes con exactamente un producto de crédito: transacciones 0.494, salidas 0.494, meses activos 0.495, score 0.499. <strong>No queda nada.</strong></figcaption>
+</figure>
+<div class="col stack" style="margin-top:28px">
+<p class="note"><strong>El veredicto:</strong> <span class="mono">days_past_due</span> es una Bernoulli(0.075166) sorteada de forma independiente por cada producto de crédito. El techo real del modelo de riesgo es <strong>AUC = 0.50</strong>. Cualquier cifra por encima viene de una de dos tautologías — tener producto de crédito, o tener más de uno — y ninguna de las dos es riesgo.</p>
+<p>Tiene sentido: el resto del dataset es coherente —el score con el ingreso, los productos con los clientes, las transacciones con los productos— pero la bandera de mora se añadió al final por sorteo, sin conectarla con nada.</p>
+<h3 style="margin-top:14px">Qué se hace con esto</h3>
+<p><strong>No invalida el proyecto. Lo ordena, y refuerza la tesis.</strong></p>
+<p>El modelo de riesgo se entrena igual, se mide y <strong>se reporta que no discrimina</strong>, con esta evidencia al lado. El rubro del hackathon premia explícitamente la honestidad sobre lo que falta; detectar que la etiqueta es sintética demuestra más criterio que exhibir un AUC inflado que un evaluador desarma en una pregunta.</p>
+<p>El baseline de <span class="mono">credit_score</span> gana sentido en vez de perderlo: da 0.503 y ahora sabemos exactamente por qué. La tabla baseline contra propuesto se mantiene, con ambos en 0.50 y la explicación debajo.</p>
+<p>Y la consecuencia de diseño: <strong>la elegibilidad no se apoya en una probabilidad estimada</strong>, porque esa probabilidad no existe. Decide la política versionada sobre hechos verificables — ingreso, capacidad de pago, mora observada, antigüedad. Que es exactamente lo que este proyecto sostiene desde el principio: separar la conversación de la decisión, y que la decisión la tome una regla auditable y no un modelo.</p>
+</div>
+<figure>
+<div class="fbox">
+<div class="ftitle">Quiénes quedan fuera de la tabla de features</div>
+<div class="fsub">Porcentaje de clientes sin fila en <span class="mono">credit_features_asof</span>, por estrato. Si la exclusión fuera selectiva, algún estrato se despegaría de la media.</div>
+<div id="c-excl"></div>
+</div>
+<figcaption>La exclusión es homogénea: entre 5.33 % y 6.25 % por segmento, entre 5.65 % y 5.83 % por país. Los 8 555 clientes sin fila son los que no registran transacciones en la ventana de 180 días previa al corte, y eso ocurre con la misma frecuencia en toda la cartera. <strong>El faltante es estructural, no sesgado.</strong></figcaption>
+</figure>
+<div class="tw">
+<table>
+<thead><tr><th>Variable</th><th>n</th><th>Media</th><th>σ</th><th>Mediana</th><th>p95</th><th>Asimetría</th><th>AUC vs mora</th></tr></thead>
+<tbody id="tbl-gold"></tbody>
+</table>
+</div>
+</section>
+<section id="s6">
+<div class="shead"><span class="snum">08</span><h2>Qué significa para el modelo</h2></div>
+<div class="col">
+<p>Seis consecuencias operativas, en orden de urgencia para el entrenamiento.</p>
+</div>
+<div class="impl">
+<div><span class="tag">usable</span><div><strong>La plataforma de datos sirve y no bloquea nada.</strong> Corre en 85 segundos de punta a punta, no tiene fuga, no desplaza distribuciones y su faltante es homogéneo. El entrenamiento arranca contra ella hoy.</div></div>
+<div><span class="tag">crítico</span><div><strong>Construir la etiqueta filtrando el nulo estructural.</strong> <span class="mono">days_past_due</span> solo existe en productos de crédito. Tratar el nulo como «al día» infla el denominador un 64 %. Universo real: 80 057 clientes, mora 10.71 %.</div></div>
+<div><span class="tag">crítico</span><div><strong>No hay modelo de riesgo posible: el techo es AUC 0.50.</strong> La etiqueta es una Bernoulli(0.075) sorteada por producto, independiente de todo. Se entrena, se mide y se reporta que no discrimina, con la evidencia de la sección 07.</div></div>
+<div><span class="tag">crítico</span><div><strong>La elegibilidad no se apoya en un PD estimado.</strong> Decide <span class="mono">eligibility_v1.yaml</span> sobre hechos verificables: ingreso, capacidad de pago, mora observada, antigüedad. Es la tesis del proyecto llevada hasta el final.</div></div>
+<div><span class="tag">hay que hacer</span><div><strong>Separar los dos regímenes de nulo antes de imputar.</strong> Estructural a categoría <span class="mono">no_aplica</span>; inyectado a imputación con indicador <span class="mono">_faltante</span>. Una sola política para ambos mete productos inexistentes al entrenamiento.</div></div>
+<div><span class="tag">recuperable</span><div><strong>La sucursal se deriva por los productos.</strong> <span class="mono">registration_branch_id</span> no es una llave, pero <span class="mono">products.opening_branch_id</span> sí lo es y cubre al 93.05 % de los clientes. El agente responde por esa vía, declarando que es la sucursal de apertura.</div></div>
+<div><span class="tag">hecho</span><div><strong>Contrato del proyecto corregido.</strong> Afirmaba que silver normaliza enums mezclados español/inglés. No hay mezcla y el <span class="mono">CASE</span> es inerte. Corregido en <span class="mono">CLAUDE.md</span> y en la auditoría de datos, con el hallazgo F-016.</div></div>
+<div><span class="tag">declarar</span><div><strong>El dólar de la fuente trae ruido uniforme de ±2 %.</strong> Probado, no sospechado. El pipeline usa el valor recalculado, que es el verdadero. Va al documento de limitaciones con la evidencia.</div></div>
+<div><span class="tag">declarar</span><div><strong><span class="mono">complaints.origin_interaction_id</span> está vacía al 100 %.</strong> El camino queja → interacción no existe. El agente no debe prometer esa trazabilidad.</div></div>
+</div>
+</section>
+<footer>
+<span>Auditoría reproducible: <span class="mono">make audit</span> → <span class="mono">dbt build</span> → análisis. Semilla 20260929.</span>
+<span>v1.0 · <a href="https://elozconsulting.com">Eloz Consulting</a></span>
+</footer>
+</div>
+<div aria-live="polite" id="tip" role="status"></div>
+<script>
+const D = {"conteos": [{"t": "branches", "raw": 350, "clean": 350, "ret": 1.0, "perd": 0}, {"t": "call_center_interactions", "raw": 686296, "clean": 686296, "ret": 1.0, "perd": 0}, {"t": "call_transcripts", "raw": 171321, "clean": 171321, "ret": 1.0, "perd": 0}, {"t": "campaign_sends", "raw": 1746801, "clean": 1746801, "ret": 1.0, "perd": 0}, {"t": "complaints", "raw": 67095, "clean": 67095, "ret": 1.0, "perd": 0}, {"t": "customers", "raw": 150000, "clean": 150000, "ret": 1.0, "perd": 0}, {"t": "daily_exchange_rates", "raw": 13164, "clean": 13164, "ret": 1.0, "perd": 0}, {"t": "digital_events", "raw": 15620994, "clean": 15620994, "ret": 1.0, "perd": 0}, {"t": "marketing_campaigns", "raw": 200, "clean": 200, "ret": 1.0, "perd": 0}, {"t": "products", "raw": 400000, "clean": 400000, "ret": 1.0, "perd": 0}, {"t": "satisfaction_surveys", "raw": 212759, "clean": 212759, "ret": 1.0, "perd": 0}, {"t": "service_agents", "raw": 1200, "clean": 1200, "ret": 1.0, "perd": 0}, {"t": "transactions", "raw": 4425008, "clean": 4424401, "ret": 0.9998628251067568, "perd": 607}], "cuarentena": [{"currency": "COP", "n": 360, "desde": "2026-06-18 00:00:00", "hasta": "2026-06-18 00:00:00", "monto_medio": 6662691.52483333}, {"currency": "ARS", "n": 247, "desde": "2026-06-18 00:00:00", "hasta": "2026-06-18 00:00:00", "monto_medio": 665368.2938461538}], "momentos": {"transactions.amount": {"raw": {"n": 4425008, "media": 1913670.9025838121, "sd": 5668217.358419823, "cv": 2.9619603615055623, "asimetria": 4.238901754015354, "curtosis_exceso": 19.09844123697162, "min": 5.0, "p1": 30.68, "p5": 99.04, "q1": 425.43, "mediana": 5398.23, "q3": 868640.7275, "p95": 13114175.192499997, "p99": 32729366.87469999, "max": 39999828.48, "iqr": 868215.2975, "mad": 5292.389999999999, "outliers_tukey": 0.13698687098418805, "outliers_mad": 0.43574045515849913}, "clean": {"n": 4424401, "media": 1913354.1779741643, "sd": 5667780.215454207, "cv": 2.9622221963396145, "asimetria": 4.239229581394817, "curtosis_exceso": 19.10155722948961, "min": 5.0, "p1": 30.67, "p5": 99.03, "q1": 425.37, "mediana": 5391.1, "q3": 868210.47, "p95": 13111726.33, "p99": 32727161.29, "max": 39999828.48, "iqr": 867785.1, "mad": 5285.160000000001, "outliers_tukey": 0.13699006939018413, "outliers_mad": 0.43569061665070596}}, "transactions.amount_usd": {"raw": {"n": 1887552, "media": 1675.074620391915, "sd": 2333.7637193580904, "cv": 1.3932297050814744, "asimetria": 1.8669413507429224, "curtosis_exceso": 2.659539639941836, "min": 5.0, "p1": 22.26, "p5": 61.69, "q1": 242.06, "mediana": 466.69, "q3": 1979.74, "p95": 7554.503499999999, "p99": 9506.714899999999, "max": 9999.96, "iqr": 1737.68, "mad": 367.02, "outliers_tukey": 0.12215928355881056, "outliers_mad": 0.24248656460855117}, "clean": {"n": 4424401, "media": 1675.0849224146339, "sd": 2333.770764259377, "cv": 1.3932253422084702, "asimetria": 1.8670450332831816, "curtosis_exceso": 2.660574164620982, "min": 4.9098605399999995, "p1": 22.34, "p5": 61.7, "q1": 242.04267990000002, "mediana": 466.84, "q3": 1979.58, "p95": 7551.03, "p99": 9505.67267588, "max": 10199.777691000001, "iqr": 1737.5373201, "mad": 367.15999999999997, "outliers_tukey": 0.12233475220713493, "outliers_mad": 0.24237134021079915}}, "transactions.fraud_score": {"raw": {"n": 3539851, "media": 15.031166097104089, "sd": 8.77081127396826, "cv": 0.5835083730235705, "asimetria": 0.17324006111028248, "curtosis_exceso": 0.14115851498775012, "min": 0.0, "p1": 0.3, "p5": 1.5, "q1": 7.5, "mediana": 15.01, "q3": 22.51, "p95": 28.52, "p99": 29.72, "max": 99.99, "iqr": 15.010000000000002, "mad": 7.51, "outliers_tukey": 0.000520078387480151, "outliers_mad": 0.00048702614884072804}, "clean": {"n": 3539368, "media": 15.031124285465653, "sd": 8.770831395348706, "cv": 0.5835113347994643, "asimetria": 0.17326647001684298, "curtosis_exceso": 0.14133209003440728, "min": 0.0, "p1": 0.3, "p5": 1.5, "q1": 7.5, "mediana": 15.01, "q3": 22.51, "p95": 28.52, "p99": 29.72, "max": 99.99, "iqr": 15.010000000000002, "mad": 7.51, "outliers_tukey": 0.0005201493599987342, "outliers_mad": 0.00048709261088420304}}, "customers.credit_score": {"raw": {"n": 127508, "media": 647.0983624556891, "sd": 76.84856105806975, "cv": 0.11875870117556055, "asimetria": 0.6686112645815118, "curtosis_exceso": -0.10168381930707371, "min": 422.0, "p1": 514.0, "p5": 544.0, "q1": 591.0, "mediana": 631.0, "q3": 695.0, "p95": 802.0, "p99": 850.0, "max": 850.0, "iqr": 104.0, "mad": 49.0, "outliers_tukey": 1.5685290334724097e-05, "outliers_mad": 0.010940490008470057}, "clean": {"n": 127508, "media": 647.0983624556891, "sd": 76.84856105806975, "cv": 0.11875870117556055, "asimetria": 0.6686112645815119, "curtosis_exceso": -0.10168381930707326, "min": 422.0, "p1": 514.0, "p5": 544.0, "q1": 591.0, "mediana": 631.0, "q3": 695.0, "p95": 802.0, "p99": 850.0, "max": 850.0, "iqr": 104.0, "mad": 49.0, "outliers_tukey": 1.5685290334724097e-05, "outliers_mad": 0.010940490008470057}}, "customers.estimated_monthly_income": {"raw": {"n": 119967, "media": 5895961.54026874, "sd": 14471948.229606792, "cv": 2.4545526850480703, "asimetria": 4.231239111956459, "curtosis_exceso": 20.74438757817859, "min": 5100.28, "p1": 10309.832, "p5": 16750.087, "q1": 39227.56, "mediana": 342974.42, "q3": 5362111.885, "p95": 33717282.625, "p99": 85949515.9906, "max": 111895075.15, "iqr": 5322884.325, "mad": 323442.81, "outliers_tukey": 0.10195303708519843, "outliers_mad": 0.35363891736894315}, "clean": {"n": 119967, "media": 5895961.54026874, "sd": 14471948.229606792, "cv": 2.4545526850480703, "asimetria": 4.231239111956459, "curtosis_exceso": 20.74438757817859, "min": 5100.28, "p1": 10309.832, "p5": 16750.087, "q1": 39227.56, "mediana": 342974.42, "q3": 5362111.885, "p95": 33717282.625, "p99": 85949515.9906, "max": 111895075.15, "iqr": 5322884.325, "mad": 323442.81, "outliers_tukey": 0.10195303708519843, "outliers_mad": 0.35363891736894315}}, "products.current_balance": {"raw": {"n": 400000, "media": 6398475.925089475, "sd": 32924812.495842118, "cv": 5.14572733902749, "asimetria": 12.582671450944224, "curtosis_exceso": 183.59765028455735, "min": 0.0, "p1": 0.0, "p5": 443.1985, "q1": 2068.5924999999997, "mediana": 7511.254999999999, "q3": 3054066.9875, "p95": 24556933.316999964, "p99": 61849301.8480001, "max": 881511545.61, "iqr": 3051998.395, "mad": 7165.054999999999, "outliers_tukey": 0.16755, "outliers_mad": 0.4491}, "clean": {"n": 400000, "media": 6398475.925089475, "sd": 32924812.495842118, "cv": 5.14572733902749, "asimetria": 12.582671450944224, "curtosis_exceso": 183.59765028455735, "min": 0.0, "p1": 0.0, "p5": 443.1985, "q1": 2068.5924999999997, "mediana": 7511.254999999999, "q3": 3054066.9875, "p95": 24556933.316999964, "p99": 61849301.8480001, "max": 881511545.61, "iqr": 3051998.395, "mad": 7165.054999999999, "outliers_tukey": 0.16755, "outliers_mad": 0.4491}}, "products.credit_limit": {"raw": {"n": 125317, "media": 43180976.17941556, "sd": 94636695.8837287, "cv": 2.191629376105725, "asimetria": 3.270470614008172, "curtosis_exceso": 12.067573947026863, "min": 1000.33, "p1": 2170.4408000000003, "p5": 6720.318, "q1": 27968.23, "mediana": 93046.09, "q3": 34605471.84, "p95": 194902111.44799998, "p99": 510290697.4259999, "max": 599984205.95, "iqr": 34577503.61000001, "mad": 86050.08, "outliers_tukey": 0.17558671209811916, "outliers_mad": 0.4464358387130238}, "clean": {"n": 125317, "media": 43180976.17941556, "sd": 94636695.8837287, "cv": 2.191629376105725, "asimetria": 3.270470614008172, "curtosis_exceso": 12.067573947026863, "min": 1000.33, "p1": 2170.4408000000003, "p5": 6720.318, "q1": 27968.23, "mediana": 93046.09, "q3": 34605471.84, "p95": 194902111.44799998, "p99": 510290697.4259999, "max": 599984205.95, "iqr": 34577503.61000001, "mad": 86050.08, "outliers_tukey": 0.17558671209811916, "outliers_mad": 0.4464358387130238}}, "products.interest_rate": {"raw": {"n": 359934, "media": 9.984632182566804, "sd": 13.77697173643192, "cv": 1.3798176522202341, "asimetria": 1.1802388229258376, "curtosis_exceso": -0.13164810987829068, "min": 0.0, "p1": 0.0, "p5": 0.0, "q1": 0.33, "mediana": 2.2, "q3": 20.56, "p95": 39.64, "p99": 43.92, "max": 45.0, "iqr": 20.23, "mad": 2.0100000000000002, "outliers_tukey": 0.0, "outliers_mad": 0.3045363872265471}, "clean": {"n": 359934, "media": 9.984632182566804, "sd": 13.77697173643192, "cv": 1.3798176522202341, "asimetria": 1.1802388229258376, "curtosis_exceso": -0.13164810987829068, "min": 0.0, "p1": 0.0, "p5": 0.0, "q1": 0.33, "mediana": 2.2, "q3": 20.56, "p95": 39.64, "p99": 43.92, "max": 45.0, "iqr": 20.23, "mad": 2.0100000000000002, "outliers_tukey": 0.0, "outliers_mad": 0.3045363872265471}}, "products.days_past_due": {"raw": {"n": 125350, "media": 12.341045073793378, "sd": 36.48238629357671, "cv": 2.956182890138557, "asimetria": 3.311084658695666, "curtosis_exceso": 10.532004081480043, "min": 0.0, "p1": 0.0, "p5": 0.0, "q1": 0.0, "mediana": 0.0, "q3": 0.0, "p95": 90.0, "p99": 180.0, "max": 180.0, "iqr": 0.0, "mad": 0.0, "outliers_tukey": 0.0, "outliers_mad": null}, "clean": {"n": 125350, "media": 12.341045073793378, "sd": 36.48238629357671, "cv": 2.956182890138557, "asimetria": 3.311084658695666, "curtosis_exceso": 10.532004081480043, "min": 0.0, "p1": 0.0, "p5": 0.0, "q1": 0.0, "mediana": 0.0, "q3": 0.0, "p95": 90.0, "p99": 180.0, "max": 180.0, "iqr": 0.0, "mad": 0.0, "outliers_tukey": 0.0, "outliers_mad": null}}}, "cajas": {"transactions.amount": {"raw": {"q1": 2.628828111742239, "mediana": 3.7322513844070206, "q3": 5.938840188040077, "bigote_bajo": 0.6989700043360189, "bigote_alto": 7.602058129069231, "pct_fuera": 0.0, "n": 4425008, "escala": "log10"}, "clean": {"q1": 2.6287668572312906, "mediana": 3.731677387670855, "q3": 5.938625018816444, "bigote_bajo": 0.6989700043360189, "bigote_alto": 7.602058129069231, "pct_fuera": 0.0, "n": 4424401, "escala": "log10"}, "log": true}, "transactions.amount_usd": {"raw": {"q1": 242.06, "mediana": 466.69, "q3": 1979.74, "bigote_bajo": 5.0, "bigote_alto": 4586.26, "pct_fuera": 0.12215928355881056, "n": 1887552, "escala": "lineal"}, "clean": {"q1": 242.04267990000002, "mediana": 466.84, "q3": 1979.58, "bigote_bajo": 4.9098605399999995, "bigote_alto": 4585.87688384, "pct_fuera": 0.12233475220713493, "n": 4424401, "escala": "lineal"}, "log": false}, "transactions.fraud_score": {"raw": {"q1": 7.5, "mediana": 15.01, "q3": 22.51, "bigote_bajo": 0.0, "bigote_alto": 44.97, "pct_fuera": 0.000520078387480151, "n": 3539851, "escala": "lineal"}, "clean": {"q1": 7.5, "mediana": 15.01, "q3": 22.51, "bigote_bajo": 0.0, "bigote_alto": 44.97, "pct_fuera": 0.0005201493599987342, "n": 3539368, "escala": "lineal"}, "log": false}, "customers.credit_score": {"raw": {"q1": 591.0, "mediana": 631.0, "q3": 695.0, "bigote_bajo": 441.0, "bigote_alto": 850.0, "pct_fuera": 1.5685290334724097e-05, "n": 127508, "escala": "lineal"}, "clean": {"q1": 591.0, "mediana": 631.0, "q3": 695.0, "bigote_bajo": 441.0, "bigote_alto": 850.0, "pct_fuera": 1.5685290334724097e-05, "n": 127508, "escala": "lineal"}, "log": false}, "customers.estimated_monthly_income": {"raw": {"q1": 4.5935912953175855, "mediana": 5.5352617303427225, "q3": 6.729335871600554, "bigote_bajo": 3.7075940190620438, "bigote_alto": 8.048810972299155, "pct_fuera": 0.0, "n": 119967, "escala": "log10"}, "clean": {"q1": 4.5935912953175855, "mediana": 5.5352617303427225, "q3": 6.729335871600554, "bigote_bajo": 3.7075940190620438, "bigote_alto": 8.048810972299155, "pct_fuera": 0.0, "n": 119967, "escala": "log10"}, "log": true}, "products.current_balance": {"raw": {"q1": 3.354137263033107, "mediana": 3.921004852593528, "q3": 6.521211909049847, "bigote_bajo": -0.6777807052660807, "bigote_alto": 8.945228004850742, "pct_fuera": 0.0, "n": 389082, "escala": "log10"}, "clean": {"q1": 3.354137263033107, "mediana": 3.921004852593528, "q3": 6.521211909049847, "bigote_bajo": -0.6777807052660807, "bigote_alto": 8.945228004850742, "pct_fuera": 0.0, "n": 389082, "escala": "log10"}, "log": true}, "products.credit_limit": {"raw": {"q1": 4.446664982440297, "mediana": 4.968698127847199, "q3": 7.539144775152019, "bigote_bajo": 3.000143293536895, "bigote_alto": 8.778139818118571, "pct_fuera": 0.0, "n": 125317, "escala": "log10"}, "clean": {"q1": 4.446664982440297, "mediana": 4.968698127847199, "q3": 7.539144775152019, "bigote_bajo": 3.000143293536895, "bigote_alto": 8.778139818118571, "pct_fuera": 0.0, "n": 125317, "escala": "log10"}, "log": true}, "products.interest_rate": {"raw": {"q1": 0.33, "mediana": 2.2, "q3": 20.56, "bigote_bajo": 0.0, "bigote_alto": 45.0, "pct_fuera": 0.0, "n": 359934, "escala": "lineal"}, "clean": {"q1": 0.33, "mediana": 2.2, "q3": 20.56, "bigote_bajo": 0.0, "bigote_alto": 45.0, "pct_fuera": 0.0, "n": 359934, "escala": "lineal"}, "log": false}, "products.days_past_due": {"raw": {"q1": 0.0, "mediana": 0.0, "q3": 0.0, "bigote_bajo": 0.0, "bigote_alto": 0.0, "pct_fuera": 0.1497008376545672, "n": 125350, "escala": "lineal"}, "clean": {"q1": 0.0, "mediana": 0.0, "q3": 0.0, "bigote_bajo": 0.0, "bigote_alto": 0.0, "pct_fuera": 0.1497008376545672, "n": 125350, "escala": "lineal"}, "log": false}}, "ecdf": {"transactions.amount": {"raw": {"p": [0.005, 0.0252, 0.0454, 0.0656, 0.0858, 0.106, 0.1262, 0.1464, 0.1666, 0.1868, 0.207, 0.2272, 0.2474, 0.2677, 0.2879, 0.3081, 0.3283, 0.3485, 0.3687, 0.3889, 0.4091, 0.4293, 0.4495, 0.4697, 0.4899, 0.5101, 0.5303, 0.5505, 0.5707, 0.5909, 0.6111, 0.6313, 0.6515, 0.6717, 0.6919, 0.7121, 0.7323, 0.7526, 0.7728, 0.793, 0.8132, 0.8334, 0.8536, 0.8738, 0.894, 0.9142, 0.9344, 0.9546, 0.9748, 0.995], "x": [1.332034277027518, 1.7621531923035947, 1.961231197044663, 2.0947156343281867, 2.196921944819459, 2.279872181802656, 2.3491026085630318, 2.4089180208467798, 2.461393467035359, 2.508031172592898, 2.5504851836935183, 2.589178574910965, 2.624601767442247, 2.657237568032927, 2.6878220079037485, 2.8040098746270994, 2.9350132394777644, 3.0418878147660333, 3.1380752262215403, 3.216835665398334, 3.283828142570468, 3.404545158131939, 3.5174373813432824, 3.607048092813121, 3.681088302602278, 3.797102035014976, 3.902999648665145, 3.987579355617442, 4.5983557504822565, 4.863419671865589, 5.02122946859075, 5.13619448824075, 5.226822517900928, 5.445450163428821, 5.615783289770559, 5.743102197627155, 5.841561438725366, 5.951646084654007, 6.040127223305958, 6.113584656507468, 6.176840163615851, 6.231443605498905, 6.286247010299617, 6.426537298305569, 6.570158877663934, 6.769513420819325, 6.9211932157022655, 7.1619641891842125, 7.336928563838493, 7.56048870382276]}, "clean": {"p": [0.005, 0.0252, 0.0454, 0.0656, 0.0858, 0.106, 0.1262, 0.1464, 0.1666, 0.1868, 0.207, 0.2272, 0.2474, 0.2677, 0.2879, 0.3081, 0.3283, 0.3485, 0.3687, 0.3889, 0.4091, 0.4293, 0.4495, 0.4697, 0.4899, 0.5101, 0.5303, 0.5505, 0.5707, 0.5909, 0.6111, 0.6313, 0.6515, 0.6717, 0.6919, 0.7121, 0.7323, 0.7526, 0.7728, 0.793, 0.8132, 0.8334, 0.8536, 0.8738, 0.894, 0.9142, 0.9344, 0.9546, 0.9748, 0.995], "x": [1.332034277027518, 1.762078087334639, 1.9611837098124356, 2.0946457896059547, 2.196866747249239, 2.2798265817940147, 2.349044286602036, 2.40888414320084, 2.4613334214810965, 2.5079637575445792, 2.55043627528029, 2.589122650205851, 2.6245399138793952, 2.657170629182109, 2.6877607608738123, 2.8037239037683093, 2.93474582763272, 3.041633293376865, 3.1378599595267334, 3.2166223975166885, 3.283653949696589, 3.4041886353301614, 3.517132073172525, 3.6067971856948953, 3.680858346627384, 3.7966842592024124, 3.902656783839518, 3.987309276045455, 4.597057972779607, 4.862739903724489, 5.020827287654617, 5.135852550779688, 5.226553303564117, 5.444903364845372, 5.615403213042653, 5.742788108974204, 5.8413673083995095, 5.9514461784580615, 6.039952473053991, 6.113462487394527, 6.176751472508747, 6.231370569613216, 6.286187452361707, 6.426404219131596, 6.569979759682559, 6.769342509280914, 6.921070657122152, 7.1618951114068015, 7.336898417476668, 7.560476091580615]}, "log": true}, "transactions.amount_usd": {"raw": {"p": [0.005, 0.0252, 0.0454, 0.0656, 0.0858, 0.106, 0.1262, 0.1464, 0.1666, 0.1868, 0.207, 0.2272, 0.2474, 0.2677, 0.2879, 0.3081, 0.3283, 0.3485, 0.3687, 0.3889, 0.4091, 0.4293, 0.4495, 0.4697, 0.4899, 0.5101, 0.5303, 0.5505, 0.5707, 0.5909, 0.6111, 0.6313, 0.6515, 0.6717, 0.6919, 0.7121, 0.7323, 0.7526, 0.7728, 0.793, 0.8132, 0.8334, 0.8536, 0.8738, 0.894, 0.9142, 0.9344, 0.9546, 0.9748, 0.995], "x": [14.64, 37.76, 57.48, 75.95, 94.31, 112.71, 130.72, 148.81396428571432, 167.04, 185.21, 203.44, 221.64, 239.81, 258.03, 276.16, 294.29, 312.35, 330.38, 348.64, 366.99, 385.12444795918304, 403.18, 421.2, 439.39, 457.57, 475.74, 493.94, 582.02, 705.5632071428582, 829.67, 952.53, 1092.9302418367333, 1243.7, 1395.154931632653, 1545.22, 1696.63, 1847.71196632653, 1998.43431122449, 2417.19, 2830.9090010204072, 3246.1913459183647, 3666.18, 4084.0360357142845, 4503.48, 4921.56, 5806.417633673476, 6791.123322448972, 7778.385520408163, 8763.750525510206, 9751.844899999998]}, "clean": {"p": [0.005, 0.0252, 0.0454, 0.0656, 0.0858, 0.106, 0.1262, 0.1464, 0.1666, 0.1868, 0.207, 0.2272, 0.2474, 0.2677, 0.2879, 0.3081, 0.3283, 0.3485, 0.3687, 0.3889, 0.4091, 0.4293, 0.4495, 0.4697, 0.4899, 0.5101, 0.5303, 0.5505, 0.5707, 0.5909, 0.6111, 0.6313, 0.6515, 0.6717, 0.6919, 0.7121, 0.7323, 0.7526, 0.7728, 0.793, 0.8132, 0.8334, 0.8536, 0.8738, 0.894, 0.9142, 0.9344, 0.9546, 0.9748, 0.995], "x": [14.79, 37.81, 57.52, 75.95, 94.45972220897958, 112.67, 130.78237464836732, 148.89979769142857, 167.09, 185.29113947142858, 203.5105025179592, 221.65, 239.8, 258.0145174783674, 276.1646062542859, 294.21, 312.2673992546939, 330.47204605346946, 348.6748103632653, 366.97, 385.12356569367336, 403.25, 421.37, 439.52, 457.6814481661223, 475.9417323661221, 494.25, 583.0538143406114, 706.1642230571432, 830.1208190285716, 952.8781257938776, 1092.49, 1242.56, 1393.6317539395918, 1543.9943727636742, 1695.3823661342847, 1847.31754212551, 2002.0842116140811, 2412.6, 2831.9488033567345, 3247.911378708163, 3667.584897959181, 4086.8879217828576, 4506.021883148979, 4924.415562798777, 5803.942448979593, 6786.602513204075, 7777.030840673672, 8760.282321111425, 9752.24005764]}, "log": false}, "transactions.fraud_score": {"raw": {"p": [0.005, 0.0252, 0.0454, 0.0656, 0.0858, 0.106, 0.1262, 0.1464, 0.1666, 0.1868, 0.207, 0.2272, 0.2474, 0.2677, 0.2879, 0.3081, 0.3283, 0.3485, 0.3687, 0.3889, 0.4091, 0.4293, 0.4495, 0.4697, 0.4899, 0.5101, 0.5303, 0.5505, 0.5707, 0.5909, 0.6111, 0.6313, 0.6515, 0.6717, 0.6919, 0.7121, 0.7323, 0.7526, 0.7728, 0.793, 0.8132, 0.8334, 0.8536, 0.8738, 0.894, 0.9142, 0.9344, 0.9546, 0.9748, 0.995], "x": [0.15, 0.76, 1.36, 1.96, 2.57, 3.18, 3.78, 4.39, 5.0, 5.61, 6.21, 6.82, 7.42, 8.03, 8.63, 9.24, 9.85, 10.46, 11.06, 11.67, 12.28, 12.88, 13.49, 14.1, 14.71, 15.32, 15.93, 16.53, 17.14, 17.74, 18.34, 18.94, 19.55, 20.16, 20.77, 21.37, 21.98, 22.59, 23.2, 23.8, 24.41, 25.02, 25.63, 26.24, 26.84, 27.45, 28.06, 28.66, 29.27, 29.87]}, "clean": {"p": [0.005, 0.0252, 0.0454, 0.0656, 0.0858, 0.106, 0.1262, 0.1464, 0.1666, 0.1868, 0.207, 0.2272, 0.2474, 0.2677, 0.2879, 0.3081, 0.3283, 0.3485, 0.3687, 0.3889, 0.4091, 0.4293, 0.4495, 0.4697, 0.4899, 0.5101, 0.5303, 0.5505, 0.5707, 0.5909, 0.6111, 0.6313, 0.6515, 0.6717, 0.6919, 0.7121, 0.7323, 0.7526, 0.7728, 0.793, 0.8132, 0.8334, 0.8536, 0.8738, 0.894, 0.9142, 0.9344, 0.9546, 0.9748, 0.995], "x": [0.15, 0.76, 1.36, 1.96, 2.57, 3.18, 3.78, 4.39, 5.0, 5.61, 6.21, 6.82, 7.42, 8.03, 8.63, 9.24, 9.85, 10.46, 11.06, 11.67, 12.28, 12.88, 13.49, 14.1, 14.71, 15.32, 15.93, 16.53, 17.14, 17.74, 18.34, 18.94, 19.55, 20.16, 20.77, 21.37, 21.98, 22.59, 23.2, 23.8, 24.41, 25.02, 25.63, 26.24, 26.84, 27.45, 28.06, 28.66, 29.27, 29.87]}, "log": false}, "customers.credit_score": {"raw": {"p": [0.005, 0.0252, 0.0454, 0.0656, 0.0858, 0.106, 0.1262, 0.1464, 0.1666, 0.1868, 0.207, 0.2272, 0.2474, 0.2677, 0.2879, 0.3081, 0.3283, 0.3485, 0.3687, 0.3889, 0.4091, 0.4293, 0.4495, 0.4697, 0.4899, 0.5101, 0.5303, 0.5505, 0.5707, 0.5909, 0.6111, 0.6313, 0.6515, 0.6717, 0.6919, 0.7121, 0.7323, 0.7526, 0.7728, 0.793, 0.8132, 0.8334, 0.8536, 0.8738, 0.894, 0.9142, 0.9344, 0.9546, 0.9748, 0.995], "x": [504.0, 530.0, 542.0, 550.0, 557.0, 562.0, 567.0, 572.0, 576.0, 580.0, 583.0, 587.0, 590.0, 594.0, 597.0, 600.0, 603.0, 606.0, 610.0, 613.0, 616.0, 619.0, 623.0, 626.0, 630.0, 633.0, 637.0, 642.0, 646.0, 650.0, 655.0, 660.0, 665.0, 671.0, 677.0, 683.0, 689.0, 695.0, 702.0, 709.0, 716.0, 724.0, 733.0, 744.0, 757.0, 772.0, 788.0, 806.0, 827.0, 850.0]}, "clean": {"p": [0.005, 0.0252, 0.0454, 0.0656, 0.0858, 0.106, 0.1262, 0.1464, 0.1666, 0.1868, 0.207, 0.2272, 0.2474, 0.2677, 0.2879, 0.3081, 0.3283, 0.3485, 0.3687, 0.3889, 0.4091, 0.4293, 0.4495, 0.4697, 0.4899, 0.5101, 0.5303, 0.5505, 0.5707, 0.5909, 0.6111, 0.6313, 0.6515, 0.6717, 0.6919, 0.7121, 0.7323, 0.7526, 0.7728, 0.793, 0.8132, 0.8334, 0.8536, 0.8738, 0.894, 0.9142, 0.9344, 0.9546, 0.9748, 0.995], "x": [504.0, 530.0, 542.0, 550.0, 557.0, 562.0, 567.0, 572.0, 576.0, 580.0, 583.0, 587.0, 590.0, 594.0, 597.0, 600.0, 603.0, 606.0, 610.0, 613.0, 616.0, 619.0, 623.0, 626.0, 630.0, 633.0, 637.0, 642.0, 646.0, 650.0, 655.0, 660.0, 665.0, 671.0, 677.0, 683.0, 689.0, 695.0, 702.0, 709.0, 716.0, 724.0, 733.0, 744.0, 757.0, 772.0, 788.0, 806.0, 827.0, 850.0]}, "log": false}, "customers.estimated_monthly_income": {"raw": {"p": [0.005, 0.0252, 0.0454, 0.0656, 0.0858, 0.106, 0.1262, 0.1464, 0.1666, 0.1868, 0.207, 0.2272, 0.2474, 0.2677, 0.2879, 0.3081, 0.3283, 0.3485, 0.3687, 0.3889, 0.4091, 0.4293, 0.4495, 0.4697, 0.4899, 0.5101, 0.5303, 0.5505, 0.5707, 0.5909, 0.6111, 0.6313, 0.6515, 0.6717, 0.6919, 0.7121, 0.7323, 0.7526, 0.7728, 0.793, 0.8132, 0.8334, 0.8536, 0.8738, 0.894, 0.9142, 0.9344, 0.9546, 0.9748, 0.995], "x": [3.8932323869329974, 4.159270451545958, 4.212792186743174, 4.262381735040289, 4.313793759358372, 4.3588545047747855, 4.400534292730624, 4.438137190064256, 4.473285522068346, 4.506273453249442, 4.536202533629741, 4.564016347071459, 4.590361140718379, 4.615234466206915, 4.638863373719968, 4.661567390066407, 4.741422115564213, 4.876909181181858, 4.9806964117465045, 5.0647981303116705, 5.134045855635002, 5.186902697330465, 5.234212558250868, 5.38365990750062, 5.499315892601393, 5.571277131791377, 5.638039785523707, 5.714447912397754, 5.802389385125217, 5.877574505790215, 5.941083777849564, 6.064112142177926, 6.297301611125925, 6.453341834187661, 6.534334524360629, 6.594341744923769, 6.66762918255618, 6.73789804919123, 6.795091922570817, 6.846758728499887, 6.8923314306504775, 6.935220605230114, 6.97434118099883, 7.01156022336867, 7.048134095880972, 7.2932048293913985, 7.443588464572864, 7.548347481299948, 7.651687065825415, 7.99392377953166]}, "clean": {"p": [0.005, 0.0252, 0.0454, 0.0656, 0.0858, 0.106, 0.1262, 0.1464, 0.1666, 0.1868, 0.207, 0.2272, 0.2474, 0.2677, 0.2879, 0.3081, 0.3283, 0.3485, 0.3687, 0.3889, 0.4091, 0.4293, 0.4495, 0.4697, 0.4899, 0.5101, 0.5303, 0.5505, 0.5707, 0.5909, 0.6111, 0.6313, 0.6515, 0.6717, 0.6919, 0.7121, 0.7323, 0.7526, 0.7728, 0.793, 0.8132, 0.8334, 0.8536, 0.8738, 0.894, 0.9142, 0.9344, 0.9546, 0.9748, 0.995], "x": [3.8932323869329974, 4.159270451545958, 4.212792186743174, 4.262381735040289, 4.313793759358372, 4.3588545047747855, 4.400534292730624, 4.438137190064256, 4.473285522068346, 4.506273453249442, 4.536202533629741, 4.564016347071459, 4.590361140718379, 4.615234466206915, 4.638863373719968, 4.661567390066407, 4.741422115564213, 4.876909181181858, 4.9806964117465045, 5.0647981303116705, 5.134045855635002, 5.186902697330465, 5.234212558250868, 5.38365990750062, 5.499315892601393, 5.571277131791377, 5.638039785523707, 5.714447912397754, 5.802389385125217, 5.877574505790215, 5.941083777849564, 6.064112142177926, 6.297301611125925, 6.453341834187661, 6.534334524360629, 6.594341744923769, 6.66762918255618, 6.73789804919123, 6.795091922570817, 6.846758728499887, 6.8923314306504775, 6.935220605230114, 6.97434118099883, 7.01156022336867, 7.048134095880972, 7.2932048293913985, 7.443588464572864, 7.548347481299948, 7.651687065825415, 7.99392377953166]}, "log": true}, "products.current_balance": {"raw": {"p": [0.005, 0.0252, 0.0454, 0.0656, 0.0858, 0.106, 0.1262, 0.1464, 0.1666, 0.1868, 0.207, 0.2272, 0.2474, 0.2677, 0.2879, 0.3081, 0.3283, 0.3485, 0.3687, 0.3889, 0.4091, 0.4293, 0.4495, 0.4697, 0.4899, 0.5101, 0.5303, 0.5505, 0.5707, 0.5909, 0.6111, 0.6313, 0.6515, 0.6717, 0.6919, 0.7121, 0.7323, 0.7526, 0.7728, 0.793, 0.8132, 0.8334, 0.8536, 0.8738, 0.894, 0.9142, 0.9344, 0.9546, 0.9748, 0.995], "x": [2.16878363748827, 2.6685842659939873, 2.823454665915184, 2.917029877154112, 2.9889845804149204, 3.0479250542708867, 3.1009595451833007, 3.1490083054700952, 3.1946852490135123, 3.236768009987091, 3.2759313554952803, 3.312738649581727, 3.3494381894801193, 3.3866192340689665, 3.423353123177156, 3.462272184033724, 3.5020143489298925, 3.5444183830819145, 3.5861098158096554, 3.6307096478086818, 3.67899288787219, 3.7296149180993448, 3.7791423935316524, 3.8305612341281132, 3.8872362065293022, 3.9634394168333826, 4.175586368602483, 5.009445283440326, 5.423750806437076, 5.620843521279974, 5.759104888225819, 5.873378357741864, 5.983462362054136, 6.096992361761952, 6.211813355531214, 6.324464759755772, 6.42959858810796, 6.5349346149188285, 6.6425741972682095, 6.738209951269763, 6.825226315347532, 6.903280502612405, 6.9766587170203636, 7.052845701953448, 7.134325535066638, 7.2225729004554, 7.31733289227403, 7.420381930620899, 7.5360938202118515, 8.441692498028495]}, "clean": {"p": [0.005, 0.0252, 0.0454, 0.0656, 0.0858, 0.106, 0.1262, 0.1464, 0.1666, 0.1868, 0.207, 0.2272, 0.2474, 0.2677, 0.2879, 0.3081, 0.3283, 0.3485, 0.3687, 0.3889, 0.4091, 0.4293, 0.4495, 0.4697, 0.4899, 0.5101, 0.5303, 0.5505, 0.5707, 0.5909, 0.6111, 0.6313, 0.6515, 0.6717, 0.6919, 0.7121, 0.7323, 0.7526, 0.7728, 0.793, 0.8132, 0.8334, 0.8536, 0.8738, 0.894, 0.9142, 0.9344, 0.9546, 0.9748, 0.995], "x": [2.16878363748827, 2.6685842659939873, 2.823454665915184, 2.917029877154112, 2.9889845804149204, 3.0479250542708867, 3.1009595451833007, 3.1490083054700952, 3.1946852490135123, 3.236768009987091, 3.2759313554952803, 3.312738649581727, 3.3494381894801193, 3.3866192340689665, 3.423353123177156, 3.462272184033724, 3.5020143489298925, 3.5444183830819145, 3.5861098158096554, 3.6307096478086818, 3.67899288787219, 3.7296149180993448, 3.7791423935316524, 3.8305612341281132, 3.8872362065293022, 3.9634394168333826, 4.175586368602483, 5.009445283440326, 5.423750806437076, 5.620843521279974, 5.759104888225819, 5.873378357741864, 5.983462362054136, 6.096992361761952, 6.211813355531214, 6.324464759755772, 6.42959858810796, 6.5349346149188285, 6.6425741972682095, 6.738209951269763, 6.825226315347532, 6.903280502612405, 6.9766587170203636, 7.052845701953448, 7.134325535066638, 7.2225729004554, 7.31733289227403, 7.420381930620899, 7.5360938202118515, 8.441692498028495]}, "log": true}, "products.credit_limit": {"raw": {"p": [0.005, 0.0252, 0.0454, 0.0656, 0.0858, 0.106, 0.1262, 0.1464, 0.1666, 0.1868, 0.207, 0.2272, 0.2474, 0.2677, 0.2879, 0.3081, 0.3283, 0.3485, 0.3687, 0.3889, 0.4091, 0.4293, 0.4495, 0.4697, 0.4899, 0.5101, 0.5303, 0.5505, 0.5707, 0.5909, 0.6111, 0.6313, 0.6515, 0.6717, 0.6919, 0.7121, 0.7323, 0.7526, 0.7728, 0.793, 0.8132, 0.8334, 0.8536, 0.8738, 0.894, 0.9142, 0.9344, 0.9546, 0.9748, 0.995], "x": [3.207278032060498, 3.593116175042185, 3.7921310474308525, 3.923876463446422, 4.021370207627528, 4.104536602508748, 4.172113070801065, 4.2313438168170014, 4.28256419753638, 4.328446322411812, 4.370254150276668, 4.40747045714307, 4.442414200612107, 4.47454281159735, 4.504812107298005, 4.532624073440701, 4.55872798765311, 4.582898747054928, 4.606450785195067, 4.628963185281622, 4.650310557074983, 4.669993297819547, 4.689148957626834, 4.781562522441464, 4.917088591303705, 5.0163744768467575, 5.09828937911563, 5.168246853589583, 6.407838830960919, 6.675732297402472, 6.8333149913516875, 6.9493566452971285, 7.0389170994397885, 7.114115141119764, 7.178628791966226, 7.235776201603636, 7.417897953179031, 7.554917723630914, 7.665127156498029, 7.771153151803072, 7.883760513123415, 7.9741015950844805, 8.046851615708214, 8.109445205558371, 8.164472399923646, 8.213681545835046, 8.258067436940237, 8.298573692085828, 8.572190908042769, 8.743626445555693]}, "clean": {"p": [0.005, 0.0252, 0.0454, 0.0656, 0.0858, 0.106, 0.1262, 0.1464, 0.1666, 0.1868, 0.207, 0.2272, 0.2474, 0.2677, 0.2879, 0.3081, 0.3283, 0.3485, 0.3687, 0.3889, 0.4091, 0.4293, 0.4495, 0.4697, 0.4899, 0.5101, 0.5303, 0.5505, 0.5707, 0.5909, 0.6111, 0.6313, 0.6515, 0.6717, 0.6919, 0.7121, 0.7323, 0.7526, 0.7728, 0.793, 0.8132, 0.8334, 0.8536, 0.8738, 0.894, 0.9142, 0.9344, 0.9546, 0.9748, 0.995], "x": [3.207278032060498, 3.593116175042185, 3.7921310474308525, 3.923876463446422, 4.021370207627528, 4.104536602508748, 4.172113070801065, 4.2313438168170014, 4.28256419753638, 4.328446322411812, 4.370254150276668, 4.40747045714307, 4.442414200612107, 4.47454281159735, 4.504812107298005, 4.532624073440701, 4.55872798765311, 4.582898747054928, 4.606450785195067, 4.628963185281622, 4.650310557074983, 4.669993297819547, 4.689148957626834, 4.781562522441464, 4.917088591303705, 5.0163744768467575, 5.09828937911563, 5.168246853589583, 6.407838830960919, 6.675732297402472, 6.8333149913516875, 6.9493566452971285, 7.0389170994397885, 7.114115141119764, 7.178628791966226, 7.235776201603636, 7.417897953179031, 7.554917723630914, 7.665127156498029, 7.771153151803072, 7.883760513123415, 7.9741015950844805, 8.046851615708214, 8.109445205558371, 8.164472399923646, 8.213681545835046, 8.258067436940237, 8.298573692085828, 8.572190908042769, 8.743626445555693]}, "log": true}, "products.interest_rate": {"raw": {"p": [0.005, 0.0252, 0.0454, 0.0656, 0.0858, 0.106, 0.1262, 0.1464, 0.1666, 0.1868, 0.207, 0.2272, 0.2474, 0.2677, 0.2879, 0.3081, 0.3283, 0.3485, 0.3687, 0.3889, 0.4091, 0.4293, 0.4495, 0.4697, 0.4899, 0.5101, 0.5303, 0.5505, 0.5707, 0.5909, 0.6111, 0.6313, 0.6515, 0.6717, 0.6919, 0.7121, 0.7323, 0.7526, 0.7728, 0.793, 0.8132, 0.8334, 0.8536, 0.8738, 0.894, 0.9142, 0.9344, 0.9546, 0.9748, 0.995], "x": [0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.13, 0.17, 0.2, 0.23, 0.26, 0.3, 0.33, 0.36, 0.39, 0.42, 0.46, 0.49, 1.12, 1.29, 1.45, 1.62, 1.79, 1.95, 2.12, 2.29, 2.45, 2.62, 2.79, 2.96, 3.12, 3.29, 3.46, 6.93, 10.44, 15.97, 19.15, 20.76, 22.38, 24.0, 25.63, 27.28, 29.21, 31.41, 33.59, 35.74, 37.93, 40.14, 42.32, 44.45335000000021]}, "clean": {"p": [0.005, 0.0252, 0.0454, 0.0656, 0.0858, 0.106, 0.1262, 0.1464, 0.1666, 0.1868, 0.207, 0.2272, 0.2474, 0.2677, 0.2879, 0.3081, 0.3283, 0.3485, 0.3687, 0.3889, 0.4091, 0.4293, 0.4495, 0.4697, 0.4899, 0.5101, 0.5303, 0.5505, 0.5707, 0.5909, 0.6111, 0.6313, 0.6515, 0.6717, 0.6919, 0.7121, 0.7323, 0.7526, 0.7728, 0.793, 0.8132, 0.8334, 0.8536, 0.8738, 0.894, 0.9142, 0.9344, 0.9546, 0.9748, 0.995], "x": [0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.13, 0.17, 0.2, 0.23, 0.26, 0.3, 0.33, 0.36, 0.39, 0.42, 0.46, 0.49, 1.12, 1.29, 1.45, 1.62, 1.79, 1.95, 2.12, 2.29, 2.45, 2.62, 2.79, 2.96, 3.12, 3.29, 3.46, 6.93, 10.44, 15.97, 19.15, 20.76, 22.38, 24.0, 25.63, 27.28, 29.21, 31.41, 33.59, 35.74, 37.93, 40.14, 42.32, 44.45335000000021]}, "log": false}, "products.days_past_due": {"raw": {"p": [0.005, 0.0252, 0.0454, 0.0656, 0.0858, 0.106, 0.1262, 0.1464, 0.1666, 0.1868, 0.207, 0.2272, 0.2474, 0.2677, 0.2879, 0.3081, 0.3283, 0.3485, 0.3687, 0.3889, 0.4091, 0.4293, 0.4495, 0.4697, 0.4899, 0.5101, 0.5303, 0.5505, 0.5707, 0.5909, 0.6111, 0.6313, 0.6515, 0.6717, 0.6919, 0.7121, 0.7323, 0.7526, 0.7728, 0.793, 0.8132, 0.8334, 0.8536, 0.8738, 0.894, 0.9142, 0.9344, 0.9546, 0.9748, 0.995], "x": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 15.0, 15.0, 30.0, 60.0, 90.0, 120.0, 120.0, 180.0]}, "clean": {"p": [0.005, 0.0252, 0.0454, 0.0656, 0.0858, 0.106, 0.1262, 0.1464, 0.1666, 0.1868, 0.207, 0.2272, 0.2474, 0.2677, 0.2879, 0.3081, 0.3283, 0.3485, 0.3687, 0.3889, 0.4091, 0.4293, 0.4495, 0.4697, 0.4899, 0.5101, 0.5303, 0.5505, 0.5707, 0.5909, 0.6111, 0.6313, 0.6515, 0.6717, 0.6919, 0.7121, 0.7323, 0.7526, 0.7728, 0.793, 0.8132, 0.8334, 0.8536, 0.8738, 0.894, 0.9142, 0.9344, 0.9546, 0.9748, 0.995], "x": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 15.0, 15.0, 30.0, 60.0, 90.0, 120.0, 120.0, 180.0]}, "log": false}}, "efecto": {"transactions.amount": {"comparable": true, "ks_D": 0.0008299999999999974, "wasserstein": 6989.5242597, "wasserstein_est": 0.0012358638935996583, "shift_mediana_est": -1.260702335947366e-06, "cuantiles_p": [0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99], "q_raw": [30.68, 99.04, 425.43, 5398.23, 868640.7275, 13114175.192499997, 32729366.87469999], "q_clean": [30.67, 99.03, 425.37, 5391.1, 868210.47, 13111726.33, 32727161.29], "delta_rel": [-0.00032594524119941364, -0.00010096930533123098, -0.00014103377758973809, -0.0013208033003408895, -0.0004953227339896577, -0.00018673400835742421, -6.738855378522526e-05]}, "transactions.amount_usd": {"comparable": true, "ks_D": 0.0020300000000000873, "wasserstein": 10.068218599460728, "wasserstein_est": 0.0043141311512725124, "shift_mediana_est": 6.427350243720767e-05, "cuantiles_p": [0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99], "q_raw": [22.26, 61.69, 242.06, 466.69, 1979.74, 7554.503499999999, 9506.714899999999], "q_clean": [22.34, 61.7, 242.04267990000002, 466.84, 1979.58, 7551.03, 9505.67267588], "delta_rel": [0.0035938903863431395, 0.0001621008267142992, -7.15529207633556e-05, 0.00032141250080348254, -8.081869336381639e-05, -0.00045979196382649754, -0.00010963031193871671]}, "transactions.fraud_score": {"comparable": true, "ks_D": 0.0016575000000000062, "wasserstein": 0.022496475000000057, "wasserstein_est": 0.0025666160521671936, "shift_mediana_est": 0.0, "cuantiles_p": [0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99], "q_raw": [0.3, 1.5, 7.5, 15.01, 22.51, 28.52, 29.72], "q_clean": [0.3, 1.5, 7.5, 15.01, 22.51, 28.52, 29.72], "delta_rel": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, "customers.credit_score": {"comparable": true, "ks_D": 0.0, "wasserstein": 0.0, "wasserstein_est": 0.0, "shift_mediana_est": 0.0, "cuantiles_p": [0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99], "q_raw": [514.0, 544.0, 591.0, 631.0, 695.0, 802.0, 850.0], "q_clean": [514.0, 544.0, 591.0, 631.0, 695.0, 802.0, 850.0], "delta_rel": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, "customers.estimated_monthly_income": {"comparable": true, "ks_D": 0.0, "wasserstein": 0.0, "wasserstein_est": 0.0, "shift_mediana_est": 0.0, "cuantiles_p": [0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99], "q_raw": [10309.832, 16750.087, 39227.56, 342974.42, 5362111.885, 33717282.625, 85949515.9906], "q_clean": [10309.832, 16750.087, 39227.56, 342974.42, 5362111.885, 33717282.625, 85949515.9906], "delta_rel": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, "products.current_balance": {"comparable": true, "ks_D": 0.0, "wasserstein": 0.0, "wasserstein_est": 0.0, "shift_mediana_est": 0.0, "cuantiles_p": [0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99], "q_raw": [0.0, 443.1985, 2068.5924999999997, 7511.254999999999, 3054066.9875, 24556933.316999964, 61849301.8480001], "q_clean": [0.0, 443.1985, 2068.5924999999997, 7511.254999999999, 3054066.9875, 24556933.316999964, 61849301.8480001], "delta_rel": [null, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, "products.credit_limit": {"comparable": true, "ks_D": 0.0, "wasserstein": 0.0, "wasserstein_est": 0.0, "shift_mediana_est": 0.0, "cuantiles_p": [0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99], "q_raw": [2170.4408000000003, 6720.318, 27968.23, 93046.09, 34605471.84, 194902111.44799998, 510290697.4259999], "q_clean": [2170.4408000000003, 6720.318, 27968.23, 93046.09, 34605471.84, 194902111.44799998, 510290697.4259999], "delta_rel": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, "products.interest_rate": {"comparable": true, "ks_D": 0.0, "wasserstein": 0.0, "wasserstein_est": 0.0, "shift_mediana_est": 0.0, "cuantiles_p": [0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99], "q_raw": [0.0, 0.0, 0.33, 2.2, 20.56, 39.64, 43.92], "q_clean": [0.0, 0.0, 0.33, 2.2, 20.56, 39.64, 43.92], "delta_rel": [null, null, 0.0, 0.0, 0.0, 0.0, 0.0]}, "products.days_past_due": {"comparable": true, "ks_D": 0.0, "wasserstein": 0.0, "wasserstein_est": 0.0, "shift_mediana_est": 0.0, "cuantiles_p": [0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99], "q_raw": [0.0, 0.0, 0.0, 0.0, 0.0, 90.0, 180.0], "q_clean": [0.0, 0.0, 0.0, 0.0, 0.0, 90.0, 180.0], "delta_rel": [null, null, null, null, null, 0.0, 0.0]}}, "categoricas": {"products.product_type": {"card_raw": 8, "card_clean": 8, "raw": {"Cuenta Ahorro": 120203, "Tarjeta Crédito": 100102, "Cuenta Corriente": 99979, "Tarjeta Débito": 39938, "Préstamo Personal": 19960, "Préstamo Hipotecario": 11910, "Inversión": 5859, "Seguro": 2049}}, "transactions.transaction_type": {"card_raw": 6, "card_clean": 6, "raw": {"Purchase": 1083406, "Withdrawal": 964673, "Transfer": 896438, "Payment": 738964, "Deposit": 609409, "Adjustment": 132118}}, "transactions.transaction_status": {"card_raw": 4, "card_clean": 4, "raw": {"Approved": 4070681, "Declined": 221234, "Pending": 88343, "Reversed": 44750}}, "customers.segment": {"card_raw": 4, "card_clean": 4, "raw": {"Basic": 89756, "Plus": 37547, "Premium": 15207, "Student": 7490}}, "customers.country": {"card_raw": 3, "card_clean": 3, "raw": {"México": 74907, "Colombia": 45251, "Argentina": 29842}}}, "nulos": [{"col": "customers.registration_branch_id", "raw": 0.0, "clean": 0.9999666666666667, "ic_raw": [0.0, 2.560906964207045e-05], "ic_clean": [0.9999219640599177, 0.9999857619110448]}, {"col": "transactions.amount_usd", "raw": 0.5734353474615187, "clean": 0.0, "ic_raw": [0.5729744698441606, 0.573896097576907], "ic_clean": [0.0, 8.682430654854965e-07]}, {"col": "transactions.branch_id", "raw": 0.6863436179098433, "clean": 0.6863489543556291, "ic_raw": [0.6859111526251044, 0.6867757596558616], "ic_clean": [0.6859164613875233, 0.6867811237313604]}, {"col": "transactions.transaction_category", "raw": 0.6087039842639832, "clean": 0.6087007032138362, "ic_raw": [0.6082491671619015, 0.6091586126289974], "ic_clean": [0.6082458542292508, 0.609155363441158]}, {"col": "transactions.fraud_score", "raw": 0.20003511858057657, "clean": 0.20003453574845498, "ic_raw": [0.19966266167694802, 0.2004080962976092], "ic_clean": [0.19966205372194537, 0.20040753866083308]}, {"col": "transactions.transaction_city", "raw": 0.10002490390977824, "clean": 0.10002529155924157, "ic_raw": [0.09974570047583656, 0.1003048017996521], "ic_clean": [0.0997460685154202, 0.10030520915359692]}, {"col": "transactions.longitude", "raw": 0.8062618191876715, "clean": 0.8062621358235837, "ic_raw": [0.8058933084986653, 0.8066297981302284], "ic_clean": [0.8058936000668921, 0.8066301397603242]}, {"col": "transactions.merchant_name", "raw": 0.7674051662731457, "clean": 0.7674048984257982, "ic_raw": [0.7670112904013364, 0.7677985778632888], "ic_clean": [0.7670109953626245, 0.7677983371440744]}, {"col": "transactions.merchant_category", "raw": 0.7675048271099171, "clean": 0.7675045729354097, "ic_raw": [0.7671110099391864, 0.7678981798259458], "ic_clean": [0.7671107285853088, 0.7678979527675299]}, {"col": "transactions.latitude", "raw": 0.8062539095974516, "clean": 0.8062537731096254, "ic_raw": [0.8058853932047007, 0.8066218942574862], "ic_clean": [0.8058852313220176, 0.8066217830918038]}, {"col": "transactions.response_code", "raw": 0.049950870145319515, "clean": 0.049950942511766, "ic_raw": [0.04974828879361712, 0.05015423289389152], "ic_clean": [0.049748347151488855, 0.050154319375989735]}, {"col": "transactions.transaction_id", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 8.681239644390739e-07], "ic_clean": [0.0, 8.682430654854965e-07]}, {"col": "transactions.transaction_date", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 8.681239644390739e-07], "ic_clean": [0.0, 8.682430654854965e-07]}, {"col": "transactions.process_date", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 8.681239644390739e-07], "ic_clean": [0.0, 8.682430654854965e-07]}, {"col": "transactions.product_id", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 8.681239644390739e-07], "ic_clean": [0.0, 8.682430654854965e-07]}, {"col": "transactions.customer_id", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 8.681239644390739e-07], "ic_clean": [0.0, 8.682430654854965e-07]}, {"col": "transactions.transaction_type", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 8.681239644390739e-07], "ic_clean": [0.0, 8.682430654854965e-07]}, {"col": "transactions.amount", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 8.681239644390739e-07], "ic_clean": [0.0, 8.682430654854965e-07]}, {"col": "transactions.currency", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 8.681239644390739e-07], "ic_clean": [0.0, 8.682430654854965e-07]}, {"col": "transactions.channel", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 8.681239644390739e-07], "ic_clean": [0.0, 8.682430654854965e-07]}, {"col": "transactions.transaction_country", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 8.681239644390739e-07], "ic_clean": [0.0, 8.682430654854965e-07]}, {"col": "transactions.transaction_status", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 8.681239644390739e-07], "ic_clean": [0.0, 8.682430654854965e-07]}, {"col": "transactions.is_fraud", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 8.681239644390739e-07], "ic_clean": [0.0, 8.682430654854965e-07]}, {"col": "transactions._source_file", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 8.681239644390739e-07], "ic_clean": [0.0, 8.682430654854965e-07]}, {"col": "transactions._ingested_at", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 8.681239644390739e-07], "ic_clean": [0.0, 8.682430654854965e-07]}, {"col": "customers.customer_id", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 2.560906964207045e-05], "ic_clean": [0.0, 2.560906964207045e-05]}, {"col": "customers.document_number", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 2.560906964207045e-05], "ic_clean": [0.0, 2.560906964207045e-05]}, {"col": "customers.document_type", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 2.560906964207045e-05], "ic_clean": [0.0, 2.560906964207045e-05]}, {"col": "customers.first_name", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 2.560906964207045e-05], "ic_clean": [0.0, 2.560906964207045e-05]}, {"col": "customers.last_name", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 2.560906964207045e-05], "ic_clean": [0.0, 2.560906964207045e-05]}, {"col": "customers.date_of_birth", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 2.560906964207045e-05], "ic_clean": [0.0, 2.560906964207045e-05]}, {"col": "customers.gender", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 2.560906964207045e-05], "ic_clean": [0.0, 2.560906964207045e-05]}, {"col": "customers.email", "raw": 0.019893333333333332, "clean": 0.019893333333333332, "ic_raw": [0.019198899139254298, 0.020612357697536946], "ic_clean": [0.019198899139254298, 0.020612357697536946]}, {"col": "customers.mobile_phone", "raw": 0.03138, "clean": 0.03138, "ic_raw": [0.030509652202068267, 0.03227434964236305], "ic_clean": [0.030509652202068267, 0.03227434964236305]}, {"col": "customers.landline_phone", "raw": 0.5003533333333333, "clean": 0.5003533333333333, "ic_raw": [0.497823054691758, 0.5028835938778328], "ic_clean": [0.497823054691758, 0.5028835938778328]}, {"col": "customers.address", "raw": 0.049133333333333334, "clean": 0.049133333333333334, "ic_raw": [0.04805100127277098, 0.050238757945627585], "ic_clean": [0.04805100127277098, 0.050238757945627585]}, {"col": "customers.city", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 2.560906964207045e-05], "ic_clean": [0.0, 2.560906964207045e-05]}, {"col": "customers.state", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 2.560906964207045e-05], "ic_clean": [0.0, 2.560906964207045e-05]}, {"col": "customers.country", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 2.560906964207045e-05], "ic_clean": [0.0, 2.560906964207045e-05]}, {"col": "customers.postal_code", "raw": 0.10029333333333333, "clean": 0.10029333333333333, "ic_raw": [0.09878339563106063, 0.10182374326733216], "ic_clean": [0.09878339563106063, 0.10182374326733216]}, {"col": "customers.detected_accent", "raw": 0.29878, "clean": 0.29878, "ic_raw": [0.2964688206464126, 0.30110148546757404], "ic_clean": [0.2964688206464126, 0.30110148546757404]}, {"col": "customers.segment", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 2.560906964207045e-05], "ic_clean": [0.0, 2.560906964207045e-05]}, {"col": "customers.credit_score", "raw": 0.14994666666666667, "clean": 0.14994666666666667, "ic_raw": [0.14814889918534338, 0.15176236322837353], "ic_clean": [0.14814889918534338, 0.15176236322837353]}, {"col": "customers.estimated_monthly_income", "raw": 0.20022, "clean": 0.20022, "ic_raw": [0.19820261184397095, 0.20225274232982363], "ic_clean": [0.19820261184397095, 0.20225274232982363]}, {"col": "customers.occupation", "raw": 0.10026, "clean": 0.10026, "ic_raw": [0.09875028762210476, 0.10179018631689267], "ic_clean": [0.09875028762210476, 0.10179018631689267]}, {"col": "customers.marital_status", "raw": 0.0797, "clean": 0.0797, "ic_raw": [0.07834018420274658, 0.08108134278119453], "ic_clean": [0.07834018420274658, 0.08108134278119453]}, {"col": "customers.education_level", "raw": 0.11968, "clean": 0.11968, "ic_raw": [0.11804712530235942, 0.12133235398037312], "ic_clean": [0.11804712530235942, 0.12133235398037312]}, {"col": "customers.registration_date", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 2.560906964207045e-05], "ic_clean": [0.0, 2.560906964207045e-05]}, {"col": "customers.customer_status", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 2.560906964207045e-05], "ic_clean": [0.0, 2.560906964207045e-05]}, {"col": "customers.last_updated", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 2.560906964207045e-05], "ic_clean": [0.0, 2.560906964207045e-05]}, {"col": "customers.accepts_marketing", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 2.560906964207045e-05], "ic_clean": [0.0, 2.560906964207045e-05]}, {"col": "customers._source_file", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 2.560906964207045e-05], "ic_clean": [0.0, 2.560906964207045e-05]}, {"col": "customers._ingested_at", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 2.560906964207045e-05], "ic_clean": [0.0, 2.560906964207045e-05]}, {"col": "products.product_id", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 9.603554827091655e-06], "ic_clean": [0.0, 9.603554827091655e-06]}, {"col": "products.customer_id", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 9.603554827091655e-06], "ic_clean": [0.0, 9.603554827091655e-06]}, {"col": "products.product_type", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 9.603554827091655e-06], "ic_clean": [0.0, 9.603554827091655e-06]}, {"col": "products.product_number", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 9.603554827091655e-06], "ic_clean": [0.0, 9.603554827091655e-06]}, {"col": "products.currency", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 9.603554827091655e-06], "ic_clean": [0.0, 9.603554827091655e-06]}, {"col": "products.current_balance", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 9.603554827091655e-06], "ic_clean": [0.0, 9.603554827091655e-06]}, {"col": "products.credit_limit", "raw": 0.6867075, "clean": 0.6867075, "ic_raw": [0.685268308261837, 0.6881431056267372], "ic_clean": [0.685268308261837, 0.6881431056267372]}, {"col": "products.interest_rate", "raw": 0.100165, "clean": 0.100165, "ic_raw": [0.09923846244801807, 0.1010992172266705], "ic_clean": [0.09923846244801807, 0.1010992172266705]}, {"col": "products.opening_date", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 9.603554827091655e-06], "ic_clean": [0.0, 9.603554827091655e-06]}, {"col": "products.expiration_date", "raw": 0.6670975, "clean": 0.6670975, "ic_raw": [0.6656355032300635, 0.668556287309931], "ic_clean": [0.6656355032300635, 0.668556287309931]}, {"col": "products.opening_branch_id", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 9.603554827091655e-06], "ic_clean": [0.0, 9.603554827091655e-06]}, {"col": "products.product_status", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 9.603554827091655e-06], "ic_clean": [0.0, 9.603554827091655e-06]}, {"col": "products.opening_channel", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 9.603554827091655e-06], "ic_clean": [0.0, 9.603554827091655e-06]}, {"col": "products.has_linked_app", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 9.603554827091655e-06], "ic_clean": [0.0, 9.603554827091655e-06]}, {"col": "products.days_past_due", "raw": 0.686625, "clean": 0.686625, "ic_raw": [0.685185706168478, 0.688060709304683], "ic_clean": [0.685185706168478, 0.688060709304683]}, {"col": "products.last_transaction_date", "raw": 0.2356925, "clean": 0.2356925, "ic_raw": [0.23437974149949725, 0.23701033508363767], "ic_clean": [0.23437974149949725, 0.23701033508363767]}, {"col": "products.last_updated", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 9.603554827091655e-06], "ic_clean": [0.0, 9.603554827091655e-06]}, {"col": "products._source_file", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 9.603554827091655e-06], "ic_clean": [0.0, 9.603554827091655e-06]}, {"col": "products._ingested_at", "raw": 0.0, "clean": 0.0, "ic_raw": [0.0, 9.603554827091655e-06], "ic_clean": [0.0, 9.603554827091655e-06]}], "gold": {"n_filas": 141445, "n_clientes_totales": 150000, "cobertura": 0.9429666666666666, "tasa_mora90": 0.06516650707522077, "n_etiquetados": 131586, "senal_vs_mora": {"tenure_days": {"pearson": -0.0009078149466849908, "spearman": -0.0009101478175947762, "auc_univariada": 0.4989355091688332}, "transaction_count_180d": {"pearson": 0.09211120896884499, "spearman": 0.08937062058451123, "auc_univariada": 0.6040415006617366}, "transaction_volume_usd_180d": {"pearson": 0.010408421633181182, "spearman": 0.019138517086828833, "auc_univariada": 0.5223787424448258}, "deposits_usd_180d": {"pearson": -0.008676021941777431, "spearman": -0.01204342305088883, "auc_univariada": 0.4874143835011745}, "outflows_usd_180d": {"pearson": 0.1046497178921442, "spearman": 0.1063632185733492, "auc_univariada": 0.6241439286296732}, "ambiguous_transactions_180d": {"pearson": 0.012097325133769404, "spearman": 0.009604812870921351, "auc_univariada": 0.5106206093635988}, "active_months_180d": {"pearson": 0.08232318826171553, "spearman": 0.0821758878066969, "auc_univariada": 0.594714302375907}}, "momentos": {"tenure_days": {"n": 141445, "media": 1377.752278270706, "sd": 796.5250228573026, "cv": 0.5781337003899321, "asimetria": 0.0002761690041605307, "curtosis_exceso": -1.204114349215032, "min": 1.0, "p1": 28.0, "p5": 138.0, "q1": 685.0, "mediana": 1378.0, "q3": 2068.0, "p95": 2619.0, "p99": 2726.0, "max": 2753.0, "iqr": 1383.0, "mad": 691.0, "outliers_tukey": 0.0, "outliers_mad": 0.0}, "transaction_count_180d": {"n": 141445, "media": 4.444837215878963, "sd": 3.627314572285221, "cv": 0.816073659419251, "asimetria": 0.9972135339284746, "curtosis_exceso": 1.1388506493339783, "min": 0.0, "p1": 0.0, "p5": 0.0, "q1": 2.0, "mediana": 4.0, "q3": 7.0, "p95": 11.0, "p99": 15.0, "max": 31.0, "iqr": 5.0, "mad": 2.0, "outliers_tukey": 0.01376506769415674, "outliers_mad": 0.03177206688111987}, "transaction_volume_usd_180d": {"n": 141445, "media": 7452.445298581881, "sd": 8403.523785729887, "cv": 1.1276196535557244, "asimetria": 1.6096211695902725, "curtosis_exceso": 3.1705896948186982, "min": 0.0, "p1": 0.0, "p5": 0.0, "q1": 794.1077429999999, "mediana": 4549.8, "q3": 11495.36, "p95": 24318.127116119977, "p99": 35937.6778653604, "max": 86284.89640148997, "iqr": 10701.252257, "mad": 4341.240000000001, "outliers_tukey": 0.032380077061755455, "outliers_mad": 0.05337763795114709}, "deposits_usd_180d": {"n": 141445, "media": 1551.105531787648, "sd": 2667.1668887002306, "cv": 1.719526385562124, "asimetria": 2.195274792180779, "curtosis_exceso": 5.963652729986732, "min": 0.0, "p1": 0.0, "p5": 0.0, "q1": 0.0, "mediana": 0.0, "q3": 2637.84, "p95": 7235.406988487988, "p99": 11432.439365565597, "max": 28529.14168944, "iqr": 2637.84, "mad": 0.0, "outliers_tukey": 0.061925129909151964, "outliers_mad": null}, "outflows_usd_180d": {"n": 141445, "media": 1285.305189384392, "sd": 1448.4117660653944, "cv": 1.1269010488933946, "asimetria": 1.6841499483875206, "curtosis_exceso": 3.747752281375676, "min": 0.0, "p1": 0.0, "p5": 0.0, "q1": 128.96, "mediana": 810.30788299, "q3": 1962.5500000000002, "p95": 4181.837601963996, "p99": 6246.425663524395, "max": 14382.550000000001, "iqr": 1833.5900000000001, "mad": 810.30788299, "outliers_tukey": 0.033009296899855066, "outliers_mad": 0.041733536003393544}, "ambiguous_transactions_180d": {"n": 141445, "media": 1.033440559934957, "sd": 1.329780799445168, "cv": 1.286751121447045, "asimetria": 1.6003588049319972, "curtosis_exceso": 3.080499715132869, "min": 0.0, "p1": 0.0, "p5": 0.0, "q1": 0.0, "mediana": 1.0, "q3": 2.0, "p95": 4.0, "p99": 5.0, "max": 14.0, "iqr": 2.0, "mad": 1.0, "outliers_tukey": 0.009466577114779596, "outliers_mad": 0.009466577114779596}, "active_months_180d": {"n": 141445, "media": 2.8105129202163384, "sd": 1.766536456236343, "cv": 0.6285459296520026, "asimetria": -0.05061723129473699, "curtosis_exceso": -0.9777669358323413, "min": 0.0, "p1": 0.0, "p5": 0.0, "q1": 1.0, "mediana": 3.0, "q3": 4.0, "p95": 6.0, "p99": 6.0, "max": 6.0, "iqr": 3.0, "mad": 1.0, "outliers_tukey": 0.0, "outliers_mad": 0.0}}, "cajas": {"tenure_days": {"q1": 685.0, "mediana": 1378.0, "q3": 2068.0, "bigote_bajo": 1.0, "bigote_alto": 2753.0, "pct_fuera": 0.0, "n": 141445, "escala": "lineal"}, "transaction_count_180d": {"q1": 2.0, "mediana": 4.0, "q3": 7.0, "bigote_bajo": 0.0, "bigote_alto": 14.0, "pct_fuera": 0.01376506769415674, "n": 141445, "escala": "lineal"}, "transaction_volume_usd_180d": {"q1": 794.1077429999999, "mediana": 4549.8, "q3": 11495.36, "bigote_bajo": 0.0, "bigote_alto": 27546.14, "pct_fuera": 0.032380077061755455, "n": 141445, "escala": "lineal"}, "deposits_usd_180d": {"q1": 0.0, "mediana": 0.0, "q3": 2637.84, "bigote_bajo": 0.0, "bigote_alto": 6594.517462239999, "pct_fuera": 0.061925129909151964, "n": 141445, "escala": "lineal"}, "outflows_usd_180d": {"q1": 128.96, "mediana": 810.30788299, "q3": 1962.5500000000002, "bigote_bajo": 0.0, "bigote_alto": 4711.46, "pct_fuera": 0.033009296899855066, "n": 141445, "escala": "lineal"}, "ambiguous_transactions_180d": {"q1": 0.0, "mediana": 1.0, "q3": 2.0, "bigote_bajo": 0.0, "bigote_alto": 5.0, "pct_fuera": 0.009466577114779596, "n": 141445, "escala": "lineal"}, "active_months_180d": {"q1": 1.0, "mediana": 3.0, "q3": 4.0, "bigote_bajo": 0.0, "bigote_alto": 6.0, "pct_fuera": 0.0, "n": 141445, "escala": "lineal"}}, "max_event_date": "2025-12-30 00:00:00", "columnas": ["customer_id", "asof_date", "tenure_days", "transaction_count_180d", "transaction_volume_usd_180d", "deposits_usd_180d", "outflows_usd_180d", "ambiguous_transactions_180d", "active_months_180d", "max_feature_event_date", "max_feature_process_date"], "excl_segmento": [{"k": "Basic", "pct": 0.05817995454342885, "n": 89756}, {"k": "Plus", "pct": 0.053346472421232055, "n": 37547}, {"k": "Premium", "pct": 0.056684421647925295, "n": 15207}, {"k": "Student", "pct": 0.06248331108144192, "n": 7490}], "excl_pais": [{"k": "México", "pct": 0.056456672941113645, "n": 74907}, {"k": "Colombia", "pct": 0.05825285629046872, "n": 45251}, {"k": "Argentina", "pct": 0.056631593056765635, "n": 29842}]}, "fx": [{"currency": "USD", "n": 2437979, "err_abs_media": 0.0, "err_abs_max": 0.0, "suma_local": 4085207957.260004, "suma_usd": 4085207957.260004, "tasa_media": 1.0, "tasa_sd": 0.0}, {"currency": "COP", "n": 1194444, "err_abs_media": 26806152924.507336, "err_abs_max": 163264596240.85834, "suma_local": 7999204572937.778, "suma_usd": 1998134938.7712157, "tasa_media": 0.0002498602803488086, "tasa_sd": 2.965039580917936e-06}, {"currency": "ARS", "n": 792585, "err_abs_media": 205139699.87844524, "err_abs_max": 1249702359.3995452, "suma_local": 464719272405.5403, "suma_usd": 1327904509.785015, "tasa_media": 0.002858385625831331, "tasa_sd": 3.260154140520975e-05}]};
+const CHARTS = [];
+const D3 = {"score_segmento": [{"k": "Premium", "n": 13020, "media": 797.4042242703533, "sd": 36.67848944910776}, {"k": "Plus", "n": 31848, "media": 699.1834338106004, "sd": 39.79265520211757}, {"k": "Student", "n": 6359, "media": 649.0202862085233, "sd": 39.96415188048851}, {"k": "Basic", "n": 76281, "media": 599.5372504293337, "sd": 39.9593757399868}], "score_r_ingreso": 0.3557712485497007, "nada": [{"k": "ingreso mensual", "col": "ingreso", "r": 0.0008615494096878391, "auc": 0.5060849378147658}, {"k": "l\u00edmite de cr\u00e9dito", "col": "lim", "r": 0.0015974498161595767, "auc": 0.5059565475640209}, {"k": "saldo total del cliente", "col": "saldo_total", "r": 0.0018199485535252758, "auc": 0.504600974908104}, {"k": "antig\u00fcedad del cliente", "col": "antig_cli", "r": -0.0035214666843320207, "auc": 0.4961422189108338}, {"k": "saldo del producto", "col": "saldo", "r": -0.0006919248426714308, "auc": 0.5035487852523575}, {"k": "credit_score", "col": "credit_score", "r": -0.002199280388516491, "auc": 0.49740069316831814}, {"k": "utilizaci\u00f3n de l\u00ednea", "col": "util", "r": 0.004583293546980332, "auc": 0.49777201040097696}, {"k": "n\u00famero de productos", "col": "n_prod", "r": -0.0005761598350961968, "auc": 0.49794440883025043}, {"k": "antig\u00fcedad del producto", "col": "antig_prod", "r": 0.0012704251620270154, "auc": 0.501393713056601}, {"k": "tasa de inter\u00e9s", "col": "tasa", "r": -0.001140971239171531, "auc": 0.4994091439844561}], "tramos": [{"k": "600\u2013699", "n": 48989, "tasa": 7.436363265222805}, {"k": "700\u2013799", "n": 19454, "tasa": 7.525444638634728}, {"k": "800+", "n": 5586, "tasa": 7.321876118868601}, {"k": "<600", "n": 32876, "tasa": 7.628665287747902}], "ca_z": -0.7936, "ca_p": 0.4274, "bernoulli": [{"k": 1, "n": 51164, "obs": 7.362598702212493, "pred": 7.516599999999995}, {"k": 2, "n": 21424, "obs": 14.75914861837192, "pred": 14.468207244399988}, {"k": 3, "n": 5992, "obs": 21.17823765020027, "pred": 20.897289978667423}, {"k": 4, "n": 1238, "obs": 24.394184168012924, "pred": 26.843124280130905}, {"k": 5, "n": 212, "obs": 31.60377358490566, "pred": 32.34203400049057}], "estrat": [{"k": 1, "n": 51164, "tx": 0.49424723245043806, "sal": 0.49370201542865794, "mes": 0.4952258848366983, "sco": 0.49937606622919667}, {"k": 2, "n": 21424, "tx": 0.49878684432393183, "sal": 0.4963310755923115, "mes": 0.5024354377712945, "sco": 0.49667016410282605}, {"k": 3, "n": 5992, "tx": 0.49387443403147446, "sal": 0.5004539928091944, "mes": 0.486318148350034, "sco": 0.4879643423354472}, {"k": 4, "n": 1238, "tx": 0.5019510245089716, "sal": 0.456359313975208, "mes": 0.5006137855889512, "sco": 0.5011810152401478}], "auc_ncred": 0.6217119904515505};
+const D2 = {"fx_ruido": {"bins": [1, 4277, 1688, 6744, 1717, 6541, 1621, 6477, 2343, 6841, 3728, 4315, 2118, 6232, 2006, 6577, 1415, 7193, 1545, 7428, 1096, 3339], "edges": [-0.022, -0.019999999999999997, -0.018, -0.016, -0.013999999999999999, -0.011999999999999999, -0.009999999999999998, -0.007999999999999998, -0.005999999999999998, -0.003999999999999997, -0.0019999999999999983, 0.0, 0.0020000000000000018, 0.0040000000000000036, 0.006000000000000002, 0.008, 0.010000000000000002, 0.012000000000000004, 0.014000000000000005, 0.016, 0.018000000000000002, 0.020000000000000004, 0.022], "sd": 0.011674810656675683, "sd_teor": 0.011547005383792516, "curtosis": -1.1772184178184668, "ks_unif": 0.04272803694960814, "ks_norm": 0.08419865490609679, "n": 85242}, "nulos_estructural": [{"tipo": "Cuenta Ahorro", "n": 120203, "dpd": 100.0, "lim": 100.0, "tasa": 9.991431162283803}, {"tipo": "Tarjeta Cr\u00e9dito", "n": 100102, "dpd": 5.063834888413818, "lim": 5.053845078020419, "tasa": 9.969830772611935}, {"tipo": "Cuenta Corriente", "n": 99979, "dpd": 100.0, "lim": 100.0, "tasa": 10.008101701357285}, {"tipo": "Tarjeta D\u00e9bito", "n": 39938, "dpd": 100.0, "lim": 100.0, "tasa": 10.045570634483449}, {"tipo": "Pr\u00e9stamo Personal", "n": 19960, "dpd": 4.844689378757515, "lim": 4.969939879759519, "tasa": 10.085170340681362}, {"tipo": "Pr\u00e9stamo Hipotecario", "n": 11910, "dpd": 4.920235096557515, "lim": 5.071368597816961, "tasa": 10.109151973131821}, {"tipo": "Inversi\u00f3n", "n": 5859, "dpd": 100.0, "lim": 100.0, "tasa": 10.820959208055982}, {"tipo": "Seguro", "n": 2049, "dpd": 100.0, "lim": 100.0, "tasa": 10.102489019033674}], "nulos_mcar": [{"k": "Basic \u00b7 M\u00e9xico", "n": 44763, "cs": 14.844849540915488, "ing": 19.781962781761724}, {"k": "Basic \u00b7 Colombia", "n": 27069, "cs": 15.12800620636152, "ing": 20.015515903801397}, {"k": "Plus \u00b7 M\u00e9xico", "n": 18797, "cs": 15.231153907538436, "ing": 20.013831994467203}, {"k": "Basic \u00b7 Argentina", "n": 17924, "cs": 15.258870787770586, "ing": 19.973220263334078}, {"k": "Plus \u00b7 Colombia", "n": 11309, "cs": 15.182597930851534, "ing": 20.38199663984437}, {"k": "Premium \u00b7 M\u00e9xico", "n": 7644, "cs": 14.56043956043956, "ing": 20.303506017791733}, {"k": "Plus \u00b7 Argentina", "n": 7441, "cs": 15.038301303588227, "ing": 20.454240021502486}, {"k": "Premium \u00b7 Colombia", "n": 4584, "cs": 14.703315881326352, "ing": 20.615183246073297}, {"k": "Student \u00b7 M\u00e9xico", "n": 3703, "cs": 14.528760464488252, "ing": 20.793950850661627}, {"k": "Premium \u00b7 Argentina", "n": 2979, "cs": 13.42732460557234, "ing": 19.805303793219203}, {"k": "Student \u00b7 Colombia", "n": 2289, "cs": 15.945827872433377, "ing": 19.571865443425075}, {"k": "Student \u00b7 Argentina", "n": 1498, "cs": 15.220293724966622, "ing": 19.092122830440587}], "dpd_dist": [{"v": 0.0, "n": 106585}, {"v": 15.0, "n": 3114}, {"v": 30.0, "n": 3117}, {"v": 60.0, "n": 3112}, {"v": 90.0, "n": 3233}, {"v": 120.0, "n": 3083}, {"v": 180.0, "n": 3106}], "tasa_por_estrato": {"Tipo de producto": [{"k": "Pr\u00e9stamo Hipotecario", "n": 11324, "tasa": 7.815259625574002}, {"k": "Pr\u00e9stamo Personal", "n": 18993, "tasa": 7.465908492602538}, {"k": "Tarjeta Cr\u00e9dito", "n": 95033, "tasa": 7.491082045184304}], "Segmento": [{"k": "Basic", "n": 75002, "tasa": 7.498466707554466}, {"k": "Plus", "n": 31500, "tasa": 7.609523809523809}, {"k": "Premium", "n": 12625, "tasa": 7.39009900990099}, {"k": "Student", "n": 6223, "tasa": 7.520488510364776}], "Pa\u00eds": [{"k": "Argentina", "n": 24957, "tasa": 7.657170332972712}, {"k": "Colombia", "n": 37561, "tasa": 7.638241793349485}, {"k": "M\u00e9xico", "n": 62832, "tasa": 7.3879551820728295}], "Tramo de score": [{"k": "550\u2013649", "n": 56082, "tasa": 7.492600121251025}, {"k": "650\u2013749", "n": 31483, "tasa": 7.4961090112124}, {"k": "750+", "n": 12416, "tasa": 7.41784793814433}, {"k": "<550", "n": 6924, "tasa": 7.813402657423454}]}, "auc": {"n": 80057, "tasa": 0.10711118328191163, "pos": 8575, "auc": {"tenure_days": {"auc": 0.4982478167555159, "pearson": -0.0018743207914846188, "spearman": -0.0018770951077064775}, "transaction_count_180d": {"auc": 0.5422245050498146, "pearson": 0.047111049095586846, "spearman": 0.04541279449755577}, "transaction_volume_usd_180d": {"auc": 0.5172080826398997, "pearson": 0.010498558182606239, "spearman": 0.018435974166784833}, "deposits_usd_180d": {"auc": 0.5027362740833122, "pearson": 0.0022267616486428953, "spearman": 0.0033479465310967864}, "outflows_usd_180d": {"auc": 0.5421137201618088, "pearson": 0.047281712978080835, "spearman": 0.0451299873897293}, "ambiguous_transactions_180d": {"auc": 0.5092601974539371, "pearson": 0.009450803200663925, "spearman": 0.010494271212773357}, "active_months_180d": {"auc": 0.5380662815234613, "pearson": 0.04133319339665307, "spearman": 0.04144498999010507}}}, "modelos": {"logreg_14": 0.5678, "gb_14": 0.5816, "gb_train": 0.6449, "baseline_score": 0.5033, "barajada": 0.499, "n": 79492, "tasa": 0.107306}, "sucursal": {"clientes": 150000, "ids_distintos": 150000, "sucursales": 350, "match": 5, "match_norm": 5, "via_productos": 139578, "sin_ambiguedad": 28189, "fk_validas": [{"col": "products.opening_branch_id", "pct": 1.0, "distintos": 350}, {"col": "transactions.branch_id", "pct": 1.0, "distintos": 350}, {"col": "service_agents.assigned_branch_id", "pct": 0.0024, "distintos": 833}, {"col": "customers.registration_branch_id", "pct": 3.33e-05, "distintos": 150000}]}, "etiqueta": {"productos": 400000, "credito": 131972, "con_dpd": 125350, "clientes_etiquetables": 84926, "en_gold": 80057, "tasa_correcta": 0.107111, "tasa_ingenua": 0.06517}};
+/* La primera version midio la AUC con la etiqueta ingenua, que trataba el nulo
+   estructural de days_past_due como 'al dia'. Se sustituye por la corregida. */
+D.gold.senal_vs_mora = Object.fromEntries(Object.entries(D2.auc.auc)
+  .map(([k, v]) => [k, {auc_univariada: v.auc, pearson: v.pearson, spearman: v.spearman}]));
+D.gold.tasa_mora90 = D2.etiqueta.tasa_correcta;
+D.gold.n_etiquetados = D2.etiqueta.en_gold;
+
+/* ---------- utilidades ---------- */
+const tip = document.getElementById('tip');
+function showTip(e, html){
+  tip.innerHTML = html; tip.style.opacity = 1;
+  const r = tip.getBoundingClientRect();
+  let x = e.clientX + 14, y = e.clientY - r.height - 10;
+  if (x + r.width > innerWidth - 8) x = e.clientX - r.width - 14;
+  if (y < 8) y = e.clientY + 18;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+function hideTip(){ tip.style.opacity = 0; }
+function bind(el, html){
+  el.classList.add('hit');
+  el.addEventListener('mousemove', e => showTip(e, html));
+  el.addEventListener('mouseleave', hideTip);
+  el.addEventListener('touchstart', e => showTip(e.touches[0], html), {passive:true});
+}
+const SVGNS = 'http://www.w3.org/2000/svg';
+function mk(tag, attrs){
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+const nf = (v, d=0) => v==null ? '—' :
+  new Intl.NumberFormat('es', {minimumFractionDigits:d, maximumFractionDigits:d}).format(v);
+const pf = (v, d=2) => v==null ? '—' : nf(v*100, d) + ' %';
+const sf = (v, d=4) => v==null ? '—' :
+  (Math.abs(v) >= 1e6 || (v !== 0 && Math.abs(v) < 1e-4) ? v.toExponential(2) : nf(v, d));
+
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let C = {};
+function readColors(){
+  C = {raw: css('--raw'), clean: css('--clean'), ink: css('--ink'), ink2: css('--ink-2'),
+       ink3: css('--ink-3'), rule: css('--rule'), surf: css('--surface'), bg: css('--bg'),
+       ok: css('--ok'), warn: css('--warn'), crit: css('--crit')};
+}
+readColors();
+
+const LBL = {
+  'transactions.amount':'transactions.amount',
+  'transactions.amount_usd':'transactions.amount_usd',
+  'transactions.fraud_score':'transactions.fraud_score',
+  'customers.credit_score':'customers.credit_score',
+  'customers.estimated_monthly_income':'customers.estimated_monthly_income',
+  'products.current_balance':'products.current_balance',
+  'products.credit_limit':'products.credit_limit',
+  'products.interest_rate':'products.interest_rate',
+  'products.days_past_due':'products.days_past_due'
+};
+const short = k => k.split('.')[1];
+
+/* ---------- 01 · tabla de retención ---------- */
+CHARTS.push(function(){
+  const tb = document.getElementById('tbl-ret');
+  const rows = D.conteos.slice().sort((a,b) => b.raw - a.raw);
+  let tr = 0, tc = 0;
+  for (const r of rows){
+    tr += r.raw; tc += r.clean;
+    const perfecta = r.perd === 0;
+    const tds = `<td>${r.t}</td>
+      <td class="n">${nf(r.raw)}</td>
+      <td class="n">${nf(r.clean)}</td>
+      <td class="n">${r.perd === 0 ? '0' : '−' + nf(r.perd)}</td>
+      <td class="n">${perfecta
+        ? '<span class="chip c-ok">100.0000 %</span>'
+        : '<span class="chip c-wa">' + nf(r.ret*100, 4) + ' %</span>'}</td>
+      <td class="n">${nf(r.n_archivos ?? 0)}</td>`;
+    const el = document.createElement('tr'); el.innerHTML = tds; tb.appendChild(el);
+  }
+  const t = document.createElement('tr'); t.className = 'tot';
+  t.innerHTML = `<td>Total</td><td class="n">${nf(tr)}</td><td class="n">${nf(tc)}</td>
+    <td class="n">−${nf(tr-tc)}</td><td class="n">${nf(tc/tr*100,4)} %</td><td class="n">7 671</td>`;
+  tb.appendChild(t);
+});
+
+/* ---------- 02 · nulos, gráfico de pendiente ---------- */
+CHARTS.push(function(){
+  const host = document.getElementById('c-nulos');
+  const data = D.nulos.filter(d => d.raw > 0.0002 || d.clean > 0.0002)
+                      .sort((a,b) => Math.max(b.raw,b.clean) - Math.max(a.raw,a.clean));
+  const W = 700, padL = 210, padR = 78, padT = 22, padB = 30;
+  const rowH = 26, H = padT + data.length*rowH + padB;
+  const x = p => padL + p * (W - padL - padR);
+  const svg = mk('svg', {viewBox:`0 0 ${W} ${H}`, width:W, role:'img',
+    'aria-label':'Tasa de nulos por columna, bronze contra silver'});
+
+  for (let p = 0; p <= 1; p += 0.25){
+    svg.appendChild(mk('line', {x1:x(p), x2:x(p), y1:padT-8, y2:H-padB+2,
+      stroke:C.rule, 'stroke-width':1}));
+    const t = mk('text', {x:x(p), y:H-padB+16, 'text-anchor':'middle',
+      fill:C.ink3, 'font-size':10, 'font-family':'var(--f-mono)'});
+    t.textContent = (p*100) + '%'; svg.appendChild(t);
+  }
+
+  data.forEach((d, i) => {
+    const y = padT + i*rowH + rowH/2;
+    const lb = mk('text', {x:padL-12, y:y+4, 'text-anchor':'end', fill:C.ink2,
+      'font-size':11, 'font-family':'var(--f-mono)'});
+    lb.textContent = d.col.length > 30 ? '…' + d.col.slice(-29) : d.col;
+    svg.appendChild(lb);
+
+    const x1 = x(d.raw), x2 = x(d.clean);
+    svg.appendChild(mk('line', {x1:Math.min(x1,x2), x2:Math.max(x1,x2), y1:y, y2:y,
+      stroke:C.ink3, 'stroke-width':1.5, opacity:.42}));
+    const g = mk('g', {});
+    [['raw',x1,C.raw],['clean',x2,C.clean]].forEach(([k,xx,col]) => {
+      g.appendChild(mk('circle', {cx:xx, cy:y, r:5, fill:col,
+        stroke:C.surf, 'stroke-width':2}));
+    });
+    svg.appendChild(g);
+
+    const chg = Math.abs(d.raw - d.clean) > 0.0005;
+    const v = mk('text', {x:W-padR+10, y:y+4, fill: chg ? C.ink : C.ink3,
+      'font-size':10.5, 'font-family':'var(--f-mono)',
+      'font-weight': chg ? 600 : 400});
+    v.textContent = chg ? (pf(d.raw,1) + ' → ' + pf(d.clean,1)) : '—';
+    svg.appendChild(v);
+
+    bind(g, `<b>${d.col}</b><br>bronze ${pf(d.raw,4)}<br>` +
+            `<span style="opacity:.7">IC95 [${pf(d.ic_raw?.[0],3)}, ${pf(d.ic_raw?.[1],3)}]</span><br>` +
+            `silver ${pf(d.clean,4)}<br>` +
+            `<span style="opacity:.7">IC95 [${pf(d.ic_clean?.[0],3)}, ${pf(d.ic_clean?.[1],3)}]</span>`);
+  });
+  host.appendChild(svg);
+});
+
+/* ---------- 03a · tamaño de efecto ---------- */
+CHARTS.push(function(){
+  const host = document.getElementById('c-efecto');
+  const keys = Object.keys(D.efecto).filter(k => D.efecto[k].comparable);
+  const W = 700, padL = 210, padR = 96, padT = 26, padB = 34;
+  const rowH = 30, H = padT + keys.length*rowH + padB;
+  const MAX = 0.012;
+  const x = v => padL + (v/MAX) * (W - padL - padR);
+  const svg = mk('svg', {viewBox:`0 0 ${W} ${H}`, width:W, role:'img',
+    'aria-label':'Tamaño de efecto entre bronze y silver por variable'});
+
+  [0, 0.005, 0.01].forEach(v => {
+    const umbral = v === 0.01;
+    svg.appendChild(mk('line', {x1:x(v), x2:x(v), y1:padT-10, y2:H-padB+2,
+      stroke: umbral ? C.ink3 : C.rule, 'stroke-width':1,
+      'stroke-dasharray': umbral ? '3 3' : ''}));
+    const t = mk('text', {x:x(v), y:H-padB+16, 'text-anchor':'middle', fill:C.ink3,
+      'font-size':10, 'font-family':'var(--f-mono)'});
+    t.textContent = v === 0 ? '0' : v.toFixed(3); svg.appendChild(t);
+  });
+  const ut = mk('text', {x:x(0.01), y:padT-16, 'text-anchor':'middle', fill:C.ink3,
+    'font-size':9.5, 'font-family':'var(--f-mono)', 'letter-spacing':'.05em'});
+  ut.textContent = 'UMBRAL DE RUIDO'; svg.appendChild(ut);
+
+  keys.forEach((k, i) => {
+    const e = D.efecto[k], y = padT + i*rowH + rowH/2;
+    const lb = mk('text', {x:padL-12, y:y+4, 'text-anchor':'end', fill:C.ink2,
+      'font-size':11, 'font-family':'var(--f-mono)'});
+    lb.textContent = k; svg.appendChild(lb);
+
+    const g = mk('g', {});
+    const marks = [['KS D', e.ks_D, C.raw], ['W*', e.wasserstein_est, C.clean]];
+    marks.forEach(([nm, v, col], j) => {
+      const yy = y + (j === 0 ? -5 : 5), xx = x(Math.max(v, 0));
+      g.appendChild(mk('line', {x1:padL, x2:Math.max(xx, padL+1.5), y1:yy, y2:yy,
+        stroke:col, 'stroke-width':2.5, 'stroke-linecap':'round'}));
+      g.appendChild(mk('circle', {cx:Math.max(xx, padL+1.5), cy:yy, r:3.6, fill:col,
+        stroke:C.surf, 'stroke-width':1.5}));
+    });
+    svg.appendChild(g);
+
+    const cero = e.ks_D === 0 && e.wasserstein_est === 0;
+    const v = mk('text', {x:W-padR+10, y:y+4, fill: cero ? C.ok : C.ink2,
+      'font-size':10, 'font-family':'var(--f-mono)'});
+    v.textContent = cero ? 'idéntica' : sf(e.ks_D, 5);
+    svg.appendChild(v);
+
+    bind(g, `<b>${k}</b><br>KS D ${sf(e.ks_D,5)}<br>Wasserstein* ${sf(e.wasserstein_est,5)}<br>` +
+            `shift mediana* ${e.shift_mediana_est >= 0 ? '+' : ''}${sf(e.shift_mediana_est,5)}`);
+  });
+
+  const lg = document.createElement('div');
+  lg.className = 'legend';
+  lg.innerHTML = `<span class="lg"><span class="sw" style="background:var(--raw)"></span>KS D</span>
+    <span class="lg"><span class="sw" style="background:var(--clean)"></span>Wasserstein estandarizado</span>`;
+  host.appendChild(lg); host.appendChild(svg);
+});
+
+/* ---------- 03b · cajas ---------- */
+CHARTS.push(function(){
+  const host = document.getElementById('c-cajas');
+  const keys = Object.keys(D.cajas).filter(k => D.cajas[k].raw && D.cajas[k].clean);
+  const W = 700, padL = 210, padR = 56, padT = 16, padB = 26;
+  const grpH = 46, H = padT + keys.length*grpH + padB;
+  const svg = mk('svg', {viewBox:`0 0 ${W} ${H}`, width:W, role:'img',
+    'aria-label':'Diagramas de caja comparados, bronze contra silver'});
+
+  keys.forEach((k, i) => {
+    const o = D.cajas[k], yTop = padT + i*grpH;
+    const lo = Math.min(o.raw.bigote_bajo, o.clean.bigote_bajo);
+    const hi = Math.max(o.raw.bigote_alto, o.clean.bigote_alto);
+    const span = (hi - lo) || 1;
+    const x = v => padL + ((v - lo)/span) * (W - padL - padR);
+
+    const lb = mk('text', {x:padL-12, y:yTop+20, 'text-anchor':'end', fill:C.ink2,
+      'font-size':11, 'font-family':'var(--f-mono)'});
+    lb.textContent = short(k); svg.appendChild(lb);
+    const sc = mk('text', {x:padL-12, y:yTop+33, 'text-anchor':'end', fill:C.ink3,
+      'font-size':9, 'font-family':'var(--f-mono)'});
+    sc.textContent = o.log ? 'log₁₀' : 'lineal'; svg.appendChild(sc);
+
+    [['raw', o.raw, C.raw], ['clean', o.clean, C.clean]].forEach(([nm, b, col], j) => {
+      const y = yTop + 13 + j*16, h = 11;
+      const g = mk('g', {});
+      g.appendChild(mk('line', {x1:x(b.bigote_bajo), x2:x(b.q1), y1:y, y2:y,
+        stroke:col, 'stroke-width':1.2}));
+      g.appendChild(mk('line', {x1:x(b.q3), x2:x(b.bigote_alto), y1:y, y2:y,
+        stroke:col, 'stroke-width':1.2}));
+      [b.bigote_bajo, b.bigote_alto].forEach(v => {
+        g.appendChild(mk('line', {x1:x(v), x2:x(v), y1:y-4, y2:y+4,
+          stroke:col, 'stroke-width':1.2}));
+      });
+      g.appendChild(mk('rect', {x:x(b.q1), y:y-h/2, width:Math.max(x(b.q3)-x(b.q1), 1.5),
+        height:h, fill:col, opacity:.26, stroke:col, 'stroke-width':1.2, rx:1.5}));
+      g.appendChild(mk('line', {x1:x(b.mediana), x2:x(b.mediana), y1:y-h/2-1, y2:y+h/2+1,
+        stroke:col, 'stroke-width':2.2}));
+      svg.appendChild(g);
+
+      bind(g, `<b>${short(k)}</b> · ${nm === 'raw' ? 'bronze' : 'silver'}` +
+        (o.log ? ' <span style="opacity:.7">(log₁₀)</span>' : '') +
+        `<br>Q1 ${sf(b.q1,3)}<br>mediana ${sf(b.mediana,3)}<br>Q3 ${sf(b.q3,3)}<br>` +
+        `fuera de bigote ${pf(b.pct_fuera,2)}<br>n ${nf(b.n)}`);
+    });
+  });
+  host.appendChild(svg);
+});
+
+/* ---------- 03c · ECDF ---------- */
+CHARTS.push(function(){
+  const host = document.getElementById('c-ecdf');
+  const keys = ['transactions.amount','customers.estimated_monthly_income',
+                'products.current_balance','customers.credit_score']
+                .filter(k => D.ecdf[k] && D.ecdf[k].raw && D.ecdf[k].clean);
+  const grid = document.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px';
+
+  keys.forEach(k => {
+    const o = D.ecdf[k];
+    const W = 320, H = 190, padL = 42, padR = 12, padT = 24, padB = 34;
+    const xs = o.raw.x.concat(o.clean.x);
+    const lo = Math.min(...xs), hi = Math.max(...xs), span = (hi-lo) || 1;
+    const X = v => padL + ((v-lo)/span)*(W-padL-padR);
+    const Y = p => H - padB - p*(H-padT-padB);
+    const svg = mk('svg', {viewBox:`0 0 ${W} ${H}`, width:'100%', role:'img',
+      'aria-label':'ECDF de ' + k});
+
+    [0,.25,.5,.75,1].forEach(p => {
+      svg.appendChild(mk('line', {x1:padL, x2:W-padR, y1:Y(p), y2:Y(p),
+        stroke:C.rule, 'stroke-width':1}));
+      const t = mk('text', {x:padL-7, y:Y(p)+3.5, 'text-anchor':'end', fill:C.ink3,
+        'font-size':9, 'font-family':'var(--f-mono)'});
+      t.textContent = p.toFixed(2); svg.appendChild(t);
+    });
+    [lo, (lo+hi)/2, hi].forEach(v => {
+      const t = mk('text', {x:X(v), y:H-padB+15, 'text-anchor':'middle', fill:C.ink3,
+        'font-size':9, 'font-family':'var(--f-mono)'});
+      t.textContent = sf(v, 2); svg.appendChild(t);
+    });
+
+    [['raw',o.raw,C.raw,3],['clean',o.clean,C.clean,1.6]].forEach(([nm,s,col,w]) => {
+      const d = s.x.map((v,i) => (i?'L':'M') + X(v).toFixed(2) + ' ' + Y(s.p[i]).toFixed(2)).join(' ');
+      svg.appendChild(mk('path', {d, fill:'none', stroke:col, 'stroke-width':w,
+        'stroke-linejoin':'round', opacity: nm==='raw' ? .5 : 1}));
+    });
+
+    const ti = mk('text', {x:padL, y:13, fill:C.ink2, 'font-size':10,
+      'font-family':'var(--f-mono)'});
+    ti.textContent = short(k) + (o.log ? ' · log₁₀' : ''); svg.appendChild(ti);
+
+    const hit = mk('rect', {x:padL, y:padT, width:W-padL-padR, height:H-padT-padB,
+      fill:'transparent'});
+    const cross = mk('line', {x1:0,x2:0,y1:padT,y2:H-padB, stroke:C.ink3,
+      'stroke-width':1, opacity:0});
+    svg.appendChild(cross); svg.appendChild(hit);
+    hit.classList.add('hit');
+    hit.addEventListener('mousemove', e => {
+      const r = svg.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width * W;
+      const v = lo + ((px - padL)/(W-padL-padR))*span;
+      let bi = 0, bd = Infinity;
+      o.raw.x.forEach((xv,i) => { const dd = Math.abs(xv-v); if (dd<bd){bd=dd;bi=i;} });
+      cross.setAttribute('x1', X(o.raw.x[bi])); cross.setAttribute('x2', X(o.raw.x[bi]));
+      cross.setAttribute('opacity', .5);
+      showTip(e, `<b>${short(k)}</b>${o.log?' <span style="opacity:.7">log₁₀</span>':''}<br>` +
+        `p = ${o.raw.p[bi].toFixed(3)}<br>bronze ${sf(o.raw.x[bi],3)}<br>silver ${sf(o.clean.x[bi],3)}`);
+    });
+    hit.addEventListener('mouseleave', () => { cross.setAttribute('opacity',0); hideTip(); });
+
+    const cell = document.createElement('div');
+    cell.style.minWidth = '0';
+    cell.appendChild(svg);
+    grid.appendChild(cell);
+  });
+  host.appendChild(grid);
+});
+
+/* ---------- 03d · tabla de momentos ---------- */
+CHARTS.push(function(){
+  const tb = document.getElementById('tbl-mom');
+  for (const k in D.momentos){
+    const m = D.momentos[k], r = m.raw, c = m.clean;
+    if (!r || !r.n) continue;
+    const e = D.efecto[k] || {};
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="mono" style="font-size:.8rem">${k}</td>
+      <td class="n">${nf(r.n)}</td><td class="n">${nf(c.n)}</td>
+      <td class="n">${sf(r.mediana,2)}</td><td class="n">${sf(c.mediana,2)}</td>
+      <td class="n">${sf(r.asimetria,2)}</td><td class="n">${sf(r.curtosis_exceso,2)}</td>
+      <td class="n">${pf(r.outliers_tukey,2)} → ${pf(c.outliers_tukey,2)}</td>
+      <td class="n">${e.ks_D === 0 ? '<span class="chip c-ok">0</span>' : sf(e.ks_D,5)}</td>`;
+    tb.appendChild(tr);
+  }
+});
+
+/* ---------- 04 · cardinalidad ---------- */
+CHARTS.push(function(){
+  const host = document.getElementById('c-card');
+  const keys = Object.keys(D.categoricas);
+  const W = 700, padL = 236, padR = 150, padT = 14, padB = 14;
+  const rowH = 34, H = padT + keys.length*rowH + padB;
+  const maxC = Math.max(...keys.map(k => Math.max(D.categoricas[k].card_raw, D.categoricas[k].card_clean)));
+  const x = v => padL + (v/maxC)*(W-padL-padR);
+  const svg = mk('svg', {viewBox:`0 0 ${W} ${H}`, width:W, role:'img',
+    'aria-label':'Cardinalidad de columnas categóricas antes y después'});
+
+  keys.forEach((k, i) => {
+    const o = D.categoricas[k], y = padT + i*rowH + rowH/2;
+    const lb = mk('text', {x:padL-12, y:y+4, 'text-anchor':'end', fill:C.ink2,
+      'font-size':11, 'font-family':'var(--f-mono)'});
+    lb.textContent = k; svg.appendChild(lb);
+
+    const g = mk('g', {});
+    g.appendChild(mk('rect', {x:padL, y:y-9, width:Math.max(x(o.card_raw)-padL,2), height:8,
+      fill:C.raw, rx:2}));
+    g.appendChild(mk('rect', {x:padL, y:y+1, width:Math.max(x(o.card_clean)-padL,2), height:8,
+      fill:C.clean, rx:2}));
+    svg.appendChild(g);
+
+    const v = mk('text', {x:W-padR+10, y:y+4, fill:C.ink2, 'font-size':10.5,
+      'font-family':'var(--f-mono)'});
+    v.textContent = `${o.card_raw} → ${o.card_clean}`;
+    svg.appendChild(v);
+    const d = mk('text', {x:W-padR+62, y:y+4, fill:C.warn, 'font-size':9.5,
+      'font-family':'var(--f-mono)', 'letter-spacing':'.04em'});
+    d.textContent = 'sin colapso'; svg.appendChild(d);
+
+    const niveles = Object.keys(o.raw).slice(0,8).join(' · ');
+    bind(g, `<b>${k}</b><br>niveles crudo ${o.card_raw}<br>niveles limpio ${o.card_clean}<br>` +
+            `<span style="opacity:.7">${niveles}</span>`);
+  });
+
+  const lg = document.createElement('div');
+  lg.className = 'legend';
+  lg.innerHTML = `<span class="lg"><span class="sw" style="background:var(--raw)"></span>niveles en bronze</span>
+    <span class="lg"><span class="sw" style="background:var(--clean)"></span>niveles en silver</span>`;
+  host.appendChild(lg); host.appendChild(svg);
+});
+
+/* ---------- 05a · AUC univariada ---------- */
+CHARTS.push(function(){
+  const host = document.getElementById('c-auc');
+  const S = D.gold.senal_vs_mora;
+  const keys = Object.keys(S).sort((a,b) => Math.abs(S[b].auc_univariada-0.5) - Math.abs(S[a].auc_univariada-0.5));
+  const W = 700, padL = 236, padR = 88, padT = 30, padB = 34;
+  const rowH = 30, H = padT + keys.length*rowH + padB;
+  const LO = 0.46, HI = 0.66;
+  const x = v => padL + ((v-LO)/(HI-LO))*(W-padL-padR);
+  const svg = mk('svg', {viewBox:`0 0 ${W} ${H}`, width:W, role:'img',
+    'aria-label':'AUC univariada de cada variable contra mora a 90 días'});
+
+  [0.50,0.55,0.60,0.65].forEach(v => {
+    const azar = v === 0.50;
+    svg.appendChild(mk('line', {x1:x(v), x2:x(v), y1:padT-12, y2:H-padB+2,
+      stroke: azar ? C.ink3 : C.rule, 'stroke-width': azar ? 1.4 : 1,
+      'stroke-dasharray': azar ? '4 3' : ''}));
+    const t = mk('text', {x:x(v), y:H-padB+16, 'text-anchor':'middle', fill:C.ink3,
+      'font-size':10, 'font-family':'var(--f-mono)'});
+    t.textContent = v.toFixed(2); svg.appendChild(t);
+  });
+  const az = mk('text', {x:x(0.50), y:padT-18, 'text-anchor':'middle', fill:C.ink3,
+    'font-size':9.5, 'font-family':'var(--f-mono)', 'letter-spacing':'.05em'});
+  az.textContent = 'AZAR'; svg.appendChild(az);
+
+  keys.forEach((k, i) => {
+    const s = S[k], y = padT + i*rowH + rowH/2, a = s.auc_univariada;
+    const lb = mk('text', {x:padL-12, y:y+4, 'text-anchor':'end', fill:C.ink2,
+      'font-size':11, 'font-family':'var(--f-mono)'});
+    lb.textContent = k; svg.appendChild(lb);
+
+    const g = mk('g', {});
+    const x0 = x(0.50), x1 = x(a);
+    g.appendChild(mk('rect', {x:Math.min(x0,x1), y:y-6,
+      width:Math.max(Math.abs(x1-x0),2), height:12,
+      fill: a >= 0.5 ? C.clean : C.raw, rx:2.5}));
+    svg.appendChild(g);
+
+    const ruido = Math.abs(a-0.5) < 0.02;
+    const v = mk('text', {x:W-padR+10, y:y+4, fill: ruido ? C.ink3 : C.ink,
+      'font-size':10.5, 'font-family':'var(--f-mono)',
+      'font-weight': ruido ? 400 : 600});
+    v.textContent = a.toFixed(4); svg.appendChild(v);
+    if (ruido){
+      const r = mk('text', {x:W-padR+56, y:y+4, fill:C.warn, 'font-size':9.5,
+        'font-family':'var(--f-mono)'});
+      r.textContent = 'ruido'; svg.appendChild(r);
+    }
+
+    bind(g, `<b>${k}</b><br>AUC ${a.toFixed(4)}<br>Pearson ${s.pearson >= 0 ? '+' : ''}${s.pearson.toFixed(4)}` +
+            `<br>Spearman ${s.spearman >= 0 ? '+' : ''}${s.spearman.toFixed(4)}`);
+  });
+  host.appendChild(svg);
+});
+
+/* ---------- 05b · exclusión por estrato ---------- */
+CHARTS.push(function(){
+  const host = document.getElementById('c-excl');
+  const gs = [['Segmento', D.gold.excl_segmento], ['País', D.gold.excl_pais]];
+  const todos = gs.flatMap(([,a]) => a.map(d => d.pct));
+  const media = 1 - D.gold.cobertura;
+  const LO = Math.min(...todos, media) - 0.006, HI = Math.max(...todos, media) + 0.006;
+  const W = 700, padL = 120, padR = 92, padT = 30, padB = 34;
+  const rowH = 30, H = padT + (gs[0][1].length + gs[1][1].length + 2)*rowH + padB;
+  const x = v => padL + ((v-LO)/(HI-LO))*(W-padL-padR);
+  const svg = mk('svg', {viewBox:`0 0 ${W} ${H}`, width:W, role:'img',
+    'aria-label':'Porcentaje de clientes excluidos de la tabla de features, por estrato'});
+
+  for (let v = 0.04; v <= 0.08; v += 0.01){
+    if (v < LO || v > HI) continue;
+    svg.appendChild(mk('line', {x1:x(v), x2:x(v), y1:padT-12, y2:H-padB+2,
+      stroke:C.rule, 'stroke-width':1}));
+    const t = mk('text', {x:x(v), y:H-padB+16, 'text-anchor':'middle', fill:C.ink3,
+      'font-size':10, 'font-family':'var(--f-mono)'});
+    t.textContent = (v*100).toFixed(0) + '%'; svg.appendChild(t);
+  }
+  svg.appendChild(mk('line', {x1:x(media), x2:x(media), y1:padT-12, y2:H-padB+2,
+    stroke:C.ink3, 'stroke-width':1.4, 'stroke-dasharray':'4 3'}));
+  const ml = mk('text', {x:x(media), y:padT-18, 'text-anchor':'middle', fill:C.ink3,
+    'font-size':9.5, 'font-family':'var(--f-mono)', 'letter-spacing':'.05em'});
+  ml.textContent = 'MEDIA ' + pf(media,2); svg.appendChild(ml);
+
+  let row = 0;
+  gs.forEach(([titulo, arr]) => {
+    const yh = padT + row*rowH + rowH/2;
+    const h = mk('text', {x:12, y:yh+4, fill:C.ink3, 'font-size':9.5,
+      'font-family':'var(--f-mono)', 'letter-spacing':'.09em'});
+    h.textContent = titulo.toUpperCase(); svg.appendChild(h);
+    row++;
+    arr.sort((a,b) => b.pct - a.pct).forEach(d => {
+      const y = padT + row*rowH + rowH/2; row++;
+      const lb = mk('text', {x:padL-12, y:y+4, 'text-anchor':'end', fill:C.ink2,
+        'font-size':11, 'font-family':'var(--f-body)'});
+      lb.textContent = d.k; svg.appendChild(lb);
+      svg.appendChild(mk('line', {x1:padL, x2:W-padR, y1:y, y2:y,
+        stroke:C.rule, 'stroke-width':1}));
+      const g = mk('g', {});
+      g.appendChild(mk('circle', {cx:x(d.pct), cy:y, r:5.5, fill:C.clean,
+        stroke:C.surf, 'stroke-width':2}));
+      svg.appendChild(g);
+      const v = mk('text', {x:W-padR+10, y:y+4, fill:C.ink2, 'font-size':10.5,
+        'font-family':'var(--f-mono)'});
+      v.textContent = pf(d.pct,2); svg.appendChild(v);
+      bind(g, `<b>${d.k}</b><br>sin features ${pf(d.pct,3)}<br>clientes ${nf(d.n)}`);
+    });
+  });
+  host.appendChild(svg);
+});
+
+/* ---------- 05c · tabla gold ---------- */
+CHARTS.push(function(){
+  const tb = document.getElementById('tbl-gold');
+  const M = D.gold.momentos, S = D.gold.senal_vs_mora;
+  for (const k in M){
+    const m = M[k]; if (!m || !m.n) continue;
+    const s = S[k];
+    const ruido = s && Math.abs(s.auc_univariada - 0.5) < 0.02;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="mono" style="font-size:.8rem">${k}</td>
+      <td class="n">${nf(m.n)}</td><td class="n">${sf(m.media,2)}</td>
+      <td class="n">${sf(m.sd,2)}</td><td class="n">${sf(m.mediana,2)}</td>
+      <td class="n">${sf(m.p95,2)}</td><td class="n">${sf(m.asimetria,2)}</td>
+      <td class="n">${s ? (ruido
+        ? '<span class="chip c-wa">' + s.auc_univariada.toFixed(4) + '</span>'
+        : '<span class="chip c-ok">' + s.auc_univariada.toFixed(4) + '</span>') : '—'}</td>`;
+    tb.appendChild(tr);
+  }
+});
+
+/* Redibujar colores al cambiar de tema no hace falta: los SVG se generan una vez
+   y toman los tokens vigentes. Un cambio de tema del sistema recarga la vista. */
+/* ---------- 02 · llaves de sucursal ---------- */
+CHARTS.push(function(){
+  const host = document.getElementById('c-suc'); if (!host) return;
+  const arr = D2.sucursal.fk_validas;
+  const W = 700, padL = 258, padR = 128, padT = 14, padB = 14;
+  const rowH = 34, H = padT + arr.length*rowH + padB;
+  const x = v => padL + v*(W-padL-padR);
+  const svg = mk('svg', {viewBox:`0 0 ${W} ${H}`, width:W, role:'img',
+    'aria-label':'Validez de las cuatro columnas que referencian sucursales'});
+  arr.forEach((d, i) => {
+    const y = padT + i*rowH + rowH/2, valida = d.pct > 0.5;
+    const lb = mk('text', {x:padL-12, y:y+4, 'text-anchor':'end', fill:C.ink2,
+      'font-size':11, 'font-family':'var(--f-mono)'});
+    lb.textContent = d.col; svg.appendChild(lb);
+    svg.appendChild(mk('rect', {x:padL, y:y-7, width:W-padL-padR, height:14,
+      fill:C.rule, rx:2, opacity:.5}));
+    const g = mk('g', {});
+    g.appendChild(mk('rect', {x:padL, y:y-7, width:Math.max(x(d.pct)-padL, 2.5), height:14,
+      fill: valida ? C.clean : C.raw, rx:2}));
+    svg.appendChild(g);
+    const v = mk('text', {x:W-padR+10, y:y+4, fill: valida ? C.ok : C.crit,
+      'font-size':10.5, 'font-family':'var(--f-mono)', 'font-weight':600});
+    v.textContent = valida ? '100 %' : (d.pct*100).toFixed(3).replace(/0+$/,'') + ' %';
+    svg.appendChild(v);
+    const dd = mk('text', {x:W-padR+56, y:y+4, fill:C.ink3, 'font-size':9.5,
+      'font-family':'var(--f-mono)'});
+    dd.textContent = nf(d.distintos) + ' ids'; svg.appendChild(dd);
+    bind(g, `<b>${d.col}</b><br>valores distintos ${nf(d.distintos)}<br>` +
+            `existen en branches ${(d.pct*100).toFixed(4)} %<br>` +
+            `<span style="opacity:.7">sucursales reales: 350</span>`);
+  });
+  host.appendChild(svg);
+});
+
+/* ---------- 02 · histograma del ruido FX ---------- */
+CHARTS.push(function(){
+  const host = document.getElementById('c-fxruido'); if (!host) return;
+  const o = D2.fx_ruido, b = o.bins, e = o.edges;
+  const W = 700, H = 240, padL = 52, padR = 16, padT = 26, padB = 44;
+  const maxB = Math.max(...b);
+  const x = v => padL + ((v - e[0])/(e[e.length-1]-e[0]))*(W-padL-padR);
+  const y = v => H - padB - (v/maxB)*(H-padT-padB);
+  const svg = mk('svg', {viewBox:`0 0 ${W} ${H}`, width:W, role:'img',
+    'aria-label':'Histograma del error relativo del monto en dólares reportado'});
+
+  const esperado = o.n/20;
+  for (let f = 0; f <= 1.001; f += 0.25){
+    svg.appendChild(mk('line', {x1:padL, x2:W-padR, y1:y(maxB*f), y2:y(maxB*f),
+      stroke:C.rule, 'stroke-width':1}));
+    const t = mk('text', {x:padL-8, y:y(maxB*f)+3.5, 'text-anchor':'end', fill:C.ink3,
+      'font-size':9.5, 'font-family':'var(--f-mono)'});
+    t.textContent = nf(maxB*f/1000, 0) + 'k'; svg.appendChild(t);
+  }
+  [-0.02,-0.01,0,0.01,0.02].forEach(v => {
+    const lim = Math.abs(Math.abs(v)-0.02) < 1e-9;
+    svg.appendChild(mk('line', {x1:x(v), x2:x(v), y1:padT-8, y2:H-padB,
+      stroke: lim ? C.ink3 : C.rule, 'stroke-width': lim ? 1.4 : 1,
+      'stroke-dasharray': lim ? '4 3' : ''}));
+    const t = mk('text', {x:x(v), y:H-padB+16, 'text-anchor':'middle', fill:C.ink3,
+      'font-size':10, 'font-family':'var(--f-mono)'});
+    t.textContent = (v*100).toFixed(0) + '%'; svg.appendChild(t);
+  });
+
+  /* nivel plano que predice una uniforme(-2%,+2%) */
+  svg.appendChild(mk('line', {x1:x(-0.02), x2:x(0.02), y1:y(esperado), y2:y(esperado),
+    stroke:C.clean, 'stroke-width':2, 'stroke-dasharray':'5 4'}));
+  const et = mk('text', {x:x(0.02)-4, y:y(esperado)-8, 'text-anchor':'end', fill:C.clean,
+    'font-size':9.5, 'font-family':'var(--f-mono)', 'letter-spacing':'.04em'});
+  et.textContent = 'NIVEL DE UNA UNIFORME(−2 %, +2 %)'; svg.appendChild(et);
+
+  const bw = (x(e[1])-x(e[0]));
+  b.forEach((n, i) => {
+    if (!n) return;
+    const g = mk('g', {});
+    g.appendChild(mk('rect', {x:x(e[i])+1, y:y(n), width:Math.max(bw-2, 1),
+      height:Math.max(H-padB-y(n), 1), fill:C.raw, rx:2, opacity:.85}));
+    svg.appendChild(g);
+    const c0 = ((e[i]+e[i+1])/2*100).toFixed(2);
+    bind(g, `centro ${c0} %<br>n = ${nf(n)}<br>` +
+            `<span style="opacity:.7">esperado si uniforme: ${nf(esperado,0)}</span>`);
+  });
+
+  const xl = mk('text', {x:(padL+W-padR)/2, y:H-6, 'text-anchor':'middle', fill:C.ink3,
+    'font-size':10, 'font-family':'var(--f-body)'});
+  xl.textContent = 'error relativo = reportado / recalculado − 1'; svg.appendChild(xl);
+  host.appendChild(svg);
+
+  const nota = document.createElement('div');
+  nota.style.cssText = 'margin-top:12px;display:flex;flex-wrap:wrap;gap:6px 22px;font-family:var(--f-mono);font-size:.72rem;color:var(--ink-3)';
+  nota.innerHTML = `<span>σ observada <b style="color:var(--ink)">${o.sd.toFixed(6)}</b></span>
+    <span>σ teórica uniforme <b style="color:var(--ink)">${o.sd_teor.toFixed(6)}</b></span>
+    <span>curtosis <b style="color:var(--ink)">${o.curtosis.toFixed(3)}</b> (uniforme −1.2)</span>
+    <span>KS uniforme <b style="color:var(--ink)">${o.ks_unif.toFixed(3)}</b> · normal ${o.ks_norm.toFixed(3)}</span>`;
+  host.appendChild(nota);
+});
+
+/* ---------- 03 · nulo estructural ---------- */
+CHARTS.push(function(){
+  const host = document.getElementById('c-estr'); if (!host) return;
+  const arr = D2.nulos_estructural;
+  const W = 700, padL = 178, padR = 76, padT = 20, padB = 34;
+  const rowH = 36, H = padT + arr.length*rowH + padB;
+  const x = v => padL + (v/100)*(W-padL-padR);
+  const svg = mk('svg', {viewBox:`0 0 ${W} ${H}`, width:W, role:'img',
+    'aria-label':'Tasa de nulos por tipo de producto'});
+  [0,25,50,75,100].forEach(v => {
+    svg.appendChild(mk('line', {x1:x(v), x2:x(v), y1:padT-10, y2:H-padB+2,
+      stroke:C.rule, 'stroke-width':1}));
+    const t = mk('text', {x:x(v), y:H-padB+16, 'text-anchor':'middle', fill:C.ink3,
+      'font-size':10, 'font-family':'var(--f-mono)'});
+    t.textContent = v + '%'; svg.appendChild(t);
+  });
+  arr.forEach((d, i) => {
+    const y0 = padT + i*rowH, credito = d.dpd < 50;
+    const lb = mk('text', {x:padL-12, y:y0+18, 'text-anchor':'end',
+      fill: credito ? C.ink : C.ink2, 'font-size':11,
+      'font-weight': credito ? 600 : 400, 'font-family':'var(--f-body)'});
+    lb.textContent = d.tipo; svg.appendChild(lb);
+    const n = mk('text', {x:padL-12, y:y0+30, 'text-anchor':'end', fill:C.ink3,
+      'font-size':9, 'font-family':'var(--f-mono)'});
+    n.textContent = nf(d.n); svg.appendChild(n);
+    [[d.dpd,C.raw],[d.lim,C.clean],[d.tasa,C.ink3]].forEach(([v,col], j) => {
+      const y = y0 + 9 + j*8;
+      const g = mk('g', {});
+      g.appendChild(mk('rect', {x:padL, y:y-3, width:Math.max(x(v)-padL,2), height:6,
+        fill:col, rx:1.5}));
+      svg.appendChild(g);
+      const nm = ['days_past_due','credit_limit','interest_rate'][j];
+      bind(g, `<b>${d.tipo}</b><br>${nm}<br>nulos ${v.toFixed(2)} %<br>n ${nf(d.n)}`);
+    });
+    const v = mk('text', {x:W-padR+10, y:y0+22, fill: credito ? C.ok : C.warn,
+      'font-size':9.5, 'font-family':'var(--f-mono)'});
+    v.textContent = credito ? 'aplica' : 'no aplica'; svg.appendChild(v);
+  });
+  host.appendChild(svg);
+});
+
+/* ---------- 03 · nulo inyectado (MCAR) ---------- */
+CHARTS.push(function(){
+  const host = document.getElementById('c-mcar'); if (!host) return;
+  const arr = D2.nulos_mcar;
+  const W = 700, padL = 154, padR = 84, padT = 30, padB = 34;
+  const rowH = 24, H = padT + arr.length*rowH + padB;
+  const LO = 13, HI = 22;
+  const x = v => padL + ((v-LO)/(HI-LO))*(W-padL-padR);
+  const svg = mk('svg', {viewBox:`0 0 ${W} ${H}`, width:W, role:'img',
+    'aria-label':'Tasa de nulos por celda de segmento y país'});
+  [14,16,18,20,22].forEach(v => {
+    svg.appendChild(mk('line', {x1:x(v), x2:x(v), y1:padT-12, y2:H-padB+2,
+      stroke:C.rule, 'stroke-width':1}));
+    const t = mk('text', {x:x(v), y:H-padB+16, 'text-anchor':'middle', fill:C.ink3,
+      'font-size':10, 'font-family':'var(--f-mono)'});
+    t.textContent = v + '%'; svg.appendChild(t);
+  });
+  [[15,C.raw],[20,C.clean]].forEach(([v,col]) => {
+    svg.appendChild(mk('line', {x1:x(v), x2:x(v), y1:padT-12, y2:H-padB+2,
+      stroke:col, 'stroke-width':1.6, 'stroke-dasharray':'4 3', opacity:.75}));
+    const t = mk('text', {x:x(v), y:padT-18, 'text-anchor':'middle', fill:col,
+      'font-size':9.5, 'font-family':'var(--f-mono)', 'letter-spacing':'.05em'});
+    t.textContent = 'OBJETIVO ' + v + ' %'; svg.appendChild(t);
+  });
+  arr.forEach((d, i) => {
+    const y = padT + i*rowH + rowH/2;
+    const lb = mk('text', {x:padL-12, y:y+4, 'text-anchor':'end', fill:C.ink2,
+      'font-size':10.5, 'font-family':'var(--f-body)'});
+    lb.textContent = d.k; svg.appendChild(lb);
+    svg.appendChild(mk('line', {x1:padL, x2:W-padR, y1:y, y2:y, stroke:C.rule,
+      'stroke-width':1, opacity:.6}));
+    const g = mk('g', {});
+    g.appendChild(mk('circle', {cx:x(d.cs), cy:y, r:4.6, fill:C.raw,
+      stroke:C.surf, 'stroke-width':1.8}));
+    g.appendChild(mk('circle', {cx:x(d.ing), cy:y, r:4.6, fill:C.clean,
+      stroke:C.surf, 'stroke-width':1.8}));
+    svg.appendChild(g);
+    const v = mk('text', {x:W-padR+10, y:y+4, fill:C.ink3, 'font-size':9.5,
+      'font-family':'var(--f-mono)'});
+    v.textContent = nf(d.n); svg.appendChild(v);
+    bind(g, `<b>${d.k}</b><br>credit_score nulo ${d.cs.toFixed(2)} %<br>` +
+            `ingreso nulo ${d.ing.toFixed(2)} %<br>clientes ${nf(d.n)}`);
+  });
+  host.appendChild(svg);
+});
+
+/* ---------- 06 · tasa de mora por estrato ---------- */
+CHARTS.push(function(){
+  const host = document.getElementById('c-estratos'); if (!host) return;
+  const grupos = D2.tasa_por_estrato;
+  const nFilas = Object.values(grupos).reduce((s,a) => s+a.length, 0) + Object.keys(grupos).length;
+  const W = 700, padL = 176, padR = 88, padT = 30, padB = 34;
+  const rowH = 26, H = padT + nFilas*rowH + padB;
+  const LO = 6.8, HI = 8.4;
+  const x = v => padL + ((v-LO)/(HI-LO))*(W-padL-padR);
+  const svg = mk('svg', {viewBox:`0 0 ${W} ${H}`, width:W, role:'img',
+    'aria-label':'Tasa de mora a 90 días por estrato'});
+  const global = 7.516;
+  [7.0,7.5,8.0].forEach(v => {
+    svg.appendChild(mk('line', {x1:x(v), x2:x(v), y1:padT-12, y2:H-padB+2,
+      stroke:C.rule, 'stroke-width':1}));
+    const t = mk('text', {x:x(v), y:H-padB+16, 'text-anchor':'middle', fill:C.ink3,
+      'font-size':10, 'font-family':'var(--f-mono)'});
+    t.textContent = v.toFixed(1) + '%'; svg.appendChild(t);
+  });
+  svg.appendChild(mk('line', {x1:x(global), x2:x(global), y1:padT-12, y2:H-padB+2,
+    stroke:C.ink3, 'stroke-width':1.5, 'stroke-dasharray':'4 3'}));
+  const gt = mk('text', {x:x(global), y:padT-18, 'text-anchor':'middle', fill:C.ink3,
+    'font-size':9.5, 'font-family':'var(--f-mono)', 'letter-spacing':'.05em'});
+  gt.textContent = 'TASA GLOBAL 7.52 %'; svg.appendChild(gt);
+
+  let row = 0;
+  for (const nom in grupos){
+    const yh = padT + row*rowH + rowH/2;
+    const h = mk('text', {x:12, y:yh+4, fill:C.ink3, 'font-size':9.5,
+      'font-family':'var(--f-mono)', 'letter-spacing':'.09em'});
+    h.textContent = nom.toUpperCase(); svg.appendChild(h);
+    row++;
+    grupos[nom].forEach(d => {
+      const y = padT + row*rowH + rowH/2; row++;
+      const lb = mk('text', {x:padL-12, y:y+4, 'text-anchor':'end', fill:C.ink2,
+        'font-size':10.5, 'font-family':'var(--f-body)'});
+      lb.textContent = d.k; svg.appendChild(lb);
+      svg.appendChild(mk('line', {x1:padL, x2:W-padR, y1:y, y2:y, stroke:C.rule,
+        'stroke-width':1, opacity:.6}));
+      const g = mk('g', {});
+      g.appendChild(mk('circle', {cx:x(d.tasa), cy:y, r:5, fill:C.clean,
+        stroke:C.surf, 'stroke-width':2}));
+      svg.appendChild(g);
+      const v = mk('text', {x:W-padR+10, y:y+4, fill:C.ink2, 'font-size':10,
+        'font-family':'var(--f-mono)'});
+      v.textContent = d.tasa.toFixed(2) + ' %'; svg.appendChild(v);
+      bind(g, `<b>${d.k}</b><br>mora 90+ ${d.tasa.toFixed(3)} %<br>productos ${nf(d.n)}`);
+    });
+  }
+  host.appendChild(svg);
+});
+
+/* ---------- 06 · AUC de los modelos ---------- */
+CHARTS.push(function(){
+  const host = document.getElementById('c-modelos'); if (!host) return;
+  const M = D2.modelos;
+  const arr = [
+    {k:'Gradient boosting · 14 variables', v:M.gb_14, tipo:'modelo'},
+    {k:'Regresión logística · 14 variables', v:M.logreg_14, tipo:'modelo'},
+    {k:'Baseline ML-02 · solo credit_score', v:M.baseline_score, tipo:'baseline'},
+    {k:'Control · etiqueta barajada', v:M.barajada, tipo:'control'}
+  ];
+  const W = 700, padL = 268, padR = 80, padT = 30, padB = 34;
+  const rowH = 38, H = padT + arr.length*rowH + padB + 18;
+  const LO = 0.48, HI = 0.60;
+  const x = v => padL + ((v-LO)/(HI-LO))*(W-padL-padR);
+  const svg = mk('svg', {viewBox:`0 0 ${W} ${H}`, width:W, role:'img',
+    'aria-label':'AUC en validación retenida de cada modelo'});
+  [0.48,0.50,0.52,0.54,0.56,0.58,0.60].forEach(v => {
+    const azar = Math.abs(v-0.50) < 1e-9;
+    svg.appendChild(mk('line', {x1:x(v), x2:x(v), y1:padT-12, y2:H-padB-16,
+      stroke: azar ? C.ink3 : C.rule, 'stroke-width': azar ? 1.5 : 1,
+      'stroke-dasharray': azar ? '4 3' : ''}));
+    const t = mk('text', {x:x(v), y:H-padB, 'text-anchor':'middle', fill:C.ink3,
+      'font-size':10, 'font-family':'var(--f-mono)'});
+    t.textContent = v.toFixed(2); svg.appendChild(t);
+  });
+  const az = mk('text', {x:x(0.50), y:padT-18, 'text-anchor':'middle', fill:C.ink3,
+    'font-size':9.5, 'font-family':'var(--f-mono)', 'letter-spacing':'.05em'});
+  az.textContent = 'AZAR'; svg.appendChild(az);
+
+  arr.forEach((d, i) => {
+    const y = padT + i*rowH + rowH/2 - 8;
+    const col = d.tipo === 'modelo' ? C.clean : (d.tipo === 'baseline' ? C.raw : C.ink3);
+    const lb = mk('text', {x:padL-12, y:y+4, 'text-anchor':'end', fill:C.ink2,
+      'font-size':11, 'font-family':'var(--f-body)'});
+    lb.textContent = d.k; svg.appendChild(lb);
+    const g = mk('g', {});
+    g.appendChild(mk('rect', {x:x(0.50), y:y-8, width:Math.max(x(d.v)-x(0.50), 2.5),
+      height:16, fill:col, rx:2.5}));
+    svg.appendChild(g);
+    const v = mk('text', {x:W-padR+10, y:y+4.5, fill: d.tipo==='modelo' ? C.ink : C.ink3,
+      'font-size':11.5, 'font-family':'var(--f-mono)',
+      'font-weight': d.tipo==='modelo' ? 600 : 400});
+    v.textContent = d.v.toFixed(4); svg.appendChild(v);
+    bind(g, `<b>${d.k}</b><br>AUC validación ${d.v.toFixed(4)}` +
+      (d.tipo==='modelo' && d.k.startsWith('Gradient')
+        ? `<br>AUC entrenamiento ${M.gb_train.toFixed(4)}<br><span style="opacity:.7">la brecha es sobreajuste</span>` : ''));
+  });
+
+  const ft = mk('text', {x:padL, y:H-8, fill:C.ink3, 'font-size':9.5,
+    'font-family':'var(--f-mono)'});
+  ft.textContent = `n = ${nf(M.n)} · 30 % retenido · tasa de mora ${(M.tasa*100).toFixed(2)} %`;
+  svg.appendChild(ft);
+  host.appendChild(svg);
+});
+
+/* ---------- 07 · el score por segmento ---------- */
+CHARTS.push(function(){
+  const host = document.getElementById('c-score'); if (!host) return;
+  const arr = D3.score_segmento;
+  const W = 700, padL = 108, padR = 96, padT = 26, padB = 34;
+  const rowH = 40, H = padT + arr.length*rowH + padB;
+  const LO = 420, HI = 870;
+  const x = v => padL + ((v-LO)/(HI-LO))*(W-padL-padR);
+  const svg = mk('svg', {viewBox:`0 0 ${W} ${H}`, width:W, role:'img',
+    'aria-label':'Credit score medio por segmento comercial'});
+  [450,550,650,750,850].forEach(v => {
+    svg.appendChild(mk('line', {x1:x(v), x2:x(v), y1:padT-10, y2:H-padB+2,
+      stroke:C.rule, 'stroke-width':1}));
+    const t = mk('text', {x:x(v), y:H-padB+16, 'text-anchor':'middle', fill:C.ink3,
+      'font-size':10, 'font-family':'var(--f-mono)'});
+    t.textContent = v; svg.appendChild(t);
+  });
+  arr.forEach((d, i) => {
+    const y = padT + i*rowH + rowH/2, m = +d.media, s = +d.sd;
+    const lb = mk('text', {x:padL-12, y:y+4, 'text-anchor':'end', fill:C.ink,
+      'font-size':12, 'font-family':'var(--f-body)', 'font-weight':500});
+    lb.textContent = d.k; svg.appendChild(lb);
+    const g = mk('g', {});
+    /* banda de ±1 desviación */
+    g.appendChild(mk('rect', {x:x(m-s), y:y-9, width:x(m+s)-x(m-s), height:18,
+      fill:C.clean, opacity:.2, rx:2}));
+    g.appendChild(mk('line', {x1:x(m), x2:x(m), y1:y-11, y2:y+11,
+      stroke:C.clean, 'stroke-width':2.5}));
+    svg.appendChild(g);
+    const v = mk('text', {x:W-padR+10, y:y+4, fill:C.ink, 'font-size':11,
+      'font-family':'var(--f-mono)', 'font-weight':600});
+    v.textContent = m.toFixed(1); svg.appendChild(v);
+    const n = mk('text', {x:W-padR+54, y:y+4, fill:C.ink3, 'font-size':9.5,
+      'font-family':'var(--f-mono)'});
+    n.textContent = nf(d.n); svg.appendChild(n);
+    bind(g, `<b>${d.k}</b><br>score medio ${m.toFixed(1)}<br>desviación ${s.toFixed(1)}<br>clientes ${nf(d.n)}`);
+  });
+  const ft = mk('text', {x:padL, y:padT-14, fill:C.ink3, 'font-size':9.5,
+    'font-family':'var(--f-mono)'});
+  ft.textContent = `correlación con el ingreso: r = ${D3.score_r_ingreso.toFixed(3)} · banda = ±1 σ`;
+  svg.appendChild(ft);
+  host.appendChild(svg);
+});
+
+/* ---------- 07 · la mora contra todo ---------- */
+CHARTS.push(function(){
+  const host = document.getElementById('c-nada'); if (!host) return;
+  const arr = D3.nada;
+  const W = 700, padL = 214, padR = 96, padT = 28, padB = 34;
+  const rowH = 27, H = padT + arr.length*rowH + padB;
+  const LO = 0.47, HI = 0.53;
+  const x = v => padL + ((v-LO)/(HI-LO))*(W-padL-padR);
+  const svg = mk('svg', {viewBox:`0 0 ${W} ${H}`, width:W, role:'img',
+    'aria-label':'AUC de cada variable contra mora, a nivel producto'});
+  /* banda de indistinguibilidad */
+  svg.appendChild(mk('rect', {x:x(0.49), y:padT-12, width:x(0.51)-x(0.49),
+    height:H-padB-padT+14, fill:C.ink3, opacity:.1}));
+  const bl = mk('text', {x:x(0.50), y:padT-16, 'text-anchor':'middle', fill:C.ink3,
+    'font-size':9.5, 'font-family':'var(--f-mono)', 'letter-spacing':'.05em'});
+  bl.textContent = 'INDISTINGUIBLE DEL AZAR'; svg.appendChild(bl);
+  [0.47,0.49,0.50,0.51,0.53].forEach(v => {
+    const azar = Math.abs(v-0.50) < 1e-9;
+    svg.appendChild(mk('line', {x1:x(v), x2:x(v), y1:padT-12, y2:H-padB+2,
+      stroke: azar ? C.ink3 : C.rule, 'stroke-width': azar ? 1.4 : 1,
+      'stroke-dasharray': azar ? '4 3' : ''}));
+    const t = mk('text', {x:x(v), y:H-padB+16, 'text-anchor':'middle', fill:C.ink3,
+      'font-size':10, 'font-family':'var(--f-mono)'});
+    t.textContent = v.toFixed(2); svg.appendChild(t);
+  });
+  arr.forEach((d, i) => {
+    const y = padT + i*rowH + rowH/2;
+    const clave = d.col === 'credit_score' || d.col === 'util';
+    const lb = mk('text', {x:padL-12, y:y+4, 'text-anchor':'end',
+      fill: clave ? C.ink : C.ink2, 'font-size':11,
+      'font-weight': clave ? 600 : 400, 'font-family':'var(--f-body)'});
+    lb.textContent = d.k; svg.appendChild(lb);
+    svg.appendChild(mk('line', {x1:padL, x2:W-padR, y1:y, y2:y, stroke:C.rule,
+      'stroke-width':1, opacity:.55}));
+    const g = mk('g', {});
+    g.appendChild(mk('circle', {cx:x(d.auc), cy:y, r: clave ? 5.6 : 4.4,
+      fill: clave ? C.raw : C.clean, stroke:C.surf, 'stroke-width':2}));
+    svg.appendChild(g);
+    const v = mk('text', {x:W-padR+10, y:y+4, fill: clave ? C.ink : C.ink3,
+      'font-size':10.5, 'font-family':'var(--f-mono)',
+      'font-weight': clave ? 600 : 400});
+    v.textContent = d.auc.toFixed(4); svg.appendChild(v);
+    bind(g, `<b>${d.k}</b><br><span style="opacity:.7">${d.col}</span><br>` +
+            `AUC ${d.auc.toFixed(4)}<br>correlación ${d.r >= 0 ? '+' : ''}${d.r.toFixed(5)}`);
+  });
+  host.appendChild(svg);
+});
+
+/* ---------- 07 · tramos de score ---------- */
+CHARTS.push(function(){
+  const host = document.getElementById('c-tramos'); if (!host) return;
+  const arr = D3.tramos;
+  const W = 700, H = 250, padL = 62, padR = 24, padT = 30, padB = 46;
+  const LO = 0, HI = 9;
+  const x = (i) => padL + (i+0.5)*((W-padL-padR)/arr.length);
+  const y = v => H - padB - ((v-LO)/(HI-LO))*(H-padT-padB);
+  const svg = mk('svg', {viewBox:`0 0 ${W} ${H}`, width:W, role:'img',
+    'aria-label':'Tasa de mora por tramo de credit score'});
+  [0,2,4,6,8].forEach(v => {
+    svg.appendChild(mk('line', {x1:padL, x2:W-padR, y1:y(v), y2:y(v),
+      stroke:C.rule, 'stroke-width':1}));
+    const t = mk('text', {x:padL-8, y:y(v)+3.5, 'text-anchor':'end', fill:C.ink3,
+      'font-size':10, 'font-family':'var(--f-mono)'});
+    t.textContent = v + '%'; svg.appendChild(t);
+  });
+  /* referencia: cómo se vería un score que funciona */
+  const ref = [25, 12, 5, 1];
+  const dref = ref.map((v,i) => (i?'L':'M') + x(i).toFixed(1) + ' ' + y(Math.min(v,9)).toFixed(1)).join(' ');
+  svg.appendChild(mk('path', {d:dref, fill:'none', stroke:C.ink3, 'stroke-width':1.5,
+    'stroke-dasharray':'5 4', opacity:.5}));
+  const rl = mk('text', {x:x(0)+8, y:y(9)+12, fill:C.ink3, 'font-size':9,
+    'font-family':'var(--f-mono)'});
+  rl.textContent = '↗ pendiente de un score que funciona (fuera de escala)'; svg.appendChild(rl);
+
+  const d = arr.map((o,i) => (i?'L':'M') + x(i).toFixed(1) + ' ' + y(+o.tasa).toFixed(1)).join(' ');
+  svg.appendChild(mk('path', {d, fill:'none', stroke:C.raw, 'stroke-width':2.5,
+    'stroke-linejoin':'round'}));
+  arr.forEach((o, i) => {
+    const g = mk('g', {});
+    g.appendChild(mk('circle', {cx:x(i), cy:y(+o.tasa), r:6, fill:C.raw,
+      stroke:C.surf, 'stroke-width':2.5}));
+    svg.appendChild(g);
+    const v = mk('text', {x:x(i), y:y(+o.tasa)-14, 'text-anchor':'middle', fill:C.ink,
+      'font-size':11, 'font-family':'var(--f-mono)', 'font-weight':600});
+    v.textContent = (+o.tasa).toFixed(2) + '%'; svg.appendChild(v);
+    const t = mk('text', {x:x(i), y:H-padB+18, 'text-anchor':'middle', fill:C.ink2,
+      'font-size':11, 'font-family':'var(--f-body)'});
+    t.textContent = o.k; svg.appendChild(t);
+    const n = mk('text', {x:x(i), y:H-padB+31, 'text-anchor':'middle', fill:C.ink3,
+      'font-size':9, 'font-family':'var(--f-mono)'});
+    n.textContent = nf(o.n); svg.appendChild(n);
+    bind(g, `<b>score ${o.k}</b><br>mora 90+ ${(+o.tasa).toFixed(3)} %<br>productos ${nf(o.n)}`);
+  });
+  const z = mk('text', {x:W-padR, y:padT-14, 'text-anchor':'end', fill:C.ink3,
+    'font-size':10, 'font-family':'var(--f-mono)'});
+  z.textContent = `Cochran-Armitage  z = ${D3.ca_z.toFixed(2)}   p = ${D3.ca_p.toFixed(2)}`;
+  svg.appendChild(z);
+  host.appendChild(svg);
+});
+
+/* ---------- 07 · observado contra Bernoulli ---------- */
+CHARTS.push(function(){
+  const host = document.getElementById('c-bern'); if (!host) return;
+  const arr = D3.bernoulli;
+  const W = 700, H = 262, padL = 58, padR = 24, padT = 24, padB = 50;
+  const maxV = Math.max(...arr.map(d => Math.max(+d.obs, +d.pred))) * 1.12;
+  const x = i => padL + (i+0.5)*((W-padL-padR)/arr.length);
+  const y = v => H - padB - (v/maxV)*(H-padT-padB);
+  const svg = mk('svg', {viewBox:`0 0 ${W} ${H}`, width:W, role:'img',
+    'aria-label':'Mora observada contra la predicción de independencia'});
+  [0,10,20,30].forEach(v => {
+    if (v > maxV) return;
+    svg.appendChild(mk('line', {x1:padL, x2:W-padR, y1:y(v), y2:y(v),
+      stroke:C.rule, 'stroke-width':1}));
+    const t = mk('text', {x:padL-8, y:y(v)+3.5, 'text-anchor':'end', fill:C.ink3,
+      'font-size':10, 'font-family':'var(--f-mono)'});
+    t.textContent = v + '%'; svg.appendChild(t);
+  });
+  const dp = arr.map((o,i) => (i?'L':'M') + x(i).toFixed(1) + ' ' + y(+o.pred).toFixed(1)).join(' ');
+  svg.appendChild(mk('path', {d:dp, fill:'none', stroke:C.clean, 'stroke-width':2.5,
+    'stroke-dasharray':'6 4'}));
+  arr.forEach((o, i) => {
+    const g = mk('g', {});
+    g.appendChild(mk('circle', {cx:x(i), cy:y(+o.pred), r:4, fill:'none',
+      stroke:C.clean, 'stroke-width':2}));
+    g.appendChild(mk('circle', {cx:x(i), cy:y(+o.obs), r:6, fill:C.raw,
+      stroke:C.surf, 'stroke-width':2.5}));
+    svg.appendChild(g);
+    const v = mk('text', {x:x(i), y:y(+o.obs)-14, 'text-anchor':'middle', fill:C.ink,
+      'font-size':10.5, 'font-family':'var(--f-mono)', 'font-weight':600});
+    v.textContent = (+o.obs).toFixed(1); svg.appendChild(v);
+    const t = mk('text', {x:x(i), y:H-padB+18, 'text-anchor':'middle', fill:C.ink2,
+      'font-size':11, 'font-family':'var(--f-body)'});
+    t.textContent = o.k; svg.appendChild(t);
+    const n = mk('text', {x:x(i), y:H-padB+31, 'text-anchor':'middle', fill:C.ink3,
+      'font-size':9, 'font-family':'var(--f-mono)'});
+    n.textContent = nf(o.n); svg.appendChild(n);
+    bind(g, `<b>${o.k} producto${o.k>1?'s':''} de crédito</b><br>` +
+            `observado ${(+o.obs).toFixed(2)} %<br>predicho ${(+o.pred).toFixed(2)} %<br>` +
+            `clientes ${nf(o.n)}`);
+  });
+  const xl = mk('text', {x:(padL+W-padR)/2, y:H-6, 'text-anchor':'middle', fill:C.ink3,
+    'font-size':10, 'font-family':'var(--f-body)'});
+  xl.textContent = 'número de productos de crédito del cliente'; svg.appendChild(xl);
+  const au = mk('text', {x:W-padR, y:padT-8, 'text-anchor':'end', fill:C.ink3,
+    'font-size':10, 'font-family':'var(--f-mono)'});
+  au.textContent = `el conteo solo, sin modelo: AUC ${D3.auc_ncred.toFixed(4)}`;
+  svg.appendChild(au);
+  host.appendChild(svg);
+});
+
+/* ---------- 07 · estratificado ---------- */
+CHARTS.push(function(){
+  const host = document.getElementById('c-estrat'); if (!host) return;
+  const arr = D3.estrat;
+  const W = 700, padL = 214, padR = 84, padT = 28, padB = 34;
+  const rowH = 30, H = padT + arr.length*rowH + padB;
+  const LO = 0.44, HI = 0.56;
+  const x = v => padL + ((v-LO)/(HI-LO))*(W-padL-padR);
+  const svg = mk('svg', {viewBox:`0 0 ${W} ${H}`, width:W, role:'img',
+    'aria-label':'AUC estratificada por número de productos de crédito'});
+  svg.appendChild(mk('rect', {x:x(0.49), y:padT-12, width:x(0.51)-x(0.49),
+    height:H-padB-padT+14, fill:C.ink3, opacity:.1}));
+  [0.45,0.50,0.55].forEach(v => {
+    const azar = Math.abs(v-0.50) < 1e-9;
+    svg.appendChild(mk('line', {x1:x(v), x2:x(v), y1:padT-12, y2:H-padB+2,
+      stroke: azar ? C.ink3 : C.rule, 'stroke-width': azar ? 1.4 : 1,
+      'stroke-dasharray': azar ? '4 3' : ''}));
+    const t = mk('text', {x:x(v), y:H-padB+16, 'text-anchor':'middle', fill:C.ink3,
+      'font-size':10, 'font-family':'var(--f-mono)'});
+    t.textContent = v.toFixed(2); svg.appendChild(t);
+  });
+  const SER = [['tx','transacciones',C.raw],['sal','salidas',C.clean],
+               ['mes','meses activos',C.ink2],['sco','credit_score',C.ink3]];
+  arr.forEach((d, i) => {
+    const y = padT + i*rowH + rowH/2;
+    const lb = mk('text', {x:padL-12, y:y+4, 'text-anchor':'end', fill:C.ink2,
+      'font-size':11, 'font-family':'var(--f-body)'});
+    lb.textContent = `${d.k} producto${d.k>1?'s':''} · ${nf(d.n)} clientes`;
+    svg.appendChild(lb);
+    svg.appendChild(mk('line', {x1:padL, x2:W-padR, y1:y, y2:y, stroke:C.rule,
+      'stroke-width':1, opacity:.55}));
+    SER.forEach(([k, nm, col]) => {
+      const g = mk('g', {});
+      g.appendChild(mk('circle', {cx:x(d[k]), cy:y, r:4.4, fill:col,
+        stroke:C.surf, 'stroke-width':1.8}));
+      svg.appendChild(g);
+      bind(g, `<b>${nm}</b><br>${d.k} producto${d.k>1?'s':''} de crédito<br>` +
+              `AUC ${d[k].toFixed(4)}<br>clientes ${nf(d.n)}`);
+    });
+    const rango = Math.max(...SER.map(([k]) => d[k])) - Math.min(...SER.map(([k]) => d[k]));
+    const v = mk('text', {x:W-padR+10, y:y+4, fill:C.ok, 'font-size':9.5,
+      'font-family':'var(--f-mono)'});
+    v.textContent = 'todo ≈ 0.50'; svg.appendChild(v);
+  });
+  const lg = document.createElement('div');
+  lg.className = 'legend';
+  lg.innerHTML = SER.map(([k,nm,col]) =>
+    `<span class="lg"><span class="sw" style="background:${col}"></span>${nm}</span>`).join('');
+  host.appendChild(lg); host.appendChild(svg);
+});
+
+function render(){
+  readColors();
+  document.querySelectorAll('#c-nulos,#c-efecto,#c-cajas,#c-ecdf,#c-card,#c-auc,#c-excl,#c-suc,#c-fxruido,#c-estr,#c-mcar,#c-estratos,#c-modelos,#c-score,#c-nada,#c-tramos,#c-bern,#c-estrat,#tbl-ret,#tbl-mom,#tbl-gold')
+    .forEach(e => e.innerHTML = '');
+  CHARTS.forEach(f => f());
+}
+render();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render);
+new MutationObserver(render).observe(document.documentElement,
+  {attributes:true, attributeFilter:['data-theme']});
+addEventListener('scroll', hideTip, {passive:true});
+</script>
+</body></html>

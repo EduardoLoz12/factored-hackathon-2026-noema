@@ -171,6 +171,7 @@ Full audit with reproducible numbers: [`docs/01_data_audit.md`](docs/01_data_aud
 | [`CLAUDE.md`](CLAUDE.md) | Operating contract — read this before writing code |
 | [`docs/00_challenge_brief.md`](docs/00_challenge_brief.md) | The Factored rubric, decoded |
 | [`docs/01_data_audit.md`](docs/01_data_audit.md) | Dataset audit: where the dictionary and the data disagree |
+| [`deliverables/bronze_vs_silver.html`](deliverables/bronze_vs_silver.html) | Interactive Bronze-to-Silver audit: retention, nulls, distributions and model implications |
 | [`docs/02_architecture.md`](docs/02_architecture.md) | Architecture and the reasoning behind each decision |
 | [`docs/03_credit_policy.md`](docs/03_credit_policy.md) | Eligibility and escalation policy |
 | [`docs/04_evaluation.md`](docs/04_evaluation.md) | Protocol, baseline and results |
