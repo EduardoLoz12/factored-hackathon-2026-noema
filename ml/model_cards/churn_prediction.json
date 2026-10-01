@@ -1,0 +1,28 @@
+{
+  "model_name": "Customer Churn Prediction Model",
+  "version": "1.0",
+  "task": "Classification",
+  "description": "Predicts whether a customer is likely to churn or become inactive based on demographic, financial, and engagement characteristics.",
+  "target_variable": "customer_status (binary mapping: Churned/Inactive vs Active)",
+  "features": [
+    "segment",
+    "credit_score",
+    "estimated_monthly_income",
+    "occupation",
+    "marital_status",
+    "education_level",
+    "product_count",
+    "total_balance_usd",
+    "days_past_due",
+    "tenure_days"
+  ],
+  "model_type": "RandomForestClassifier",
+  "metrics": [
+    "Precision",
+    "Recall",
+    "F1-Score",
+    "Accuracy"
+  ],
+  "training_data": "data/noema.duckdb (noema_gold.customer_360)",
+  "author": "ML Team"
+}
