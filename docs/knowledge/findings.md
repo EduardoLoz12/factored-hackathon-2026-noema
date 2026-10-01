@@ -1485,3 +1485,25 @@ completas al finalizar 30 días; esto impide promover el modelo a producción.
 Los límites existentes vienen de `products.credit_limit`, por producto y moneda;
 no son una asignación nueva. `products.last_updated` contiene fechas hasta 2027:
 no se debe presentar su snapshot como estado histórico al corte sin filtrar.
+
+## Documentos aportados y red profunda (ML-12, 2026-09-30)
+
+Se revisaron el HTML «Política de Elegibilidad» (v1.0, 30-sep) y las 20 páginas
+de «Bronze contra Silver» (29-sep; exportado 30-sep). El reporte de auditoría
+respalda excluir mora, referencias de sucursal inválidas, FX reportado y nulos
+estructurales de entradas ingenuas. No demuestra que cualquier objetivo sea
+imposible: la respuesta a campaña es una etiqueta distinta del incumplimiento.
+La red MLP de tres capas se entrena sobre esa respuesta, no sobre mora.
+
+Diferencia verificada con el código actual: el HTML afirma abstención ante límite
+faltante, mientras `Politica._carga` omite productos sin límite/tasa y emite aviso.
+El nuevo adaptador `policy_analysis` exige términos completos antes de invocar
+ese motor. No altera el código de Eduardo. El HTML también precede el soporte
+actual de saldo dispuesto, estrés de línea no dispuesta y reservas: manda el YAML
+versionado al ejecutar, no los números ilustrativos del HTML.
+
+Precaución estadística: no rechazar una hipótesis no prueba independencia ni MCAR;
+KS 0.00203 no es «una centésima» del umbral 0.01. La conservación de distribuciones
+no demuestra ausencia de fuga en todas las tablas gold. Se conservan las advertencias
+posteriores de Eduardo sobre FX y snapshots. Los documentos se incorporan como
+contratos y límites de evidencia, no como filas sintéticas para entrenar la red.

@@ -2,18 +2,18 @@
 
 Generado por `make checklist` contra el estado real del repo. Cuando alguien crea o completa un archivo de evidencia, el ítem avanza solo en la siguiente corrida. **No editar estados a mano aquí** — usar `python -m scripts.checklist --done ID --note "..."`.
 
-Última evaluación: 2026-09-30 22:10
+Última evaluación: 2026-09-30 22:27
 
 Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
-## Avance global — 33/77 `██████████░░░░░░░░░░░░░░`
+## Avance global — 34/78 `██████████░░░░░░░░░░░░░░`
 
-**33 terminado · 7 avanzado · 37 falta**
+**34 terminado · 7 avanzado · 37 falta**
 
 | Dueño | Terminado | Avanzado | Falta | Total |
 |---|---:|---:|---:|---:|
 | Eduardo | 14 | 4 | 37 | 55 |
-| Federico | 19 | 3 | 0 | 22 |
+| Federico | 20 | 3 | 0 | 23 |
 
 ## Plataforma de datos — 11/15 `█████████░░░`
 
@@ -35,7 +35,7 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [~] | `DAT-14` | Export gold a Postgres con relectura verificada en el destino real | Federico | D5 · 1-oct | fedevargas93 · 2026-09-28 |
 | [~] | `DAT-15` | Prueba que falla si una columna prohibida por fuga entra a credit_features_asof | Eduardo | D3 · 29-sep | Eduardo · 2026-09-28 |
 
-## Modelos — 5/11 `█████░░░░░░░`
+## Modelos — 6/12 `██████░░░░░░`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
@@ -49,7 +49,8 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [ ] | `ML-08` | Model cards con supuestos y columnas excluidas | Eduardo | D6 · 2-oct | — |
 | [ ] | `ML-09` | predictor.py: predict_risk y predict_capacity | Eduardo | D4 · 30-sep | — |
 | [ ] | `ML-10` | Estabilidad del modelo por pais | Eduardo | D6 · 2-oct | — |
-| [x] | `ML-11` | Propension experimental de conversion y consulta de cupos registrados por cliente | Federico | D4 · 30-sep | sin commit | 149 pruebas pasan; modelo entrenado y consulta local verificada; uso experimental documentado
+| [x] | `ML-11` | Propension experimental de conversion y consulta de cupos registrados por cliente | Federico | D4 · 30-sep | fedevargas93 · 2026-09-30 | 149 pruebas pasan; modelo entrenado y consulta local verificada; uso experimental documentado
+| [x] | `ML-12` | Red profunda comercial y asesor con puerta de evidencia para politica de Eduardo | Federico | D4 · 30-sep | sin commit | 160 pruebas pasan; MLP entrenado; advisor y paridad con motor de Eduardo verificados
 
 ## Cognicion (SCM) — 8/8 `████████████`
 
@@ -128,7 +129,7 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
-| [x] | `INF-01` | Repo publico, estructura y contrato operativo | Eduardo | D1 · 27-sep | Eduardo · 2026-09-29 |
+| [x] | `INF-01` | Repo publico, estructura y contrato operativo | Eduardo | D1 · 27-sep | fedevargas93 · 2026-09-30 |
 | [x] | `INF-02` | CI: secretos, lint, tests, dependencias | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
 | [x] | `INF-03` | Auditoria del dataset documentada | Eduardo | D1 · 27-sep | Eduardo · 2026-09-29 |
 | [x] | `INF-04` | Decisiones de arquitectura registradas | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |

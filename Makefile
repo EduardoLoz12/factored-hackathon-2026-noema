@@ -86,3 +86,7 @@ train-capacity:
 .PHONY: train-interest
 train-interest:
 	$(PY) -m ml.training.product_interest
+
+.PHONY: train-deep-interest
+train-deep-interest:
+	$(PY) -m ml.training.deep_interest

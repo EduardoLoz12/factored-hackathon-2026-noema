@@ -169,3 +169,9 @@ Run `python -m ml.training.product_interest`, then
 `python -m ml.serving.product_advisor --customer-id ID --product 'Tarjeta Crédito'`.
 Conversion probability is not confirmed intent or credit eligibility. New limits
 still require the existing policy engine and verified inputs.
+
+The [deep-learning challenger and unified advisor](docs/14_red_profunda_y_asesor.md)
+add a trained three-hidden-layer MLP, comparison with logistic regression, and an
+integration with Eduardo's policy engine for verified inputs. Train with
+`python -m ml.training.deep_interest`; analyze with
+`python -m ml.serving.client_analysis --customer-id ID_AUTORIZADO`.
