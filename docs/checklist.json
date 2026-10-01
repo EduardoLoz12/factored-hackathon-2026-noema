@@ -271,6 +271,20 @@
           ],
           "done": "nostub",
           "owner": "eduardo"
+        },
+        {
+          "id": "ML-11",
+          "dia": 4,
+          "owner": "federico",
+          "tarea": "Propension experimental de conversion y consulta de cupos registrados por cliente",
+          "evidence": [
+            "ml/training/product_interest.py",
+            "ml/serving/product_advisor.py",
+            "ml/model_cards/product_interest.json",
+            "docs/13_interes_producto_y_cupo.md",
+            "tests/ml/test_product_interest.py"
+          ],
+          "done": "manual"
         }
       ]
     },

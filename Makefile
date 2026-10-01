@@ -82,3 +82,7 @@ clean:
 
 train-capacity:
 	$(PY) -m ml.training.capacity
+
+.PHONY: train-interest
+train-interest:
+	$(PY) -m ml.training.product_interest

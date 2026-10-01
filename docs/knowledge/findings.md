@@ -2128,3 +2128,21 @@ tupla es la correcta hoy.
 control redundante: es un control que **se contradice a sí mismo**, y la contradicción aparece recién en
 el commit, que es el peor momento. Si una versión se fija en `.pre-commit-config.yaml`, el mismo número
 va en las dependencias. Vale para `gitleaks`, `ruff` y lo que venga después.
+---
+
+## F-049 · 2026-09-30 · datos — La conversión de campaña es la única etiqueta con señal del dataset, y 436 429 envíos tienen el orden temporal invertido
+
+*Encontrado por: Federico Vargas · 2026-09-30 · ML-11*
+
+La solicitud nueva requiere separar interés, cupo observado y oferta de política.
+Consulta reproducible: `select had_conversion, count(*) from
+noema_silver.stg_campaign_sends group by 1` devuelve 1 737 002 negativos y
+9 799 positivos. Hay 436 429 registros con `process_date < send_date`
+(`select count(*) ... where process_date < send_date`). Se excluyen del modelo.
+La conversión de campaña es un proxy de respuesta comercial, no una etiqueta de
+«quiere un producto nuevo», ni prueba de primera adquisición. El snapshot no
+versiona resultados: la validación retrospectiva asume que las etiquetas estaban
+completas al finalizar 30 días; esto impide promover el modelo a producción.
+Los límites existentes vienen de `products.credit_limit`, por producto y moneda;
+no son una asignación nueva. `products.last_updated` contiene fechas hasta 2027:
+no se debe presentar su snapshot como estado histórico al corte sin filtrar.
