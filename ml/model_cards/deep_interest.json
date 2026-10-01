@@ -1,0 +1,315 @@
+{
+  "version": "deep_interest_v1",
+  "audit": {
+    "source_rows": 1746801,
+    "invalid_process_order": 436429,
+    "missing_product": 150371,
+    "immature_rows": 323474,
+    "eligible_rows": 979681,
+    "cutoff": "2025-12-31"
+  },
+  "sklearn": "1.9.1",
+  "architecture": [
+    14,
+    32,
+    16,
+    8,
+    1
+  ],
+  "activation": "relu_hidden_sigmoid_output",
+  "optimizer": "adam",
+  "seed": 42,
+  "alpha": 0.01,
+  "batch_size": 1024,
+  "learning_rate": 0.001,
+  "max_epochs": 20,
+  "patience": 4,
+  "best_epoch": 14,
+  "learning_curve": [
+    {
+      "epoch": 1,
+      "train_loss": 0.17844815967778185,
+      "validation_log_loss": 0.028358414713860296
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.03470243322919939,
+      "validation_log_loss": 0.027347414757503373
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.034292345677902715,
+      "validation_log_loss": 0.026752428815478683
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.0341188035080671,
+      "validation_log_loss": 0.02642414133111156
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.03402754217182203,
+      "validation_log_loss": 0.026217535965916167
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.03397523440132942,
+      "validation_log_loss": 0.02611053812804921
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.03394244630572918,
+      "validation_log_loss": 0.026053472201440737
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.03392053789646411,
+      "validation_log_loss": 0.026023151530952113
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.03390360472573277,
+      "validation_log_loss": 0.026015609922438104
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.03388942794117102,
+      "validation_log_loss": 0.02600610615764718
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.033877057863969405,
+      "validation_log_loss": 0.02600156839117919
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.033864497627501426,
+      "validation_log_loss": 0.025996318198321225
+    },
+    {
+      "epoch": 13,
+      "train_loss": 0.03385295627900354,
+      "validation_log_loss": 0.02599152431995961
+    },
+    {
+      "epoch": 14,
+      "train_loss": 0.03384271593859306,
+      "validation_log_loss": 0.025990542548170487
+    },
+    {
+      "epoch": 15,
+      "train_loss": 0.03383164939730765,
+      "validation_log_loss": 0.025991243376905036
+    },
+    {
+      "epoch": 16,
+      "train_loss": 0.033821725898672154,
+      "validation_log_loss": 0.025994285628163503
+    },
+    {
+      "epoch": 17,
+      "train_loss": 0.03381257611711486,
+      "validation_log_loss": 0.02599277402407347
+    },
+    {
+      "epoch": 18,
+      "train_loss": 0.03380298412385657,
+      "validation_log_loss": 0.02599251654493193
+    }
+  ],
+  "production_ready": false,
+  "splits": {
+    "train": {
+      "deep_mlp": {
+        "rows": 557603,
+        "positives": 3183,
+        "prevalence": 0.005708362401206593,
+        "average_precision": 0.009128003799444452,
+        "roc_auc": 0.6657488394497013,
+        "brier": 0.005663858992647621,
+        "log_loss": 0.033547149002850926,
+        "precision_top_10pct": 0.009672029445280844,
+        "lift_top_10pct": 1.6943614938036238,
+        "calibration": [
+          {
+            "rows": 557603,
+            "predicted": 0.005710564978045431,
+            "observed": 0.005708362401206593
+          }
+        ]
+      },
+      "logistic": {
+        "rows": 557603,
+        "positives": 3183,
+        "prevalence": 0.005708362401206593,
+        "average_precision": 0.00880396449885057,
+        "roc_auc": 0.6618594629855092,
+        "brier": 0.005664056547918373,
+        "log_loss": 0.033568122974186425,
+        "precision_top_10pct": 0.009401063908889791,
+        "lift_top_10pct": 1.6468933203860114,
+        "calibration": [
+          {
+            "rows": 557603,
+            "predicted": 0.005626431879132498,
+            "observed": 0.005708362401206593
+          }
+        ]
+      },
+      "prior": {
+        "rows": 557603,
+        "positives": 3183,
+        "prevalence": 0.005708362401206593,
+        "average_precision": 0.005708362401206593,
+        "roc_auc": 0.5,
+        "brier": 0.005675776999903083,
+        "log_loss": 0.03518042891606869,
+        "precision_top_10pct": 0.005708362401206593,
+        "lift_top_10pct": 1.0,
+        "calibration": [
+          {
+            "rows": 557603,
+            "predicted": 0.005708362401206591,
+            "observed": 0.005708362401206593
+          }
+        ]
+      }
+    },
+    "validation": {
+      "deep_mlp": {
+        "rows": 99158,
+        "positives": 431,
+        "prevalence": 0.004346598358175841,
+        "average_precision": 0.007674848493327981,
+        "roc_auc": 0.7041418933557835,
+        "brier": 0.004317438473329045,
+        "log_loss": 0.025990542548170487,
+        "precision_top_10pct": 0.009081570605347072,
+        "lift_top_10pct": 2.089351225255232,
+        "calibration": [
+          {
+            "rows": 99158,
+            "predicted": 0.004603145226761633,
+            "observed": 0.004346598358175841
+          }
+        ]
+      },
+      "logistic": {
+        "rows": 99158,
+        "positives": 431,
+        "prevalence": 0.004346598358175841,
+        "average_precision": 0.008263948312280861,
+        "roc_auc": 0.7308966343407729,
+        "brier": 0.004314459306523931,
+        "log_loss": 0.025792223598266002,
+        "precision_top_10pct": 0.008252554994891219,
+        "lift_top_10pct": 1.8986237776877575,
+        "calibration": [
+          {
+            "rows": 99158,
+            "predicted": 0.004680103087546134,
+            "observed": 0.004346598358175841
+          }
+        ]
+      },
+      "prior": {
+        "rows": 99158,
+        "positives": 431,
+        "prevalence": 0.004346598358175841,
+        "average_precision": 0.004346598358175841,
+        "roc_auc": 0.5,
+        "brier": 0.0043295598421974335,
+        "log_loss": 0.028153592491906982,
+        "precision_top_10pct": 0.004346598358175841,
+        "lift_top_10pct": 1.0,
+        "calibration": [
+          {
+            "rows": 99158,
+            "predicted": 0.005708362401206591,
+            "observed": 0.004346598358175841
+          }
+        ]
+      }
+    },
+    "test": {
+      "deep_mlp": {
+        "rows": 248875,
+        "positives": 1216,
+        "prevalence": 0.00488598694123556,
+        "average_precision": 0.008141917188679144,
+        "roc_auc": 0.6739352245080832,
+        "brier": 0.004852750322982204,
+        "log_loss": 0.02929809486860974,
+        "precision_top_10pct": 0.009074941451990632,
+        "lift_top_10pct": 1.857340504822507,
+        "calibration": [
+          {
+            "rows": 248875,
+            "predicted": 0.005082937882395715,
+            "observed": 0.00488598694123556
+          }
+        ]
+      },
+      "logistic": {
+        "rows": 248875,
+        "positives": 1216,
+        "prevalence": 0.00488598694123556,
+        "average_precision": 0.008133499957503534,
+        "roc_auc": 0.6767161964504036,
+        "brier": 0.004852476166463765,
+        "log_loss": 0.029242379195798907,
+        "precision_top_10pct": 0.008657509044775915,
+        "lift_top_10pct": 1.7719058910514849,
+        "calibration": [
+          {
+            "rows": 248875,
+            "predicted": 0.0055469753254218535,
+            "observed": 0.00488598694123556
+          }
+        ]
+      },
+      "prior": {
+        "rows": 248875,
+        "positives": 1216,
+        "prevalence": 0.00488598694123556,
+        "average_precision": 0.00488598694123556,
+        "roc_auc": 0.5,
+        "brier": 0.004862790374242795,
+        "log_loss": 0.030936890642286632,
+        "precision_top_10pct": 0.00488598694123556,
+        "lift_top_10pct": 1.0,
+        "calibration": [
+          {
+            "rows": 248875,
+            "predicted": 0.005708362401206591,
+            "observed": 0.00488598694123556
+          }
+        ]
+      }
+    }
+  },
+  "selected_on_validation": "logistic",
+  "selection_rule": "Mejor log-loss entre candidatos que mejoran AP y Brier del prior",
+  "deep_test_uncertainty": {
+    "method": "customer_cluster_poisson_bootstrap",
+    "seed": 42,
+    "repetitions": 100,
+    "confidence": 0.95,
+    "roc_auc": [
+      0.6654797737607672,
+      0.6857674456427316
+    ],
+    "average_precision": [
+      0.007479559368868144,
+      0.008965782378812542
+    ],
+    "limitation": "Condicional al período; no mide incertidumbre ante cambios temporales."
+  },
+  "limitations": [
+    "Conversión de campaña, no intención explícita ni adquisición nueva.",
+    "Mismas variables y supuestos retrospectivos que product_interest_v1.",
+    "Test ya reportado para logística; no es una nueva validación externa.",
+    "Una arquitectura y semilla; falta robustez entre semillas y cohortes.",
+    "El ranking de productos refleja campañas observadas, no efectos causales."
+  ]
+}

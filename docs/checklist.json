@@ -285,6 +285,20 @@
             "tests/ml/test_product_interest.py"
           ],
           "done": "manual"
+        },
+        {
+          "id": "ML-12",
+          "dia": 4,
+          "owner": "federico",
+          "tarea": "Red profunda comercial y asesor con puerta de evidencia para politica de Eduardo",
+          "evidence": [
+            "ml/training/deep_interest.py",
+            "ml/serving/client_analysis.py",
+            "ml/model_cards/deep_interest.json",
+            "docs/14_red_profunda_y_asesor.md",
+            "tests/ml/test_deep_interest.py"
+          ],
+          "done": "manual"
         }
       ]
     },

@@ -20,7 +20,10 @@ LOGGER = logging.getLogger(__name__)
 def predict_interest(artifact: dict, product: str, channel: str, prior_sends: int, asof) -> dict:
     """Probabilidad condicional al contacto; no confirma deseo ni primera compra."""
     base = {"status": "abstain", "probability": None, "production_ready": False}
-    if artifact.get("version") != VERSION or artifact.get("features") != FEATURES:
+    if (
+        artifact.get("version") not in {VERSION, "deep_interest_v1"}
+        or artifact.get("features") != FEATURES
+    ):
         return {**base, "reason": "incompatible_artifact"}
     if product not in artifact["products"] or channel not in artifact["channels"]:
         return {**base, "reason": "unsupported_product_or_channel"}
@@ -44,7 +47,7 @@ def predict_interest(artifact: dict, product: str, channel: str, prior_sends: in
         "status": "experimental_estimate",
         "probability": probability,
         "target": "campaign_conversion_within_30_days",
-        "model_version": VERSION,
+        "model_version": artifact["version"],
         "estimator": artifact["selected"],
         "product_type": product,
         "channel": channel,
