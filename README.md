@@ -160,3 +160,12 @@ The dataset is synthetic and was provided by Factored for the hackathon. It is n
 
 Repository · live URL · 5 slides · 3-minute video → `hackathon.admin@factored.ai`
 **Deadline: 5 October 2026, 23:59 Colombia time.**
+
+## Product interest and recorded customer limits
+
+Experimental 30-day campaign conversion model and per-customer quota lookup:
+[method, results and reproduction](docs/13_interes_producto_y_cupo.md).
+Run `python -m ml.training.product_interest`, then
+`python -m ml.serving.product_advisor --customer-id ID --product 'Tarjeta Crédito'`.
+Conversion probability is not confirmed intent or credit eligibility. New limits
+still require the existing policy engine and verified inputs.

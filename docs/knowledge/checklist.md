@@ -2,18 +2,18 @@
 
 Generado por `make checklist` contra el estado real del repo. Cuando alguien crea o completa un archivo de evidencia, el ítem avanza solo en la siguiente corrida. **No editar estados a mano aquí** — usar `python -m scripts.checklist --done ID --note "..."`.
 
-Última evaluación: 2026-09-30 13:29
+Última evaluación: 2026-09-30 22:10
 
 Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
-## Avance global — 32/76 `██████████░░░░░░░░░░░░░░`
+## Avance global — 33/77 `██████████░░░░░░░░░░░░░░`
 
-**32 terminado · 7 avanzado · 37 falta**
+**33 terminado · 7 avanzado · 37 falta**
 
 | Dueño | Terminado | Avanzado | Falta | Total |
 |---|---:|---:|---:|---:|
 | Eduardo | 14 | 4 | 37 | 55 |
-| Federico | 18 | 3 | 0 | 21 |
+| Federico | 19 | 3 | 0 | 22 |
 
 ## Plataforma de datos — 11/15 `█████████░░░`
 
@@ -35,12 +35,12 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [~] | `DAT-14` | Export gold a Postgres con relectura verificada en el destino real | Federico | D5 · 1-oct | fedevargas93 · 2026-09-28 |
 | [~] | `DAT-15` | Prueba que falla si una columna prohibida por fuga entra a credit_features_asof | Eduardo | D3 · 29-sep | Eduardo · 2026-09-28 |
 
-## Modelos — 4/10 `█████░░░░░░░`
+## Modelos — 5/11 `█████░░░░░░░`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
-| [x] | `ML-01` | Feature store as-of, sin fuga (corte 2025-12-31) | Eduardo | D3 · 29-sep | Eduardo · 2026-09-29 | deuda cerrada: moneda a USD, poda por redundancia, etiqueta_posterior renombrada y bloque de cuotas
-| [x] | `ML-02` | Baseline: regresion logistica solo con credit_score | Eduardo | D3 · 29-sep | Eduardo · 2026-09-29 |
+| [x] | `ML-01` | Feature store as-of, sin fuga (corte 2025-12-31) | Eduardo | D3 · 29-sep | Eduardo · 2026-09-30 | deuda cerrada: moneda a USD, poda por redundancia, etiqueta_posterior renombrada y bloque de cuotas
+| [x] | `ML-02` | Baseline: regresion logistica solo con credit_score | Eduardo | D3 · 29-sep | Eduardo · 2026-09-30 |
 | [x] | `ML-03` | Modelo de riesgo de incumplimiento (LightGBM) | Eduardo | D4 · 30-sep | — | se entrega como informe de validacion: la variable objetivo no existe (F-027 a F-034)
 | [x] | `ML-04` | Modelo de capacidad de pago desde flujo transaccional | Federico | D4 · 30-sep | Eduardo · 2026-09-29 |
 | [ ] | `ML-05` | Metricas y calibracion: AUC, PR-AUC, KS, Brier | Eduardo | D4 · 30-sep | — |
@@ -49,6 +49,7 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [ ] | `ML-08` | Model cards con supuestos y columnas excluidas | Eduardo | D6 · 2-oct | — |
 | [ ] | `ML-09` | predictor.py: predict_risk y predict_capacity | Eduardo | D4 · 30-sep | — |
 | [ ] | `ML-10` | Estabilidad del modelo por pais | Eduardo | D6 · 2-oct | — |
+| [x] | `ML-11` | Propension experimental de conversion y consulta de cupos registrados por cliente | Federico | D4 · 30-sep | sin commit | 149 pruebas pasan; modelo entrenado y consulta local verificada; uso experimental documentado
 
 ## Cognicion (SCM) — 8/8 `████████████`
 

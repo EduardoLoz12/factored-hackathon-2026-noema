@@ -1470,3 +1470,18 @@ El contrato temporal debe cubrir **dos** cosas, no una:
 Conviene añadir a `tests/data/test_feature_contract.py` una prueba de que ninguna fecha de valuación de gold supere el corte. Queda como tarea sobre el contrato de datos.
 
 **Evidencia.** `select distinct valuation_date from noema_gold.customer_360` y la tabla de medianas de ingreso por país, ambas reproducibles contra `data/noema.duckdb`.
+
+## Interés comercial y cupos — auditoría de implementación (2026-09-30)
+
+La solicitud nueva requiere separar interés, cupo observado y oferta de política.
+Consulta reproducible: `select had_conversion, count(*) from
+noema_silver.stg_campaign_sends group by 1` devuelve 1 737 002 negativos y
+9 799 positivos. Hay 436 429 registros con `process_date < send_date`
+(`select count(*) ... where process_date < send_date`). Se excluyen del modelo.
+La conversión de campaña es un proxy de respuesta comercial, no una etiqueta de
+«quiere un producto nuevo», ni prueba de primera adquisición. El snapshot no
+versiona resultados: la validación retrospectiva asume que las etiquetas estaban
+completas al finalizar 30 días; esto impide promover el modelo a producción.
+Los límites existentes vienen de `products.credit_limit`, por producto y moneda;
+no son una asignación nueva. `products.last_updated` contiene fechas hasta 2027:
+no se debe presentar su snapshot como estado histórico al corte sin filtrar.
