@@ -15,7 +15,7 @@ The model analyzes the following features to determine churn likelihood:
 - **Engagement / Health:** `segment`, `product_count`, `days_past_due`, `tenure_days`
 
 ## Model Architecture
-- **Data Preprocessing:** 
+- **Data Preprocessing:**
   - Numeric features are scaled using Scikit-Learn's `StandardScaler`.
   - Categorical features are one-hot encoded using `OneHotEncoder`. Out-of-vocabulary instances are ignored to prevent runtime inference errors.
 - **Algorithm:** The model is a `RandomForestClassifier`.
