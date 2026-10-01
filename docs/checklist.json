@@ -299,6 +299,19 @@
             "tests/ml/test_deep_interest.py"
           ],
           "done": "manual"
+        },
+        {
+          "id": "ML-13",
+          "dia": 5,
+          "owner": "federico",
+          "tarea": "Comparar tres y seis capas con varias semillas y control temporal de sobreajuste",
+          "evidence": [
+            "ml/training/depth_experiment.py",
+            "ml/model_cards/depth_experiment.json",
+            "docs/15_experimento_profundidad.md",
+            "tests/ml/test_depth_experiment.py"
+          ],
+          "done": "manual"
         }
       ]
     },

@@ -175,3 +175,8 @@ add a trained three-hidden-layer MLP, comparison with logistic regression, and a
 integration with Eduardo's policy engine for verified inputs. Train with
 `python -m ml.training.deep_interest`; analyze with
 `python -m ml.serving.client_analysis --customer-id ID_AUTORIZADO`.
+
+A [controlled depth experiment](docs/15_experimento_profundidad.md) compares three
+and six hidden layers across three seeds, with separate early-stopping and selection
+periods. Run `python -m ml.training.depth_experiment`; the six-layer artifact remains
+an optional challenger and does not replace the default advisor model.

@@ -90,3 +90,7 @@ train-interest:
 .PHONY: train-deep-interest
 train-deep-interest:
 	$(PY) -m ml.training.deep_interest
+
+.PHONY: train-depth-experiment
+train-depth-experiment:
+	$(PY) -m ml.training.depth_experiment
