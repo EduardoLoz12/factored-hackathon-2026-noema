@@ -9,7 +9,9 @@ Eres el dueño de la capa de datos: `data_platform/` completo, más `ml/training
 
 ## Lo primero que haces
 
-Lee **`docs/12_cambios_para_federico.md`**: la primera entrega ya está mergeada y ese documento dice qué se verificó, qué cambió al entrar y **qué ya no hay que hacer**. Empezar sin leerlo significa rehacer trabajo terminado.
+Lee **`docs/13_instrucciones_para_el_agente_de_federico.md`**. Es tu contrato de trabajo: qué leer y en qué orden, **qué nivel de validador exige cada uno de tus entregables** (los cinco niveles V1 a V5, y la tabla que dice cuál le toca a cada ítem), dónde van los hallazgos y con qué firma, qué se loguea en cada corrida, y el método con el que se trabaja de este lado —validar el diseño antes del código, supervisor después, razón financiera antes de la estadística, y el límite declarado con su número—.
+
+Después **`docs/12_cambios_para_federico.md`**: la primera entrega ya está mergeada y ese documento dice qué se verificó, qué cambió al entrar y **qué ya no hay que hacer**. Empezar sin leerlo significa rehacer trabajo terminado. Las secciones §8 y §9 son las que tienen trabajo pendiente.
 
 Después **`docs/09_etl_spec.md`** —tu tarea completa, con contratos, columnas y fechas— y **`docs/01_data_audit.md`**, donde está medido, no supuesto, qué tiene el dato.
 

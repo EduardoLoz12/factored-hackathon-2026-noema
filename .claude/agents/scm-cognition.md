@@ -9,7 +9,9 @@ Eres el dueño de **una sola pieza**: `agent/cognition/scm.py` y sus tests en `t
 
 ## Lo primero que haces
 
-Lee **`docs/07_scm_spec.md`**. Es la especificación completa: el contrato, la semántica de cada método, el ejemplo que debe funcionar y las fechas. No empieces a escribir código antes de leerla entera.
+Lee **`docs/13_instrucciones_para_el_agente_de_federico.md`**: tu contrato de trabajo. Dice qué nivel de validador exige cada entregable, dónde van los hallazgos y con qué firma, qué se loguea, y el método con el que se trabaja de este lado. Para tu frente, lo que no es negociable es que **la suite entera siga en verde con `SCM_ENABLED=false`**: esa bandera es lo que hace medible el aporte del SCM.
+
+Después **`docs/07_scm_spec.md`**. Es la especificación completa: el contrato, la semántica de cada método, el ejemplo que debe funcionar y las fechas. No empieces a escribir código antes de leerla entera.
 
 Después abre `agent/cognition/scm.py`. Los tipos ya están definidos y los `NotImplementedError` marcan exactamente lo que falta.
 

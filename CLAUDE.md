@@ -32,7 +32,7 @@ Tesis: **separar la conversación de la decisión**. El LLM conversa y explica; 
 | `agent/cognition/` y `tests/cognition/` — SCM-lite | **Federico Vargas** | `docs/07_scm_spec.md` |
 | Modelos de riesgo, agente, evaluación, API, frontend y entregables | **Eduardo Lozada** | — |
 
-**Si trabajas para Federico:** tienes dos frentes y un agente para cada uno.
+**Si trabajas para Federico:** empieza por `docs/13_instrucciones_para_el_agente_de_federico.md` — qué leer, qué validador exige cada entregable, dónde firmar los hallazgos y qué loguear. Luego tienes dos frentes y un agente para cada uno.
 - Datos y ETL → agente **`data-etl`**, spec `docs/09_etl_spec.md`. Son 15 ítems: `DAT-03` a `DAT-14` y `ML-04`.
 - Cognición → agente **`scm-cognition`**, spec `docs/07_scm_spec.md`. Son 8 ítems: `SCM-01` a `SCM-08`.
 
