@@ -4,12 +4,21 @@ Generado con `make changelog` desde el historial de git. Agrupa por día y por t
 
 Formato de commit: `Tipo (ÍTEM): qué cambió, en español y sin jerga`. Por ejemplo: `Nuevo (DAT-08): la capa silver convierte todos los montos a dólares con la tasa del día`. Tipos: `Nuevo`, `Corrige`, `Mejora`, `Docs`, `Pruebas`, `Infra`, `Limpieza`, `Revierte`.
 
-Última generación: 2026-09-30 13:16
+Última generación: 2026-10-02 02:21
+
+## 2026-10-02 — Eduardo
+
+### Otros
+
+- `AG-03` `AG-10` · Nuevo (AG-03..AG-10): el ciclo del agente cierra de punta a punta — Eduardo (`ee3f5d3`)
 
 ## 2026-09-30 — Eduardo
 
 ### Otros
 
+- `INF-07` · Docs (INF-07): tres avisos para Federico sobre la capa de datos, dos de ellos bugs — Eduardo (`9c0175d`)
+- `ML-01` · Corrige (ML-01): todo importe del feature store pasa a USD, y se retiran cuatro variables que repetian informacion — Eduardo (`337be65`)
+- `INF-07` · Docs (INF-07): control de cambios regenerado con el trabajo del dia 4 — Eduardo (`3ce2b6e`)
 - `AG-01` `AG-02` · Nuevo (AG-01/AG-02): la elegibilidad se calcula con una politica versionada, porque el dataset no permite aprenderla — Eduardo (`32a1d7b`)
 
 ## 2026-09-29 — Eduardo
