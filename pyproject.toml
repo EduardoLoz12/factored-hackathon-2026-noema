@@ -32,7 +32,7 @@ cloud = ["dbt-databricks>=1.9,<2", "databricks-sdk>=0.40", "psycopg[binary]>=3.2
 dev = [
     "pytest>=8.3",
     "pytest-cov>=5.0",
-    "ruff>=0.7",
+    "ruff>=0.16",
     "pip-audit>=2.7",
     "pre-commit>=4.0",
 ]

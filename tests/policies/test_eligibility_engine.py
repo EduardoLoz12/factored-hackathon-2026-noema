@@ -70,7 +70,14 @@ class TestCarga:
         for item in politica.catalogo:
             assert item["monto_minimo_usd"] < item["monto_maximo_usd"]
             assert item["tasa_anual"] > 0
-            assert item["plazo_meses"] > 0
+            plazos = item["plazos_ofertables"]
+            assert plazos, f"{item['producto']} sin plazos ofertables"
+            assert all(isinstance(x, int) and x > 0 for x in plazos)
+            assert plazos == sorted(set(plazos)), "plazos ordenados y sin repetir"
+            # Un producto revolvente lleva un solo plazo: su cuota es el pago
+            # mínimo sobre el saldo, así que el plazo no la cambia.
+            if item.get("amortizacion") == "revolvente":
+                assert len(plazos) == 1, f"{item['producto']} revolvente con varios plazos"
             assert item["segmentos"]
             assert item["amortizacion"] in {"revolvente", "cuota_fija"}
 
@@ -122,7 +129,15 @@ class TestAbstencion:
             d = politica.evaluar(c)
             assert any("mora" in a.lower() for a in d.avisos)
 
-    def test_producto_sin_limite_genera_aviso_y_no_tumba(self, politica):
+    def test_un_producto_sin_limite_abstiene_en_vez_de_aprobar(self, politica):
+        """Antes esta prueba afirmaba que la evaluación *seguía*. Eso era el bug.
+
+        Un producto sin límite no se puede valorar, así que su obligación no entra
+        en el DTI. Seguir evaluando significaba aprobar a un cliente cuya deuda
+        sabemos incompleta: falla abierto, contra la regla 5. El YAML ya declaraba
+        `sin_exposicion_valorable` como abstención bloqueante; el motor no la
+        implementaba. Afectaba al 19.59 % de los clientes con crédito (F-041).
+        """
         d = politica.evaluar(
             Cliente(
                 "C1",
@@ -132,8 +147,55 @@ class TestAbstencion:
                 (ProductoVigente("Tarjeta Crédito", None, 31.52, date(2021, 1, 1), None, CORTE),),
             )
         )
-        assert any("Falta información" in a for a in d.avisos)
-        assert d.hechos  # la evaluación siguió
+        assert d.abstencion is True
+        assert d.elegible is False
+        assert not d.productos_elegibles
+        assert any("Falta el límite" in a for a in d.avisos)
+        assert any("falta información de uno" in m for m in d.motivos)
+        assert d.hechos["productos_no_valorables"] == 1
+
+    def test_un_producto_sin_tasa_tambien_abstiene(self, politica):
+        """Sin tasa no hay cuota, así que tampoco hay DTI. Mismo trato."""
+        d = politica.evaluar(
+            Cliente(
+                "C1",
+                5000,
+                "Plus",
+                date(2019, 1, 1),
+                (
+                    ProductoVigente(
+                        "Préstamo Personal", 10000.0, None, date(2021, 1, 1), None, CORTE
+                    ),
+                ),
+            )
+        )
+        assert d.abstencion is True
+        assert any("Falta la tasa" in a for a in d.avisos)
+
+    def test_un_producto_valorable_no_abstiene(self, politica):
+        """La abstención es por el dato faltante, no por tener deuda."""
+        d = politica.evaluar(
+            Cliente(
+                "C1",
+                5000,
+                "Plus",
+                date(2019, 1, 1),
+                (
+                    ProductoVigente(
+                        "Tarjeta Crédito",
+                        10000.0,
+                        31.52,
+                        date(2021, 1, 1),
+                        None,
+                        CORTE,
+                        None,
+                        2000.0,
+                    ),
+                ),
+            )
+        )
+        assert d.abstencion is False
+        assert "productos_no_valorables" not in d.hechos
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -320,7 +382,12 @@ class TestCapacidad:
         assert acotado.hechos["margen_mensual_usd"] < libre.hechos["margen_mensual_usd"]
 
     def test_la_capacidad_nunca_amplia_el_margen(self, politica):
-        libre = politica.evaluar(Cliente("C1", 3000, "Plus", date(2018, 1, 1)))
+        """La referencia lleva capacidad observada a propósito: desde la v3, **no**
+        tenerla recorta el margen, y entonces la comparación mediría eso en vez de
+        medir que una capacidad alta no amplía."""
+        libre = politica.evaluar(
+            Cliente("C1", 3000, "Plus", date(2018, 1, 1), capacidad_estimada_usd=999_999.0)
+        )
         generosa = politica.evaluar(
             Cliente("C2", 3000, "Plus", date(2018, 1, 1), capacidad_estimada_usd=999_999.0)
         )
@@ -566,6 +633,8 @@ class TestPosicionFinanciera:
         assert any("reservas" in m for m in d.motivos)
 
     def test_con_reservas_el_hipotecario_aparece(self, politica):
+        """Con capacidad observada: sin ella el hipotecario no se ofrece en la v3, y la
+        prueba mediría la exclusión en vez de las reservas."""
         d = politica.evaluar(
             Cliente(
                 "C1",
@@ -574,6 +643,7 @@ class TestPosicionFinanciera:
                 date(2015, 1, 1),
                 (),
                 (ProductoDeAhorro("Cuenta Ahorro", 20_000), ProductoDeAhorro("Inversión", 40_000)),
+                capacidad_estimada_usd=999_999.0,
             )
         )
         assert "Préstamo Hipotecario" in [o.producto for o in d.productos_elegibles]

@@ -45,6 +45,75 @@ Consecuencias, y son de diseño:
 
 **Estado de la plataforma de datos:** la rama de Federico está mergeada (`7975169`). `dbt build` corre en 85 s con PASS=25 ERROR=0 y produce `credit_features_asof` con 141 445 filas sin fuga. **No bloquea nada.** El reporte visual de la auditoría está publicado como artifact; pídeselo a Eduardo si lo necesitas.
 
+## Lo que se construyó el 1 y 2 de octubre — el ciclo del agente, cerrado
+
+`AG-01` a `AG-10` están terminados. El ciclo corre de punta a punta, así que `EV`, `API` y `UI` están
+desbloqueados. **No vuelvas a diseñar nada de esto: está en ADR y medido.**
+
+| | Qué quedó | Dónde |
+|---|---|---|
+| `AG-03` | Registro con allowlist por rol. El permiso se valida **antes** de ejecutar | `agent/tools/registry.py` |
+| `AG-04` | **Once** herramientas, no nueve — derivadas campo por campo de lo que la política consume | `agent/tools/{customer,credit,cases}.py`, ADR-0009 |
+| `AG-05` | AccessGuard: tres intentos, backoff ligado a la ventana, JWT de 15 min | `agent/core/access_guard.py` |
+| `AG-06` | Orquestador: máquina de estados de seis etapas, **un test por arista, sin LLM** | `agent/core/orchestrator.py`, ADR-0010 |
+| `AG-07` | VERIFY: relectura real con un solo criterio de comparación | `agent/core/verifier.py` |
+| `AG-08` | Expediente validado por esquema; falla **degradado**, no cerrado | `agent/core/handoff.py` |
+| `AG-09` | GroundingChecker: compara **renderizados**, no flotantes | `agent/guardrails/grounding.py` |
+| `AG-10` | Anti-inyección: canonicaliza y **contiene**; la detección es observabilidad | `agent/guardrails/injection.py` |
+
+La política está en **versión 3**: `plazos_ofertables` por producto, R6 retirada, y el bloque
+`sin_capacidad_observada`. Los ADR 0009 a 0012 explican el porqué de cada decisión.
+
+## Las cinco reglas que salieron de medir, y que aplicas sin que te las pidan
+
+Estas no son preferencias de estilo: cada una viene de un bug real que no fallaba ruidosamente.
+Están en `findings.md` como F-037 a F-047.
+
+**1 · Un dato ausente no se sustituye por el valor neutro.** Apareció **tres veces** en el mismo
+archivo (F-038, F-041, F-044): ante un dato que falta, el código elegía implícitamente lo que
+favorece al solicitante —cero obligación, margen completo— sin declararlo. Dos de los tres fallaban
+**abierto**, y uno afectaba al 19.59 % de los clientes con crédito. Las únicas dos salidas válidas son
+un sustituto **declarado y conservador** o la **abstención**. Al revisar código, busca los `else` que
+acompañan a un `if dato is not None`: ahí vive esta clase de error, y en los tres casos ese `else`
+solo añadía un aviso en prosa que no cambiaba ninguna decisión.
+
+**2 · Toda cifra que el sistema pronuncia tiene que estar publicada.** El motor decía cuatro cifras
+que no publicaba en `hechos`, y dos solo existían en los **rechazos** —`Oferta` se crea únicamente
+para los aceptados—. El guardrail habría bloqueado un rechazo correctamente explicado, y en la demo
+eso se ve como bug del guardrail. Ver F-037.
+
+**3 · Lo que compara representaciones se prueba contra la salida real.** `dti_actual = 3.375` se
+escribe «338 %»: buscar el flotante no encuentra nada. Y el tokenizador leía «9000» como «900» por la
+alternancia del regex — una cifra **correctamente anclada** parecía inventada, en el camino feliz. Los
+ejemplos escritos a mano pasaban todos. F-045.
+
+**4 · Un control que empareja texto se prueba en el idioma en que va a llegar.** En español el
+pronombre se adosa al verbo **y le mueve la tilde** —«muestra» → «muéstrame»— así que ni palabra
+completa ni raíz alcanzan. Un patrón pensado en inglés marca bien los intentos en inglés y deja pasar
+en silencio los que llegarían de verdad. F-046.
+
+**5 · Medir contra el corpus propio es medir el corpus.** El detector de inyección se endureció tres
+veces: 100 % sobre su ronda, y la siguiente ronda ciega dio **42 %, 91.7 %, 28.6 %**. No generaliza y
+no va a generalizar. Por eso la garantía que se presenta es la **contención** —un ataque no detectado
+tampoco hace daño, probado sobre los 106 textos del corpus incluidos los 10 que el detector no ve— y
+el detector queda declarado como observabilidad. F-047.
+
+**Y una de forma, que ya costó quince ocurrencias en una sola vuelta:** un `\s` dentro de una cadena
+`r"…"` significa «barra literal más s», no «espacio en blanco». El patrón compila y **nunca coincide**:
+se desactiva sin que nada avise. Nunca concatenes fragmentos `r'…'` con `'…'` al construir una regex.
+
+## Deuda declarada que vigilas
+
+- **El estimador de capacidad (ML-09) no existe.** El sistema decide sin capacidad observada, lo
+  declara, y desde la objeción de Eduardo además **recorta el margen al 80 % y no ofrece el plazo más
+  largo**. Cuando ML-09 exista, un fallo al cargarlo tiene que **bloquear**: hay una prueba que debe
+  fallar ese día, y está puesta a propósito.
+- **`noema_gold.product_policy` está entera en NULL** con `policy_ready = false`. Es de Federico
+  (DAT-11). Si `/analytics` la publica, el jurado ve la política del banco vacía. Avisado en
+  `docs/12_cambios_para_federico.md` §9.
+- **Cero portugués en el corpus del dataset.** Los casos en PT son construidos y eso se declara; no
+  se presenta como cobertura real.
+
 ## Reglas que haces cumplir siempre
 
 1. Ninguna cifra sale del LLM. Todas vienen de tools.

@@ -381,14 +381,15 @@
           "dia": 5,
           "tarea": "Registro de tools con allowlist por rol",
           "evidence": [
-            "agent/tools/registry.py"
+            "agent/tools/registry.py",
+            "tests/tools/test_registry.py"
           ],
           "done": "nostub"
         },
         {
           "id": "AG-04",
           "dia": 5,
-          "tarea": "Las nueve herramientas implementadas",
+          "tarea": "Las once herramientas implementadas (ADR-0009: el catalogo se derivo de la politica, son once no nueve)",
           "evidence": [
             "agent/tools/customer.py",
             "agent/tools/credit.py",

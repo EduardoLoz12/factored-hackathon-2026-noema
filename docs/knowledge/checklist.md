@@ -2,17 +2,17 @@
 
 Generado por `make checklist` contra el estado real del repo. Cuando alguien crea o completa un archivo de evidencia, el ítem avanza solo en la siguiente corrida. **No editar estados a mano aquí** — usar `python -m scripts.checklist --done ID --note "..."`.
 
-Última evaluación: 2026-09-30 13:29
+Última evaluación: 2026-10-02 02:15
 
 Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
-## Avance global — 32/76 `██████████░░░░░░░░░░░░░░`
+## Avance global — 40/76 `█████████████░░░░░░░░░░░`
 
-**32 terminado · 7 avanzado · 37 falta**
+**40 terminado · 8 avanzado · 28 falta**
 
 | Dueño | Terminado | Avanzado | Falta | Total |
 |---|---:|---:|---:|---:|
-| Eduardo | 14 | 4 | 37 | 55 |
+| Eduardo | 22 | 5 | 28 | 55 |
 | Federico | 18 | 3 | 0 | 21 |
 
 ## Plataforma de datos — 11/15 `█████████░░░`
@@ -39,8 +39,8 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
-| [x] | `ML-01` | Feature store as-of, sin fuga (corte 2025-12-31) | Eduardo | D3 · 29-sep | Eduardo · 2026-09-29 | deuda cerrada: moneda a USD, poda por redundancia, etiqueta_posterior renombrada y bloque de cuotas
-| [x] | `ML-02` | Baseline: regresion logistica solo con credit_score | Eduardo | D3 · 29-sep | Eduardo · 2026-09-29 |
+| [x] | `ML-01` | Feature store as-of, sin fuga (corte 2025-12-31) | Eduardo | D3 · 29-sep | Eduardo · 2026-09-30 | deuda cerrada: moneda a USD, poda por redundancia, etiqueta_posterior renombrada y bloque de cuotas
+| [x] | `ML-02` | Baseline: regresion logistica solo con credit_score | Eduardo | D3 · 29-sep | Eduardo · 2026-09-30 |
 | [x] | `ML-03` | Modelo de riesgo de incumplimiento (LightGBM) | Eduardo | D4 · 30-sep | — | se entrega como informe de validacion: la variable objetivo no existe (F-027 a F-034)
 | [x] | `ML-04` | Modelo de capacidad de pago desde flujo transaccional | Federico | D4 · 30-sep | Eduardo · 2026-09-29 |
 | [ ] | `ML-05` | Metricas y calibracion: AUC, PR-AUC, KS, Brier | Eduardo | D4 · 30-sep | — |
@@ -63,23 +63,23 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [x] | `SCM-07` | Endurecido contra entradas ambiguas y contradictorias | Federico | D4 · 30-sep | fedevargas93 · 2026-09-28 |
 | [x] | `SCM-08` | Seccion neurosimbolica de la documentacion | Federico | D6 · 2-oct | fedevargas93 · 2026-09-28 |
 
-## Agente — 2/13 `██░░░░░░░░░░`
+## Agente — 10/13 `█████████░░░`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
 | [x] | `AG-01` | Politica de elegibilidad versionada en YAML | Eduardo | D4 · 30-sep | Eduardo · 2026-09-30 | politica versionada en YAML: umbrales, catalogo, 8 reglas, abstencion, activos y reservas
 | [x] | `AG-02` | Motor de reglas determinista, testeable sin LLM | Eduardo | D4 · 30-sep | — | motor determinista sin LLM, 58 pruebas en verde
-| [ ] | `AG-03` | Registro de tools con allowlist por rol | Eduardo | D5 · 1-oct | — |
-| [ ] | `AG-04` | Las nueve herramientas implementadas | Eduardo | D5 · 1-oct | — |
-| [ ] | `AG-05` | AccessGuard: identidad, 3 intentos, JWT con customer_id dentro | Eduardo | D5 · 1-oct | — |
-| [ ] | `AG-06` | Orquestador de las seis etapas | Eduardo | D5 · 1-oct | — |
-| [ ] | `AG-07` | VERIFY: relectura real del store y ledger de acciones | Eduardo | D5 · 1-oct | — |
-| [ ] | `AG-08` | Handoff estructurado validado por esquema | Eduardo | D5 · 1-oct | — |
-| [ ] | `AG-09` | GroundingChecker: ninguna cifra fuera de los tools | Eduardo | D6 · 2-oct | — |
-| [ ] | `AG-10` | Defensa contra inyeccion de prompt | Eduardo | D6 · 2-oct | — |
+| [x] | `AG-03` | Registro de tools con allowlist por rol | Eduardo | D5 · 1-oct | sin commit |
+| [x] | `AG-04` | Las once herramientas implementadas (ADR-0009: el catalogo se derivo de la politica, son once no nueve) | Eduardo | D5 · 1-oct | sin commit |
+| [x] | `AG-05` | AccessGuard: identidad, 3 intentos, JWT con customer_id dentro | Eduardo | D5 · 1-oct | sin commit |
+| [x] | `AG-06` | Orquestador de las seis etapas | Eduardo | D5 · 1-oct | sin commit |
+| [x] | `AG-07` | VERIFY: relectura real del store y ledger de acciones | Eduardo | D5 · 1-oct | sin commit |
+| [x] | `AG-08` | Handoff estructurado validado por esquema | Eduardo | D5 · 1-oct | sin commit |
+| [x] | `AG-09` | GroundingChecker: ninguna cifra fuera de los tools | Eduardo | D6 · 2-oct | sin commit |
+| [x] | `AG-10` | Defensa contra inyeccion de prompt | Eduardo | D6 · 2-oct | sin commit |
 | [ ] | `AG-11` | Multilingue: deteccion y prompts espanol/portugues | Eduardo | D6 · 2-oct | — |
 | [ ] | `AG-12` | Observabilidad: traza por turno, costo, health checks | Eduardo | D5 · 1-oct | — |
-| [ ] | `AG-13` | Integracion del SCM tras la bandera SCM_ENABLED | Eduardo | D5 · 1-oct | — |
+| [~] | `AG-13` | Integracion del SCM tras la bandera SCM_ENABLED | Eduardo | D5 · 1-oct | sin commit |
 
 ## Evaluacion — 0/7 `░░░░░░░░░░░░`
 

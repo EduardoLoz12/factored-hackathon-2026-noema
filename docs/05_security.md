@@ -44,7 +44,8 @@ Ninguna información personal sale antes de esta etapa.
 - En logs y trazas, `document_number`, `email` y teléfono se guardan **hasheados** (SHA-256 con sal de entorno, `PII_HASH_SALT`); los nombres se truncan.
 - El texto completo del cliente **no** se registra en nivel `INFO`.
 - **Retención:** trazas 30 días · expedientes de escalamiento 90 días.
-- Usuario de base de datos de la API: **solo lectura** sobre las tablas gold; **solo inserción** sobre `cases` y `action_ledger`. Sin `DELETE` ni `UPDATE`.
+- Usuario de base de datos de la API: **solo lectura** sobre las tablas gold; **inserción y lectura** sobre `cases` y `action_ledger`. Sin `DELETE` ni `UPDATE`.
+  La relectura posterior a la escritura que exige el §7 —y con ella `AG-07` y la consola de `UI-05`— necesita `SELECT`. La inmutabilidad del ledger la garantiza la ausencia de `UPDATE` y `DELETE`, no la de `SELECT`.
 
 ## 6. Superficie de red
 

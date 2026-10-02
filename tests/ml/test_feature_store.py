@@ -66,9 +66,9 @@ def test_el_verificador_falla_cuando_debe():
 def test_ninguna_fila_mira_despues_del_corte(df):
     maximo = df.asof_date.max()
     maximo = maximo.date() if hasattr(maximo, "date") else maximo
-    assert (
-        maximo <= CORTE_POR_DEFECTO
-    ), f"Hay filas con asof_date {maximo}, posterior al corte {CORTE_POR_DEFECTO}."
+    assert maximo <= CORTE_POR_DEFECTO, (
+        f"Hay filas con asof_date {maximo}, posterior al corte {CORTE_POR_DEFECTO}."
+    )
 
 
 def test_la_antiguedad_nunca_es_negativa(df):
@@ -94,12 +94,12 @@ def test_la_cohorte_estricta_observa_la_etiqueta_despues_del_corte(df):
     """
     estricta = df[df.tiene_observacion_posterior == 1]
     assert len(estricta) > 0, "La cohorte estricta quedó vacía."
-    assert (
-        estricta.dias_hasta_etiqueta > 0
-    ).all(), "Hay filas en la cohorte estricta cuya etiqueta se observó antes del corte."
-    assert (
-        estricta.mora_90_estricta.notna().all()
-    ), "Hay filas marcadas como estrictas sin etiqueta estricta."
+    assert (estricta.dias_hasta_etiqueta > 0).all(), (
+        "Hay filas en la cohorte estricta cuya etiqueta se observó antes del corte."
+    )
+    assert estricta.mora_90_estricta.notna().all(), (
+        "Hay filas marcadas como estrictas sin etiqueta estricta."
+    )
     # La etiqueta estricta solo puede venir de productos observados después.
     assert (estricta.n_credito_estricto > 0).all()
 
@@ -113,9 +113,9 @@ def test_la_etiqueta_estricta_no_mezcla_observaciones(df):
     marcarse después.
     """
     fuera = df[df.tiene_observacion_posterior == 0]
-    assert (
-        fuera.mora_90_estricta.isna().all()
-    ), "Hay etiqueta estricta en filas que no deberían tenerla."
+    assert fuera.mora_90_estricta.isna().all(), (
+        "Hay etiqueta estricta en filas que no deberían tenerla."
+    )
     # Donde hay ambas, la estricta no puede superar a la completa: se calcula
     # sobre un subconjunto de los mismos productos.
     ambas = df[(df.tiene_observacion_posterior == 1) & df.mora_90.notna()]
@@ -129,9 +129,9 @@ def test_la_cohorte_estricta_es_mas_chica_que_la_completa(df):
     """Si fueran iguales, la marca de cobertura no estaría funcionando."""
     completa = int((df.etiquetable == 1).sum())
     estricta = int(((df.etiquetable == 1) & (df.tiene_observacion_posterior == 1)).sum())
-    assert (
-        0 < estricta < completa
-    ), f"estricta={estricta}, completa={completa}: la separación temporal no está aplicando."
+    assert 0 < estricta < completa, (
+        f"estricta={estricta}, completa={completa}: la separación temporal no está aplicando."
+    )
 
 
 def test_la_etiqueta_solo_existe_donde_hay_producto_de_credito(df):
@@ -151,9 +151,9 @@ def test_la_etiqueta_es_binaria_y_coherente(df):
     e = df[df.etiquetable == 1]
     assert set(e.mora_90.unique()) <= {0, 1}
     # Quien está en mora a 90 días lo está también «en cualquier grado».
-    assert (
-        e.mora_90 <= e.mora_cualquiera
-    ).all(), "Hay clientes con mora_90 = 1 y mora_cualquiera = 0: son incompatibles."
+    assert (e.mora_90 <= e.mora_cualquiera).all(), (
+        "Hay clientes con mora_90 = 1 y mora_cualquiera = 0: son incompatibles."
+    )
 
 
 # ── Regímenes de nulo (F-014) ────────────────────────────────────────────────
@@ -168,9 +168,9 @@ def test_cada_columna_imputable_lleva_su_indicador(df):
     ]
     for valor, marca in pares:
         assert marca in df.columns, f"falta el indicador {marca}"
-        assert (
-            df[valor].isna() == (df[marca] == 1)
-        ).all(), f"{marca} no coincide con los nulos reales de {valor}."
+        assert (df[valor].isna() == (df[marca] == 1)).all(), (
+            f"{marca} no coincide con los nulos reales de {valor}."
+        )
 
 
 def test_todo_importe_esta_en_usd(df):
@@ -180,12 +180,12 @@ def test_todo_importe_esta_en_usd(df):
     convertir por falta de cotización. Si alguno es mayor que cero, hay un país o
     una moneda sin tasa y las comparaciones de esas filas no valen.
     """
-    assert (
-        int(df.ingreso_sin_tasa.sum()) == 0
-    ), "hay ingresos sin convertir a USD: falta la tasa de algún país."
-    assert (
-        int(df.limites_sin_tasa.sum()) == 0
-    ), "hay límites sin convertir a USD: falta la tasa de alguna moneda."
+    assert int(df.ingreso_sin_tasa.sum()) == 0, (
+        "hay ingresos sin convertir a USD: falta la tasa de algún país."
+    )
+    assert int(df.limites_sin_tasa.sum()) == 0, (
+        "hay límites sin convertir a USD: falta la tasa de alguna moneda."
+    )
 
 
 def test_el_ingreso_es_comparable_entre_paises(df):
@@ -196,9 +196,9 @@ def test_el_ingreso_es_comparable_entre_paises(df):
     """
     medianas = df.groupby("pais").ingreso_usd.median().dropna()
     assert len(medianas) >= 2, "no hay suficientes países para comparar"
-    assert (
-        medianas.max() / medianas.min() < 5
-    ), f"las medianas de ingreso siguen sin ser comparables: {medianas.to_dict()}"
+    assert medianas.max() / medianas.min() < 5, (
+        f"las medianas de ingreso siguen sin ser comparables: {medianas.to_dict()}"
+    )
 
 
 def test_las_variables_redundantes_no_estan(df):
@@ -228,9 +228,9 @@ def test_las_marcas_de_contaminacion_existen(df):
     for marca in ["cliente_posterior", "limite_posterior"]:
         assert marca in df.columns, f"falta la marca {marca}"
         assert df[marca].isin([0, 1]).all()
-    assert (
-        df.cliente_posterior.sum() > 0
-    ), "Ninguna fila marcada como posterior al corte: la marca no está midiendo nada."
+    assert df.cliente_posterior.sum() > 0, (
+        "Ninguna fila marcada como posterior al corte: la marca no está midiendo nada."
+    )
 
 
 # ── Coherencia interna ───────────────────────────────────────────────────────
@@ -255,9 +255,9 @@ def test_las_razones_estan_acotadas(df):
     """`razon_salidas` es una proporción: fuera de [0, 1] indica un error de signo."""
     v = df.razon_salidas.dropna()
     if len(v):
-        assert (v >= 0).all() and (
-            v <= 1.0001
-        ).all(), f"razon_salidas fuera de [0,1]: min {v.min():.4f}, max {v.max():.4f}"
+        assert (v >= 0).all() and (v <= 1.0001).all(), (
+            f"razon_salidas fuera de [0,1]: min {v.min():.4f}, max {v.max():.4f}"
+        )
 
 
 def test_sin_actividad_coincide_con_cero_meses_activos(df):
