@@ -695,7 +695,7 @@ def _generate_with_llm(prompt: str) -> str:
     try:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key={api_key}"
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
-        res = requests.post(url, json=payload, timeout=10)
+        res = requests.post(url, json=payload, timeout=30)
         data = res.json()
         return data["candidates"][0]["content"]["parts"][0]["text"]
     except Exception as e:
