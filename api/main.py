@@ -2,18 +2,21 @@ import json
 import logging
 import os
 import re
+import secrets
 import uuid
 from datetime import UTC, date, datetime
 from pathlib import Path
 
 import duckdb
 import joblib
+import jwt
 import pandas as pd
 import requests
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from starlette.concurrency import run_in_threadpool
 
 from agent.core.orchestrator import Desenlace, Orquestador, Turno
 from agent.policies.engine import Cliente, Politica, ProductoVigente
@@ -32,12 +35,24 @@ TRACE_FILE = TRACE_DIR / "chat_interactions.jsonl"
 ANALYTICS_DB = Path(os.getenv("NOEMA_ANALYTICS_DB", "data/noema.duckdb"))
 LEDGER_DB = os.getenv("NOEMA_LEDGER_DB", "data/noema_ledger.duckdb")
 ORCHESTRATOR_CUTOFF = date(2025, 12, 31)
+MAX_HISTORY_CHARS = int(os.getenv("NOEMA_MAX_HISTORY_CHARS", "4000"))
+SESSION_TOKEN_TTL_SECONDS = int(os.getenv("NOEMA_SESSION_TOKEN_TTL_SECONDS", "1800"))
+SESSION_ALGORITHM = "HS256"
 
 app = FastAPI(title="Noema AI-First Banking Core", version="1.0.0")
 
+cors_origins = [
+    origin.strip()
+    for origin in os.getenv(
+        "NOEMA_CORS_ORIGINS",
+        "http://localhost:3000,http://127.0.0.1:3000",
+    ).split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -548,6 +563,49 @@ noema_core = NoemaCore()
 _ORCHESTRATOR: Orquestador | None = None
 _ORCHESTRATOR_CONTEXT: Contexto | None = None
 
+
+def _session_secret() -> str:
+    secret = os.getenv("JWT_SECRET") or os.getenv("NOEMA_DEMO_SESSION_SECRET")
+    if secret:
+        return secret
+    if os.getenv("ENV") == "production":
+        raise RuntimeError("JWT_SECRET is required in production")
+    return "local-demo-session-secret-change-before-production"
+
+
+def _issue_demo_session_token(customer_id: str, display_name: str | None) -> str:
+    now = datetime.now(UTC)
+    payload = {
+        "sub": customer_id,
+        "display_name": display_name,
+        "iat": int(now.timestamp()),
+        "exp": int(now.timestamp()) + SESSION_TOKEN_TTL_SECONDS,
+        "jti": secrets.token_urlsafe(18),
+        "scope": "demo_identity_verified",
+    }
+    return jwt.encode(payload, _session_secret(), algorithm=SESSION_ALGORITHM)
+
+
+def _verified_customer_from_token(token: str | None) -> dict:
+    if not token:
+        return {}
+    try:
+        payload = jwt.decode(token, _session_secret(), algorithms=[SESSION_ALGORITHM])
+    except Exception as exc:
+        LOGGER.warning("demo_session_token_invalid type=%s", type(exc).__name__)
+        return {}
+    if payload.get("scope") != "demo_identity_verified" or not payload.get("sub"):
+        return {}
+    return payload
+
+
+def _bounded_history(history: str) -> str:
+    normalized = re.sub(r"\s+", " ", history or "").strip()
+    if len(normalized) <= MAX_HISTORY_CHARS:
+        return normalized
+    return normalized[-MAX_HISTORY_CHARS:]
+
+
 try:
     escalation_model_data = joblib.load("data/models/support_escalation.joblib")
     escalation_model = escalation_model_data["model"]
@@ -575,12 +633,13 @@ def _get_orchestrator() -> Orquestador:
 
 
 class ChatRequest(BaseModel):
-    customer_id: str
-    message: str
-    history: str = ""
+    customer_id: str = ""
+    message: str = Field(min_length=1, max_length=2000)
+    history: str = Field(default="", max_length=20000)
     channel: str = "chatbot"
     interaction_type: str = "inbound"
     reason_category: str = "general_inquiry"
+    session_token: str | None = None
     identity_verified_demo: bool = False
 
 
@@ -592,6 +651,7 @@ class ChatResponse(BaseModel):
     customer_id: str | None = None
     display_name: str | None = None
     segment: str | None = None
+    session_token: str | None = None
     trace: list["AgentTraceStep"] = Field(default_factory=list)
 
 
@@ -643,11 +703,15 @@ def _display_name(customer: dict) -> str:
     )
 
 
-def _session_for_request(request: ChatRequest, customer_id: str | None) -> Session:
+def _session_for_request(
+    request: ChatRequest,
+    customer_id: str | None,
+    identity_verified: bool,
+) -> Session:
     return Session(
         role=Role.CUSTOMER,
-        verified=bool(request.identity_verified_demo and customer_id),
-        customer_id=customer_id if request.identity_verified_demo else None,
+        verified=bool(identity_verified and customer_id),
+        customer_id=customer_id if identity_verified else None,
         jti=f"ui-{customer_id or 'anonymous'}",
         conversation_id=f"ui-{customer_id or 'anonymous'}",
     )
@@ -801,11 +865,12 @@ def _run_orchestrator_turn(
     request: ChatRequest,
     *,
     effective_customer_id: str | None,
+    identity_verified: bool,
     runtime_intent: str,
     force_human: bool = False,
 ) -> tuple[Turno, str]:
     orchestrator = _get_orchestrator()
-    session = _session_for_request(request, effective_customer_id)
+    session = _session_for_request(request, effective_customer_id, identity_verified)
     agent_intent = _orchestrator_intent(runtime_intent) or "CREDIT_ELIGIBILITY"
     slots = _slots_from_message(request.message, agent_intent)
     turn = orchestrator.turno(
@@ -1012,22 +1077,19 @@ def _chat_trace(
     core_result: dict,
     model_escalated: bool,
     final_escalation: bool,
+    *,
+    effective_customer_id: str | None,
+    identity_verified_demo: bool,
 ) -> list[AgentTraceStep]:
     diagnostics = _policy_diagnostic_checks()
     policy_status = "achieved" if diagnostics.status == "pass" else "not_achieved"
-    customer_data = get_customer_data(request.customer_id)
+    customer_data = get_customer_data(effective_customer_id or "")
     customer_found = bool(customer_data)
     claimed_name = core_result.get("claimed_name")
     identity_match = core_result.get("identity_match")
-    if core_result.get("identity_match") is False:
-        identity_verified_demo = False
-    else:
-        identity_verified_demo = bool(
-            request.identity_verified_demo or core_result.get("identity_verified_demo", False)
-        )
     if identity_verified_demo:
         identity_status = "achieved"
-        identity_detail = "Demo identity is verified for this browser session."
+        identity_detail = "Demo identity is verified by a server-issued session token."
     elif identity_match is False:
         identity_status = "not_achieved"
         identity_detail = "The typed name does not verify against the loaded demo profile."
@@ -1078,6 +1140,7 @@ def _chat_trace(
             policy="A customer cannot self-verify identity through chat text.",
             evidence=(
                 f"customer_id={request.customer_id}; "
+                f"effective_customer_id={effective_customer_id}; "
                 f"claimed_name={claimed_name or 'none'}; identity_match={identity_match}; "
                 f"identity_verified_demo={identity_verified_demo}"
             ),
@@ -1224,13 +1287,18 @@ def _chat_trace(
     ]
 
 
-@app.post("/api/chat", response_model=ChatResponse)
-async def chat_endpoint(request: ChatRequest):
+def _chat_endpoint_sync(request: ChatRequest) -> ChatResponse:
+    token_payload = _verified_customer_from_token(request.session_token)
+    token_customer_id = token_payload.get("sub")
+    token_verified = bool(token_customer_id)
+    bounded_history = _bounded_history(request.history)
+    effective_customer_id = token_customer_id or request.customer_id
+
     core_result = noema_core.process(
         request.message,
-        request.history,
-        request.customer_id,
-        request.identity_verified_demo,
+        bounded_history,
+        effective_customer_id or "",
+        token_verified,
     )
 
     escalate = False
@@ -1248,18 +1316,29 @@ async def chat_endpoint(request: ChatRequest):
         if prob > 0.5:
             escalate = True
 
-    final_escalation = core_result["action"] == "escalate" or escalate
-    trace = _chat_trace(request, core_result, escalate, final_escalation)
+    session_token = request.session_token if token_verified else None
     if core_result.get("identity_match") is False:
         identity_verified_demo = False
+        session_token = None
     else:
         identity_verified_demo = bool(
-            request.identity_verified_demo or core_result.get("identity_verified_demo", False)
+            token_verified or core_result.get("identity_verified_demo", False)
         )
-    effective_customer_id = core_result.get("verified_customer_id") or request.customer_id
+    effective_customer_id = core_result.get("verified_customer_id") or effective_customer_id
     customer = get_customer_data(effective_customer_id) if effective_customer_id else {}
     display_name = core_result.get("verified_display_name") or _display_name(customer) or None
     segment = core_result.get("verified_segment") or customer.get("segment")
+    if core_result.get("identity_match") is True and effective_customer_id:
+        session_token = _issue_demo_session_token(effective_customer_id, display_name)
+    final_escalation = core_result["action"] == "escalate" or escalate
+    trace = _chat_trace(
+        request,
+        core_result,
+        escalate,
+        final_escalation,
+        effective_customer_id=effective_customer_id,
+        identity_verified_demo=identity_verified_demo,
+    )
 
     orchestrated_intent = _orchestrator_intent(noema_core.scm.evaluate(request.message)["intent"])
     should_orchestrate = bool(orchestrated_intent) or core_result["action"] == "escalate"
@@ -1268,6 +1347,7 @@ async def chat_endpoint(request: ChatRequest):
             turn, agent_response = _run_orchestrator_turn(
                 request,
                 effective_customer_id=effective_customer_id,
+                identity_verified=identity_verified_demo,
                 runtime_intent=noema_core.scm.evaluate(request.message)["intent"],
                 force_human=core_result["action"] == "escalate",
             )
@@ -1283,6 +1363,7 @@ async def chat_endpoint(request: ChatRequest):
                 customer_id=effective_customer_id,
                 display_name=display_name if identity_verified_demo else None,
                 segment=segment if identity_verified_demo else None,
+                session_token=session_token,
                 trace=trace,
             )
             _write_chat_log(
@@ -1321,6 +1402,7 @@ async def chat_endpoint(request: ChatRequest):
                 customer_id=effective_customer_id,
                 display_name=display_name if identity_verified_demo else None,
                 segment=segment if identity_verified_demo else None,
+                session_token=session_token,
                 trace=trace,
             )
             _write_chat_log(
@@ -1342,6 +1424,7 @@ async def chat_endpoint(request: ChatRequest):
             customer_id=effective_customer_id,
             display_name=display_name if identity_verified_demo else None,
             segment=segment if identity_verified_demo else None,
+            session_token=session_token,
             trace=trace,
         )
         _write_chat_log(
@@ -1375,6 +1458,7 @@ RULES:
         customer_id=effective_customer_id,
         display_name=display_name if identity_verified_demo else None,
         segment=segment if identity_verified_demo else None,
+        session_token=session_token,
         trace=trace,
     )
     _write_chat_log(
@@ -1386,9 +1470,33 @@ RULES:
     return response
 
 
+@app.post("/api/chat", response_model=ChatResponse)
+async def chat_endpoint(request: ChatRequest):
+    return await run_in_threadpool(_chat_endpoint_sync, request)
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/ready")
+def ready():
+    checks = {
+        "analytics_db": ANALYTICS_DB.exists(),
+        "ledger_parent_writable": Path(LEDGER_DB).parent.exists(),
+        "policy_loads": False,
+        "support_escalation_model": escalation_model is not None,
+        "llm_configured": bool(os.getenv("GEMINI_API_KEY")),
+    }
+    try:
+        Politica.cargar()
+        checks["policy_loads"] = True
+    except Exception as exc:
+        LOGGER.warning("readiness_policy_failed type=%s", type(exc).__name__)
+    required = ("analytics_db", "ledger_parent_writable", "policy_loads")
+    status = "ready" if all(checks[name] for name in required) else "degraded"
+    return {"status": status, "checks": checks}
 
 
 @app.get("/api/customer-profile/{customer_id}", response_model=CustomerProfileResponse)

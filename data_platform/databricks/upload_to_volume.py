@@ -1,4 +1,9 @@
-"""Planificar/subir Parquet a un Volume existente de Unity Catalog."""
+"""Planificar/subir artefactos locales a un Volume existente de Unity Catalog.
+
+Por defecto sube el espejo de datos que Databricks necesita para reconstruir dbt:
+`bronze`, `validated` y `quality`. Con `--bundle complete` agrega `gold`,
+cuarentenas, artefactos de modelos, logs de build y manifiestos locales.
+"""
 
 from __future__ import annotations
 
@@ -8,33 +13,82 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 
+DEFAULT_PATTERNS = {
+    "bronze": ["bronze/**/*.parquet", "bronze/manifest.json"],
+    "validated": ["validated/**/*.parquet"],
+    "quality": ["quality/**/*.parquet"],
+}
 
-def upload_plan(data: Path, volume: str) -> list[dict]:
-    parts = PurePosixPath(volume).parts
-    if len(parts) != 5 or parts[1] != "Volumes" or ".." in parts:
-        raise ValueError("Volume debe ser /Volumes/catalog/schema/volume")
-    files = []
-    for layer in ["bronze", "validated", "quality"]:
-        paths = sorted((data / layer).rglob("*.parquet"))
-        if not paths:
-            raise FileNotFoundError(f"Falta {layer}; ejecutar ingesta/auditoría primero")
-        for path in paths:
-            if path.is_symlink():
-                raise ValueError("No se suben enlaces simbólicos")
-            relative = path.relative_to(data).as_posix()
-            files.append(
-                {
-                    "local": str(path),
-                    "remote": volume.rstrip("/") + "/" + relative,
-                    "bytes": path.stat().st_size,
-                }
-            )
+COMPLETE_EXTRA_PATTERNS = {
+    "gold": ["gold/**/*.parquet", "gold/*.json"],
+    "quarantine": ["quarantine/**/*.parquet", "quarantine_references/**/*.parquet"],
+    "models": ["models/*.json", "models/*.joblib"],
+    "prototype": ["prototype/*.sqlite"],
+    "build_logs": ["../logs/build/**/*.json", "../logs/build/**/*.log"],
+}
+
+BUNDLES = {
+    "databricks-inputs": DEFAULT_PATTERNS,
+    "complete": {**DEFAULT_PATTERNS, **COMPLETE_EXTRA_PATTERNS},
+}
+
+
+def _sha256(path: Path) -> str:
+    with open(path, "rb") as source:
+        return hashlib.file_digest(source, "sha256").hexdigest()
+
+
+def _collect_files(data: Path, bundle: str) -> list[tuple[Path, str]]:
+    if bundle not in BUNDLES:
+        raise ValueError(f"bundle inválido: {bundle}")
+    files: list[tuple[Path, str]] = []
+    seen: set[Path] = set()
+    for patterns in BUNDLES[bundle].values():
+        for pattern in patterns:
+            for path in sorted(data.glob(pattern)):
+                if not path.is_file() or path in seen:
+                    continue
+                if path.is_symlink():
+                    raise ValueError("No se suben enlaces simbólicos")
+                try:
+                    relative = path.relative_to(data).as_posix()
+                except ValueError:
+                    relative = "logs/" + path.relative_to(data.parent / "logs").as_posix()
+                files.append((path, relative))
+                seen.add(path)
     return files
 
 
-def upload(data: Path, volume: str, execute: bool = False) -> dict:
-    plan = upload_plan(data, volume)
+def upload_plan(data: Path, volume: str, bundle: str = "databricks-inputs") -> list[dict]:
+    parts = PurePosixPath(volume).parts
+    if len(parts) != 5 or parts[1] != "Volumes" or ".." in parts:
+        raise ValueError("Volume debe ser /Volumes/catalog/schema/volume")
+    for required in ("bronze", "validated", "quality"):
+        has_required_files = any(
+            any(data.glob(pattern)) for pattern in BUNDLES[bundle].get(required, [])
+        )
+        if required in BUNDLES[bundle] and not has_required_files:
+            raise FileNotFoundError(f"Falta {required}; ejecutar ingesta/auditoría primero")
+    return [
+        {
+            "local": str(path),
+            "remote": volume.rstrip("/") + "/" + relative,
+            "bytes": path.stat().st_size,
+            "sha256": _sha256(path),
+        }
+        for path, relative in _collect_files(data, bundle)
+    ]
+
+
+def upload(
+    data: Path,
+    volume: str,
+    bundle: str = "databricks-inputs",
+    execute: bool = False,
+) -> dict:
+    plan = upload_plan(data, volume, bundle)
     result = {
+        "bundle": bundle,
         "files": len(plan),
         "bytes": sum(x["bytes"] for x in plan),
         "executed": False,
@@ -55,11 +109,9 @@ def upload(data: Path, volume: str, execute: bool = False) -> dict:
                 client.files.upload(item["remote"], source, overwrite=False)
             # Releer bytes, no solo confirmar que el API aceptó la escritura.
             remote = client.files.download(item["remote"])
-            with open(item["local"], "rb") as source:
-                expected = hashlib.file_digest(source, "sha256").hexdigest()
             with remote.contents as stream:
                 actual = hashlib.file_digest(stream, "sha256").hexdigest()
-            if expected != actual:
+            if item["sha256"] != actual:
                 raise RuntimeError("Checksum remoto no coincide")
             result["verified_files"] += 1
         except Exception as exc:
@@ -75,11 +127,23 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data", type=Path, default=Path("data"))
     parser.add_argument("--volume", default=os.getenv("NOEMA_VOLUME"))
+    parser.add_argument(
+        "--bundle",
+        choices=sorted(BUNDLES),
+        default="databricks-inputs",
+        help="databricks-inputs sube bronze/validated/quality; complete agrega gold, "
+        "cuarentenas, modelos y logs",
+    )
+    parser.add_argument("--plan-file", type=Path, help="guardar plan JSON con rutas y checksums")
     parser.add_argument("--execute", action="store_true")
     args = parser.parse_args()
     if not args.volume:
         parser.error("Falta --volume o NOEMA_VOLUME")
-    print(json.dumps(upload(args.data, args.volume, args.execute)))
+    if args.plan_file:
+        plan = upload_plan(args.data, args.volume, args.bundle)
+        args.plan_file.parent.mkdir(parents=True, exist_ok=True)
+        args.plan_file.write_text(json.dumps(plan, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps(upload(args.data, args.volume, args.bundle, args.execute)))
 
 
 if __name__ == "__main__":

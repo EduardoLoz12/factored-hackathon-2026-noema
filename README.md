@@ -145,6 +145,13 @@ Full audit with reproducible numbers: [`docs/01_data_audit.md`](docs/01_data_aud
 | [`docs/05_security.md`](docs/05_security.md) | Secrets, identity, authorization, injection, PII, network |
 | [`docs/07_scm_spec.md`](docs/07_scm_spec.md) | **Federico's task**: the Semantic Cognition Matrix |
 | [`docs/09_etl_spec.md`](docs/09_etl_spec.md) | **Federico's task**: cleaning, ETL and payment capacity |
+| [`docs/19_estado_integracion_federico.md`](docs/19_estado_integracion_federico.md) | Branch status, local validation, blockers and demo run plan |
+| [`docs/20_reporte_completo_codigo.md`](docs/20_reporte_completo_codigo.md) | Plain-English report of every code module, logs and tests |
+| [`docs/21_agent_tool_policy_diagnostics.md`](docs/21_agent_tool_policy_diagnostics.md) | Agent-tool diagnostics and live policy validation in the chatbot UI |
+| [`docs/22_deep_validation_report.md`](docs/22_deep_validation_report.md) | Deep validation report with line-level review and remaining findings |
+| [`docs/23_executive_summary_validation.md`](docs/23_executive_summary_validation.md) | Executive summary of the deep validation results |
+| [`docs/24_bot_interaction_accuracy_report.md`](docs/24_bot_interaction_accuracy_report.md) | Blunt report on available bot interactions, data, and answer accuracy |
+| [`docs/26_deployment_runbook.md`](docs/26_deployment_runbook.md) | Render + Vercel deployment path and public health-check proof |
 | [`docs/knowledge/findings.md`](docs/knowledge/findings.md) | Project memory — every finding that changed a decision |
 | [`docs/knowledge/contributions.md`](docs/knowledge/contributions.md) | Contribution ledger: who changed what, and whether it advanced the project |
 | [`docs/decisions/`](docs/decisions/) | Architecture Decision Records |
