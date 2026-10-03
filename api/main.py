@@ -1351,9 +1351,11 @@ async def chat_endpoint(request: ChatRequest):
 to the customer based on this verified system information:
 System Information: "{final_msg}"
 Customer Message: "{request.message}"
-IMPORTANT: Do not invent any numbers or facts. ONLY use the numbers explicitly provided \
-in the System Information. NEVER repeat the numbers from the Customer Message unless they \
-are also in the System Information. Rewrite the system information to be more empathetic.
+RULES:
+1. Rephrase the system information into a natural, friendly reply.
+2. Do NOT mention the phrase "System Information".
+3. ONLY use the numbers provided in the system information.
+4. NEVER repeat unverified numbers from the customer.
 """
     draft = _generate_with_llm(prompt)
     if draft:
