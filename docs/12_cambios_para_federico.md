@@ -357,3 +357,64 @@ redundancia. Si algo tuyo lo leía, avísame; según mi revisión no es el caso.
 **8.1 y 8.2 son bugs y afectan a decisiones del agente**: uno rompe toda comparación
 de ingreso entre países, el otro mete una cotización futura en un cálculo del corte.
 **8.3 es deuda de documentación** que ya se cobró una víctima. **8.4 es informativo.**
+
+---
+
+## 9 · Avisos del 1-oct-2026, tras construir las once herramientas del agente
+
+### 9.1 · `noema_gold.product_policy` está entera en NULL, y ya hay otra fuente
+
+La tabla existe con las nueve filas (tres productos × tres monedas) y **todas sus
+columnas de política en `NULL`**: `minimum_credit_score`, `minimum_amount`,
+`maximum_amount`, `minimum_term_months`, `maximum_term_months`,
+`annual_interest_rate`. Con `policy_ready = false` y
+`policy_version = 'pending_team_policy'`.
+
+Era correcto cuando se escribió: `ADR-0005` la dejó esperando que yo aportara los
+valores. **Ya los aporté**, pero en otro sitio: `agent/policies/eligibility_v1.yaml`,
+que es la política versionada de `AG-01` y hoy va en la **versión 2**. El tool
+`get_product_catalog` lee de ahí, no de la tabla.
+
+Dos cosas que decidir, y las dos son tuyas:
+
+1. **El riesgo inmediato:** si `/analytics` (`UI-07`) publica el `dq_report` o cualquier
+   vista que toque `product_policy`, el jurado verá una tabla de política del banco con
+   todo en nulo. Eso se lee como «no hicimos la política», justo lo contrario de lo que
+   pasó.
+2. **La salida limpia:** generar `product_policy` **desde el YAML** en dbt, en vez de a
+   mano. Así hay una sola fuente de verdad, la tabla queda con `policy_ready = true`, y
+   el gold refleja la política real. El YAML trae ahora `plazos_ofertables` como lista
+   —24/48/72 y 120/180/240—, así que `minimum_term_months` y `maximum_term_months` salen
+   de su mínimo y máximo, y conviene añadir una columna con la lista completa o una fila
+   por plazo.
+
+Si preferís borrarla en vez de poblarla, también sirve: lo que no puede quedar es una
+tabla de gold que contradiga a la política vigente.
+
+### 9.2 · Confirmado: `amount_usd` de `stg_transactions` es fiable, y lo uso tal cual
+
+Lo verifiqué antes de construir sobre ella, porque mis dos tools de evidencia la suman:
+**0 nulos y 0 incoherencias** contra `amount × usd_rate` en 4 424 401 filas, con 607
+filas apartadas en `quarantine_transaction_fx`. No la reconvierto. Buen trabajo ahí.
+
+### 9.3 · Lo que mis tools filtran de `stg_transactions`, y por qué te importa
+
+Toda consulta de actividad o de pagos lleva tres filtros, y cada uno quita filas que una
+consulta ingenua contaría (F-042):
+
+- `transaction_status = 'Approved'` — hay 221 205 `Declined` y 44 739 `Reversed`.
+- `process_date <= corte` **además** de `transaction_date <= corte` — el 25 % de las
+  filas tiene `process_date` anterior a `transaction_date`.
+- `transaction_date >= opening_date` del producto — el 18.71 % de las transacciones
+  precede a la cuenta que las contiene (F-031).
+
+Efecto medido: **9.07 %** de los productos de crédito cambia de veredicto
+activo/inactivo, y 10 014 pasan a no tener ninguna actividad real. Si alguna vista tuya
+de gold calcula actividad o recencia sin estos filtros, va a dar un número distinto al
+que el agente le dice al cliente — y vamos a tener que explicar cuál de los dos vale.
+
+### Prioridad
+
+**9.1 hay que resolverlo antes del deploy** si `/analytics` toca esa tabla; si no la
+toca, es deuda de coherencia. **9.2 es confirmación, no acción.** **9.3 es para alinear
+cualquier métrica de actividad que publiques.**

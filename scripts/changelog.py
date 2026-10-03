@@ -160,7 +160,9 @@ def main() -> int:
     print(texto)
 
     if not args.only_print:
-        OUT.write_text(texto + "\n", encoding="utf-8")
+        # El hook `end-of-file-fixer` recorta las líneas en blanco del final. Si las
+        # dejamos, el commit del changelog se cae siempre en el primer intento.
+        OUT.write_text(texto.rstrip("\n") + "\n", encoding="utf-8")
         print(f"\n-> {OUT}")
     return 0
 

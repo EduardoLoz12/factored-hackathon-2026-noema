@@ -13,8 +13,8 @@
 # Cambiar un umbral aquí cambia el comportamiento del sistema sin tocar código.
 # Toda modificación sube la versión y queda en el historial de git.
 
-version: 1
-vigente_desde: 2026-09-30
+version: 3
+vigente_desde: 2026-10-02
 corte_datos: 2025-12-31
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -38,23 +38,42 @@ umbrales:
   # Meses mínimos de relación con el banco antes de conceder un segundo producto.
   antiguedad_minima_meses: 6
 
-  # Fracción mínima de cuotas registradas frente a las esperadas. Se evalúa solo
-  # cuando hay historial de pagos; ver `abstencion` más abajo.
-  cumplimiento_minimo: 0.05
+  # Aquí vivía `cumplimiento_minimo: 0.05`. Se retiró junto con R6; el porqué está
+  # en el bloque de reglas, donde estaba R6.
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Catálogo de productos ofertables
 #
-# `tasa_anual` y `plazo_meses` son condiciones de oferta, no datos del cliente.
+# `tasa_anual` y `plazos_ofertables` son condiciones de oferta, no datos del cliente.
 # Las tasas son las medianas observadas por tipo de producto, que en este dataset
 # sí resultaron coherentes: rangos disjuntos y ordenados tarjeta > personal >
 # hipotecario (F-034).
+#
+# PLAZOS MÚLTIPLES (versión 2, 1-oct-2026). Cada producto se ofrece a varios
+# plazos y el cliente elige según su capacidad de pago. El plazo NO cambia la TEA
+# del producto —la TEA la fija la tasa nominal con su capitalización mensual—, así
+# que mover el plazo mueve la cuota y el monto que cabe en el margen sin tocar el
+# costo anual efectivo. A plazo más largo: cuota menor, monto mayor, reserva
+# exigida menor, e **interés total mayor**. Ese último dato se declara en cada
+# opción; sin él un plazo largo parece gratis.
+#
+# Efecto que esto tiene en las decisiones: convierte rechazos en ofertas. Un
+# cliente cuyo margen no alcanzaba el mínimo del catálogo a 48 meses sí lo alcanza
+# a 72, y la respuesta pasa de «no puedo ofrecerte nada» a «puedo, a este plazo».
+#
+# La tarjeta lleva un solo plazo a propósito: es revolvente, su obligación es el
+# pago mínimo sobre el saldo dispuesto y no una amortización, así que el plazo no
+# cambia la cuota. Ofrecerla «a tres plazos» sería decorativo.
+#
+# Los plazos son un SUPUESTO DE POLÍTICA, no un dato: `expiration_date` tiene
+# cobertura cero en préstamos y 95 % en tarjetas, donde además es el vencimiento
+# del plástico y no un plan de amortización.
 # ─────────────────────────────────────────────────────────────────────────────
 catalogo:
   - producto: Tarjeta Crédito
     amortizacion: revolvente
     tasa_anual: 31.52
-    plazo_meses: 48
+    plazos_ofertables: [48]   # revolvente: el plazo no altera el pago mínimo
     monto_minimo_usd: 500
     monto_maximo_usd: 100000
     segmentos: [Basic, Plus, Premium, Student]
@@ -62,7 +81,7 @@ catalogo:
   - producto: Préstamo Personal
     amortizacion: cuota_fija
     tasa_anual: 20.10
-    plazo_meses: 48
+    plazos_ofertables: [24, 48, 72]
     monto_minimo_usd: 1000
     monto_maximo_usd: 150000
     segmentos: [Basic, Plus, Premium]
@@ -70,7 +89,7 @@ catalogo:
   - producto: Préstamo Hipotecario
     amortizacion: cuota_fija
     tasa_anual: 8.98
-    plazo_meses: 240
+    plazos_ofertables: [120, 180, 240]
     monto_minimo_usd: 20000
     monto_maximo_usd: 500000
     segmentos: [Plus, Premium]
@@ -144,6 +163,35 @@ plazos_supuestos:
   Préstamo Hipotecario: 240
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Cuando NO hay capacidad de pago observada
+#
+# Objeción de Eduardo al validar la deuda del estimador (1-oct-2026): que ML-04 no
+# entregue una cifra no puede ser neutro, porque «afecta su capacidad de pago y
+# patrimonio». Tenía razón, y el defecto era del mismo tipo que F-041: sin capacidad
+# observada el motor usaba el margen COMPLETO de política, es decir trataba la
+# ausencia de información como ausencia de restricción, y el dato faltante caía a
+# favor del solicitante.
+#
+# Sin flujo observado el sistema no sabe cuánto puede sostener de verdad: solo sabe
+# cuánto cabe en una aritmética que no pudo corroborar. Dos efectos, los dos
+# declarados en la respuesta.
+# ─────────────────────────────────────────────────────────────────────────────
+sin_capacidad_observada:
+  # Recorte del margen. No estima nada: es la prudencia de no prestar al tope de un
+  # cálculo que no se pudo cruzar contra el flujo real del cliente.
+  factor_margen: 0.80
+
+  # Productos que no se ofrecen sin capacidad observada. El hipotecario es el de
+  # plazo más largo y mayor exposición: comprometer 240 meses sin haber visto el
+  # flujo del cliente es precisamente lo que no se debe hacer.
+  productos_excluidos:
+    - Préstamo Hipotecario
+
+  mensaje: >-
+    No pudimos verificar tu flujo de ingresos reciente, así que evaluamos con un
+    criterio más conservador y no incluimos productos de plazo largo.
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Reglas de abstención
 #
 # Abstenerse es un resultado válido del sistema. Se mide aparte y no se penaliza.
@@ -164,8 +212,9 @@ abstencion:
 
   - id: sin_historial_de_pago
     condicion: no hay pagos registrados en el producto
-    # No bloquea: la regla de cumplimiento simplemente no se evalúa, y la
-    # respuesta lo dice. Ver F-029: el 29 % de los productos no registra pagos.
+    # No bloquea: el cumplimiento de pago no se evalúa en ninguna decisión —la
+    # regla que lo hacía se retiró—, y la respuesta lo dice. Ver F-029: el 29 % de
+    # los productos no registra pagos.
     bloquea: false
     mensaje: >-
       No registramos pagos en este producto, así que no evaluamos tu historial
@@ -223,12 +272,26 @@ reglas:
       Con tus cuotas actuales de {carga_mensual_usd} USD no queda margen bajo el
       tope de {umbral} de tu ingreso.
 
-  - id: R6_cumplimiento
-    aplica_si: hay historial de pagos
-    exige: cumplimiento >= umbrales.cumplimiento_minimo
-    motivo: >-
-      Registramos {cuotas_pagadas} pagos de las {cuotas_esperadas} que
-      corresponderían desde la apertura, bajo supuesto de vencimiento mensual.
+  # Aquí vivía R6_cumplimiento: exigía que la fracción de cuotas registradas
+  # frente a las esperadas superara el 5 %. Se retiró el 1-oct-2026 por tres
+  # razones, en orden de peso:
+  #
+  # 1. El umbral habría rechazado al cliente mediano. El cumplimiento mediano de
+  #    la cartera es 3.81 % (docs/knowledge/artefactos.md) contra un mínimo del
+  #    5 %: más de la mitad de los clientes con crédito caía por una propiedad del
+  #    generador sintético, no por su conducta de pago.
+  # 2. No hay con qué calcularla. F-029: de 160 054 productos con historial, cero
+  #    tienen calendario de pagos regular, y una tarjeta de 45 meses de vida
+  #    registra 1.29 pagos. Sin vencimiento no hay cuota esperada, y
+  #    `cuotas_esperadas` solo existe asumiendo vencimiento mensual — un supuesto
+  #    que F-030 declaró no sostenible.
+  # 3. Nunca se ejecutó. El motor no leía `cuotas_pagadas` ni consultaba el
+  #    umbral, así que retirarla no cambia ninguna decisión: la versión sigue
+  #    siendo 1 porque el comportamiento observable es idéntico.
+  #
+  # El historial de pagos se conserva como **hecho descriptivo declarado** —el
+  # agente puede decir cuántos pagos registra un producto— pero no decide nada.
+  # La abstención `sin_historial_de_pago` de arriba ya declaraba exactamente eso.
 
   - id: R7_monto_minimo
     por_producto: true
@@ -283,10 +346,21 @@ calculo:
 
   capacidad_de_pago: >-
     cuando predict_capacity (ML-04) devuelve una estimación, el margen usado es
-    el menor entre margen_mensual_usd y la capacidad estimada. Si se abstiene,
-    se usa solo margen_mensual_usd y la respuesta declara que no se incorporó
-    capacidad observada. ML-04 es un estimador sobre flujo sintético (F-029) y
-    se abstiene en el 94 % de los casos.
+    el menor entre margen_mensual_usd y la capacidad estimada. Si NO la devuelve
+    —se abstiene, o el estimador no está disponible— se aplica el bloque
+    sin_capacidad_observada: el margen se recorta por factor_margen y los
+    productos de productos_excluidos no se ofrecen. Antes se usaba el margen
+    completo, lo que trataba la ausencia de información como ausencia de
+    restricción. ML-04 es un estimador sobre flujo sintético (F-029) y se abstiene
+    en el 94 % de los casos.
+
+  patrimonio_neto_usd: >-
+    reservas_usd menos el saldo dispuesto de los productos de crédito. Es la
+    posición neta al corte y se declara como hecho; NO es una regla. Eduardo lo
+    decidió explícitamente el 2-oct-2026 al validarlo: «por ahora no» a un umbral de
+    patrimonio. Se publica para que la respuesta y el expediente lo lleven, y no
+    decide nada. Si en algún momento se quiere que decida, el umbral va acá y la
+    versión sube.
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Lo que esta política NO hace, y se declara en toda respuesta
@@ -294,6 +368,11 @@ calculo:
 limitaciones_declaradas:
   - No evalúa estado de mora. El dataset no permite determinarlo (F-027, F-029, F-030).
   - No usa ningún modelo de riesgo de incumplimiento. No existe uno válido (F-026, F-033).
-  - El plazo de los préstamos es un supuesto de política, no un dato.
-  - El cumplimiento de pago usa vencimiento mensual como supuesto declarado (F-030).
+  - Los plazos ofertables son un supuesto de política, no un dato. El plazo no altera
+    la TEA del producto; sí altera la cuota, el monto que cabe y el interés total.
+  - No evalúa cumplimiento de pago. No existe calendario de vencimientos con el
+    cual calcularlo (F-029, F-030), y el umbral que se había escrito habría
+    rechazado al cliente mediano de la cartera.
   - Las tasas de oferta son las medianas observadas por tipo de producto.
+  - Sin capacidad de pago observada, el margen se recorta y no se ofrecen productos de
+    plazo largo. Se declara en la respuesta.
