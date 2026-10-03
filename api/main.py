@@ -711,7 +711,7 @@ def _slots_from_message(text: str, intent: str) -> dict:
     prompt = f"""Extract banking slots from this message for intent: {intent}.
 Message: "{text}"
 Respond ONLY with a valid JSON object matching this exact schema:
-{{"product_type": "credit_card"|"loan"|null,
+{{"product_type": "Tarjeta Crédito"|"Préstamo Personal"|"Préstamo Hipotecario"|null,
  "requested_amount": float|null, "currency": "USD"|"EUR"|null}}"""
     draft = _generate_with_llm(prompt)
     if draft:
@@ -1351,8 +1351,9 @@ async def chat_endpoint(request: ChatRequest):
 to the customer based on this verified system information:
 System Information: "{final_msg}"
 Customer Message: "{request.message}"
-IMPORTANT: Do not invent any numbers or facts. Only use the facts provided \
-in the System Information. Rewrite the system information to be more empathetic.
+IMPORTANT: Do not invent any numbers or facts. ONLY use the numbers explicitly provided \
+in the System Information. NEVER repeat the numbers from the Customer Message unless they \
+are also in the System Information. Rewrite the system information to be more empathetic.
 """
     draft = _generate_with_llm(prompt)
     if draft:
