@@ -822,12 +822,18 @@ def _run_orchestrator_turn(
 
     def redactar(_attempt: int, _previous) -> str:
         context = _draft_orchestrated_response(turn)
-        prompt = f"""You are a helpful banking assistant. Draft a natural, conversational response \
-to the customer based on this verified system information:
+        feedback = "ONLY use numbers from System Information." if _previous else ""
+        prompt = f"""You are a helpful banking assistant.
+Rephrase the system information below into a natural, empathetic reply to the customer.
+
+RULES:
+1. You must use the EXACT numbers from the System Information.
+2. DO NOT invent any numbers.
+3. Keep the response entirely in a single language (match the language of the Customer Message).
+4. NEVER mention the phrase 'System Information'.
+
 System Information: "{context}"
-Customer Message: "{request.message}"
-IMPORTANT: Do not invent any numbers. Only use the numbers \
-and facts provided in the System Information.
+Customer Message: "{request.message}"{feedback}
 """
         draft = _generate_with_llm(prompt)
         if draft:
