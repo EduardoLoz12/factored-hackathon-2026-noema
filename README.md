@@ -160,3 +160,23 @@ The dataset is synthetic and was provided by Factored for the hackathon. It is n
 
 Repository · live URL · 5 slides · 3-minute video → `hackathon.admin@factored.ai`
 **Deadline: 5 October 2026, 23:59 Colombia time.**
+
+## Product interest and recorded customer limits
+
+Experimental 30-day campaign conversion model and per-customer quota lookup:
+[method, results and reproduction](docs/13_interes_producto_y_cupo.md).
+Run `python -m ml.training.product_interest`, then
+`python -m ml.serving.product_advisor --customer-id ID --product 'Tarjeta Crédito'`.
+Conversion probability is not confirmed intent or credit eligibility. New limits
+still require the existing policy engine and verified inputs.
+
+The [deep-learning challenger and unified advisor](docs/14_red_profunda_y_asesor.md)
+add a trained three-hidden-layer MLP, comparison with logistic regression, and an
+integration with Eduardo's policy engine for verified inputs. Train with
+`python -m ml.training.deep_interest`; analyze with
+`python -m ml.serving.client_analysis --customer-id ID_AUTORIZADO`.
+
+A [controlled depth experiment](docs/15_experimento_profundidad.md) compares three
+and six hidden layers across three seeds, with separate early-stopping and selection
+periods. Run `python -m ml.training.depth_experiment`; the six-layer artifact remains
+an optional challenger and does not replace the default advisor model.

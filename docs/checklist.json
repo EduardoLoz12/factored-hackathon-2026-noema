@@ -271,6 +271,47 @@
           ],
           "done": "nostub",
           "owner": "eduardo"
+        },
+        {
+          "id": "ML-11",
+          "dia": 4,
+          "owner": "federico",
+          "tarea": "Propension experimental de conversion y consulta de cupos registrados por cliente",
+          "evidence": [
+            "ml/training/product_interest.py",
+            "ml/serving/product_advisor.py",
+            "ml/model_cards/product_interest.json",
+            "docs/13_interes_producto_y_cupo.md",
+            "tests/ml/test_product_interest.py"
+          ],
+          "done": "manual"
+        },
+        {
+          "id": "ML-12",
+          "dia": 4,
+          "owner": "federico",
+          "tarea": "Red profunda comercial y asesor con puerta de evidencia para politica de Eduardo",
+          "evidence": [
+            "ml/training/deep_interest.py",
+            "ml/serving/client_analysis.py",
+            "ml/model_cards/deep_interest.json",
+            "docs/14_red_profunda_y_asesor.md",
+            "tests/ml/test_deep_interest.py"
+          ],
+          "done": "manual"
+        },
+        {
+          "id": "ML-13",
+          "dia": 5,
+          "owner": "federico",
+          "tarea": "Comparar tres y seis capas con varias semillas y control temporal de sobreajuste",
+          "evidence": [
+            "ml/training/depth_experiment.py",
+            "ml/model_cards/depth_experiment.json",
+            "docs/15_experimento_profundidad.md",
+            "tests/ml/test_depth_experiment.py"
+          ],
+          "done": "manual"
         }
       ]
     },

@@ -23,5 +23,20 @@
     "status": "terminado",
     "note": "deuda cerrada: moneda a USD, poda por redundancia, etiqueta_posterior renombrada y bloque de cuotas",
     "at": "2026-09-30 13:29"
+  },
+  "ML-11": {
+    "status": "terminado",
+    "note": "149 pruebas pasan; modelo entrenado y consulta local verificada; uso experimental documentado",
+    "at": "2026-09-30 22:10"
+  },
+  "ML-12": {
+    "status": "terminado",
+    "note": "160 pruebas pasan; MLP entrenado; advisor y paridad con motor de Eduardo verificados",
+    "at": "2026-09-30 22:27"
+  },
+  "ML-13": {
+    "status": "terminado",
+    "note": "162 pruebas pasan; comparación de 3/6 capas con 3 semillas; test excluido de selección",
+    "at": "2026-10-01 12:41"
   }
 }
