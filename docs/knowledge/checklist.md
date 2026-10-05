@@ -2,7 +2,7 @@
 
 Generado por `make checklist` contra el estado real del repo. Cuando alguien crea o completa un archivo de evidencia, el ítem avanza solo en la siguiente corrida. **No editar estados a mano aquí** — usar `python -m scripts.checklist --done ID --note "..."`.
 
-Última evaluación: 2026-10-05 10:41
+Última evaluación: 2026-10-05 14:35
 
 Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
@@ -72,7 +72,7 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 |---|---|---|---|---|---|
 | [x] | `AG-01` | Politica de elegibilidad versionada en YAML | Eduardo | D4 · 30-sep | Eduardo · 2026-10-02 | politica versionada en YAML: umbrales, catalogo, 8 reglas, abstencion, activos y reservas
 | [x] | `AG-02` | Motor de reglas determinista, testeable sin LLM | Eduardo | D4 · 30-sep | — | motor determinista sin LLM, 58 pruebas en verde
-| [x] | `AG-03` | Registro de tools con allowlist por rol | Eduardo | D5 · 1-oct | Eduardo · 2026-10-02 |
+| [x] | `AG-03` | Registro de tools con allowlist por rol | Eduardo | D5 · 1-oct | Eduardo · 2026-10-05 |
 | [x] | `AG-04` | Las once herramientas implementadas (ADR-0009: el catalogo se derivo de la politica, son once no nueve) | Eduardo | D5 · 1-oct | Eduardo · 2026-10-02 |
 | [x] | `AG-05` | AccessGuard: identidad, 3 intentos, JWT con customer_id dentro | Eduardo | D5 · 1-oct | Eduardo · 2026-10-02 |
 | [x] | `AG-06` | Orquestador de las seis etapas | Eduardo | D5 · 1-oct | Eduardo · 2026-10-05 |
