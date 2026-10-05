@@ -462,21 +462,39 @@ class Politica:
             d.hechos["monto_pedido_usd"] = round(float(monto_pedido_usd), 2)
 
         # ── reglas, en orden. La primera que falla decide ────────────────────
-        if n_credito >= 1 and antiguedad < self.u["antiguedad_minima_meses"]:
+        # El veredicto de cada una queda publicado en `hechos["reglas"]`. Solo texto
+        # y booleanos: el GroundingChecker recorre `hechos` buscando números, y un
+        # número nuevo acá exigiría anclarlo. El panel de la interfaz muestra esta
+        # lista para que se vea qué regla se evaluó y cuál cortó, en vez de deducirlo
+        # del motivo.
+        reglas: list[dict[str, Any]] = []
+        d.hechos["reglas"] = reglas
+
+        def _anotar(ident: str, aplica: bool, cumple: bool, que: str) -> None:
+            reglas.append({"id": ident, "aplica": aplica, "cumple": cumple, "exige": que})
+
+        aplica_r1 = n_credito >= 1
+        cumple_r1 = (not aplica_r1) or antiguedad >= self.u["antiguedad_minima_meses"]
+        _anotar("R1_antiguedad", aplica_r1, cumple_r1, "antigüedad mínima como cliente")
+        if not cumple_r1:
             d.motivos.append(
                 f"Tu relación con el banco es de {antiguedad} meses y pedimos al "
                 f"menos {self.u['antiguedad_minima_meses']} para un producto adicional."
             )
             return d
 
-        if n_credito >= self.u["max_productos_credito"]:
+        cumple_r2 = n_credito < self.u["max_productos_credito"]
+        _anotar("R2_numero_de_productos", True, cumple_r2, "tope de productos de crédito")
+        if not cumple_r2:
             d.motivos.append(
                 f"Ya tienes {n_credito} productos de crédito activos y el máximo "
                 f"es {self.u['max_productos_credito']}."
             )
             return d
 
-        if dti >= self.u["dti_corte_duro"]:
+        cumple_r3 = dti < self.u["dti_corte_duro"]
+        _anotar("R3_corte_duro_de_dti", True, cumple_r3, "corte duro de endeudamiento")
+        if not cumple_r3:
             d.motivos.append(
                 f"Tus cuotas comprometidas son el {dti:.0%} de tu ingreso mensual, "
                 f"por encima del límite de {self.u['dti_corte_duro']:.0%}."
@@ -484,7 +502,9 @@ class Politica:
             return d
 
         tope_exposicion = self.u["exposicion_maxima_sobre_ingreso_anual"] * ingreso * 12
-        if exposicion > tope_exposicion:
+        cumple_r4 = exposicion <= tope_exposicion
+        _anotar("R4_exposicion_sobre_ingreso", True, cumple_r4, "exposición sobre ingreso anual")
+        if not cumple_r4:
             d.motivos.append(
                 f"El crédito que ya tienes concedido equivale a "
                 f"{cifra(exposicion / (ingreso * 12), 1)} veces tu ingreso anual y el tope "
@@ -492,7 +512,9 @@ class Politica:
             )
             return d
 
-        if margen <= 0:
+        cumple_r5 = margen > 0
+        _anotar("R5_margen_disponible", True, cumple_r5, "margen mensual disponible")
+        if not cumple_r5:
             d.motivos.append(
                 f"Con tus cuotas actuales de {cifra(carga)} USD no queda margen bajo "
                 f"el tope de {tope_dti:.0%} de tu ingreso."

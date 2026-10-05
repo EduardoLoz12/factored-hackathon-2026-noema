@@ -91,6 +91,38 @@ make review     # who changed what, and whether it stayed inside its boundary
 
 **You do not need to run `make ingest` to work on the cognition layer.** Fixtures in `tests/fixtures/` cover that.
 
+### Running it the way a judge would
+
+Two commands after `make build`, and nothing else is required — no account with anyone:
+
+```bash
+make serve                              # http://localhost:8000 — chat, glass-box trace, console, analytics
+make eval                               # three arms, held-out set, published table
+```
+
+`make serve` serves both the API and the single-page UI from the same origin, so there
+is no CORS to open and no second process to start. Eight preloaded scenarios cover the
+happy path, the reasoned rejection, the missing-slot question, the human handoff,
+injection, impersonation and Brazilian Portuguese — pick one and read the trace beside
+the answer.
+
+Two environment variables matter:
+
+| Variable | What happens without it |
+|---|---|
+| `JWT_SECRET` (≥32 chars) | `/verify` and `/session/demo` return 503. No session is ever issued unsigned. |
+| `ANTHROPIC_API_KEY` | Everything still runs. Slot extraction is deterministic by design. In `make eval` the `baseline` arm is marked `no_corrido` instead of being simulated. |
+
+The identity gate is real: without a verified session, `/chat` returns `bloqueado` and no
+personal data leaves the system. `POST /session/demo` exists because the dataset's
+documents are not public — it looks up a real customer's three factors and passes them
+through the **same** `AccessGuard`. It does not skip verification. Turn it off with
+`NOEMA_DEMO=off`.
+
+Health first, always: `GET /health` reports whether the system is ready, the policy
+version, the cut-off date, whether the SCM flag is on, and the live grounding counters.
+It tells the truth when the system is broken, which is the point.
+
 ## 6. Who owns what
 
 | Area | Owner | Spec |
@@ -139,6 +171,7 @@ Full audit with reproducible numbers: [`docs/01_data_audit.md`](docs/01_data_aud
 | [`CLAUDE.md`](CLAUDE.md) | Operating contract — read this before writing code |
 | [`docs/00_challenge_brief.md`](docs/00_challenge_brief.md) | The Factored rubric, decoded |
 | [`docs/01_data_audit.md`](docs/01_data_audit.md) | Dataset audit: where the dictionary and the data disagree |
+| [`deliverables/bronze_vs_silver.html`](deliverables/bronze_vs_silver.html) | Interactive Bronze-to-Silver audit: retention, nulls, distributions and model implications |
 | [`docs/02_architecture.md`](docs/02_architecture.md) | Architecture and the reasoning behind each decision |
 | [`docs/03_credit_policy.md`](docs/03_credit_policy.md) | Eligibility and escalation policy |
 | [`docs/04_evaluation.md`](docs/04_evaluation.md) | Protocol, baseline and results |
@@ -160,3 +193,23 @@ The dataset is synthetic and was provided by Factored for the hackathon. It is n
 
 Repository · live URL · 5 slides · 3-minute video → `hackathon.admin@factored.ai`
 **Deadline: 5 October 2026, 23:59 Colombia time.**
+
+## Product interest and recorded customer limits
+
+Experimental 30-day campaign conversion model and per-customer quota lookup:
+[method, results and reproduction](docs/16_interes_producto_y_cupo.md).
+Run `python -m ml.training.product_interest`, then
+`python -m ml.serving.product_advisor --customer-id ID --product 'Tarjeta Crédito'`.
+Conversion probability is not confirmed intent or credit eligibility. New limits
+still require the existing policy engine and verified inputs.
+
+The [deep-learning challenger and unified advisor](docs/14_red_profunda_y_asesor.md)
+add a trained three-hidden-layer MLP, comparison with logistic regression, and an
+integration with Eduardo's policy engine for verified inputs. Train with
+`python -m ml.training.deep_interest`; analyze with
+`python -m ml.serving.client_analysis --customer-id ID_AUTORIZADO`.
+
+A [controlled depth experiment](docs/15_experimento_profundidad.md) compares three
+and six hidden layers across three seeds, with separate early-stopping and selection
+periods. Run `python -m ml.training.depth_experiment`; the six-layer artifact remains
+an optional challenger and does not replace the default advisor model.

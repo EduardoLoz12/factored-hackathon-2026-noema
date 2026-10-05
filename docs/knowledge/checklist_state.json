@@ -23,5 +23,130 @@
     "status": "terminado",
     "note": "deuda cerrada: moneda a USD, poda por redundancia, etiqueta_posterior renombrada y bloque de cuotas",
     "at": "2026-09-30 13:29"
+  },
+  "ML-11": {
+    "status": "terminado",
+    "note": "propension de conversion de campana, cherry-pick de la rama de Federico",
+    "at": "2026-10-05 09:17"
+  },
+  "ML-12": {
+    "status": "terminado",
+    "note": "red profunda y asesor con puerta de evidencia, cherry-pick",
+    "at": "2026-10-05 09:17"
+  },
+  "ML-13": {
+    "status": "terminado",
+    "note": "experimento de profundidad: la logistica gana",
+    "at": "2026-10-05 09:17"
+  },
+  "EV-01": {
+    "status": "terminado",
+    "note": "conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa",
+    "at": "2026-10-05 09:47"
+  },
+  "EV-02": {
+    "status": "terminado",
+    "note": "conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa",
+    "at": "2026-10-05 09:47"
+  },
+  "EV-03": {
+    "status": "terminado",
+    "note": "conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa",
+    "at": "2026-10-05 09:47"
+  },
+  "EV-04": {
+    "status": "terminado",
+    "note": "conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa",
+    "at": "2026-10-05 09:47"
+  },
+  "EV-05": {
+    "status": "terminado",
+    "note": "conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa",
+    "at": "2026-10-05 09:47"
+  },
+  "EV-06": {
+    "status": "terminado",
+    "note": "conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa",
+    "at": "2026-10-05 09:47"
+  },
+  "API-01": {
+    "status": "terminado",
+    "note": "FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen",
+    "at": "2026-10-05 10:01"
+  },
+  "API-02": {
+    "status": "terminado",
+    "note": "FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen",
+    "at": "2026-10-05 10:01"
+  },
+  "UI-02": {
+    "status": "terminado",
+    "note": "FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen",
+    "at": "2026-10-05 10:01"
+  },
+  "UI-03": {
+    "status": "terminado",
+    "note": "FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen",
+    "at": "2026-10-05 10:01"
+  },
+  "UI-04": {
+    "status": "terminado",
+    "note": "tres conversaciones guiadas que corren el flujo real, con prueba de punta a punta",
+    "at": "2026-10-05 10:41"
+  },
+  "UI-05": {
+    "status": "terminado",
+    "note": "FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen",
+    "at": "2026-10-05 10:01"
+  },
+  "UI-06": {
+    "status": "terminado",
+    "note": "FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen",
+    "at": "2026-10-05 10:01"
+  },
+  "UI-07": {
+    "status": "terminado",
+    "note": "FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen",
+    "at": "2026-10-05 10:01"
+  },
+  "UI-08": {
+    "status": "terminado",
+    "note": "https://noema.5-78-236-186.sslip.io en el Hetzner, systemd con tope de memoria y HTTPS por certbot",
+    "at": "2026-10-05 10:18"
+  },
+  "AG-11": {
+    "status": "terminado",
+    "note": "verificado el 5-oct: existe y corre",
+    "at": "2026-10-05 14:44"
+  },
+  "AG-12": {
+    "status": "terminado",
+    "note": "verificado el 5-oct: existe y corre",
+    "at": "2026-10-05 14:44"
+  },
+  "EV-07": {
+    "status": "terminado",
+    "note": "verificado el 5-oct: existe y corre",
+    "at": "2026-10-05 14:44"
+  },
+  "DAT-15": {
+    "status": "terminado",
+    "note": "verificado el 5-oct: existe y corre",
+    "at": "2026-10-05 14:44"
+  },
+  "AG-13": {
+    "status": "terminado",
+    "note": "verificado el 5-oct: existe y corre",
+    "at": "2026-10-05 14:44"
+  },
+  "ENT-02": {
+    "status": "terminado",
+    "note": "verificado el 5-oct: existe y corre",
+    "at": "2026-10-05 14:44"
+  },
+  "ENT-01": {
+    "status": "terminado",
+    "note": "02 arquitectura, 03 politica y 06 runbook escritos; 04 evaluacion ya estaba",
+    "at": "2026-10-05 14:46"
   }
 }

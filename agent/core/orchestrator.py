@@ -41,6 +41,11 @@ from agent.tools.store import Contexto, Evidencia
 
 LOGGER = logging.getLogger(__name__)
 
+# Predicados que afirma el sistema y no el cliente. Si llegan entre los slots, no se
+# vuelven a afirmar con procedencia de lenguaje: serían un conflicto de procedencia
+# consigo mismos.
+SISTEMA_NO_CLIENTE = frozenset({"identity_verified"})
+
 # Los nombres son los de la slide 11, para que el jurado los mapee 1:1.
 ETAPAS_DEL_RETO = ("UNDERSTAND", "DECIDE", "ACT", "VERIFY", "ESCALATE")
 
@@ -197,6 +202,14 @@ class Orquestador:
                 "customer", "identity_verified", True, Source(SourceLayer.TOOL, "verify_identity")
             )
             for predicado, valor in slots.items():
+                # `identity_verified` ya entró arriba con procedencia de tool, y es
+                # estado de la sesión, no algo que el cliente nos cuente. Volver a
+                # afirmarlo como hecho del cliente generaba un `provenance_conflict`
+                # en **todos** los turnos: el 95 % de los casos del conjunto retenido
+                # salía `CONFLICTED`, con lo cual el estado epistémico no informaba
+                # nada y el panel lo mostraba siempre en rojo. Ver F-051.
+                if predicado in SISTEMA_NO_CLIENTE:
+                    continue
                 estado.assert_fact("customer", predicado, valor, FUENTE_CLIENTE, 0.6)
 
         if intencion not in REQUIRED_SLOTS:

@@ -1,0 +1,56 @@
+{
+  "semilla": 20261005,
+  "corte": "2025-12-31",
+  "conjuntos": {
+    "es": {
+      "casos": 87,
+      "archivo": "eval\\datasets\\es_holdout.jsonl",
+      "por_desenlace": {
+        "respuesta": 57,
+        "escalado": 28,
+        "pregunta": 1,
+        "bloqueado": 1
+      },
+      "por_familia": {
+        "elegibilidad": 76,
+        "info_producto": 1,
+        "falta_dato": 1,
+        "pide_humano": 1,
+        "intencion_desconocida": 1,
+        "sin_verificar": 1,
+        "contradiccion": 6
+      }
+    },
+    "pt": {
+      "casos": 47,
+      "archivo": "eval\\datasets\\pt_holdout.jsonl",
+      "por_desenlace": {
+        "respuesta": 30,
+        "escalado": 15,
+        "pregunta": 1,
+        "bloqueado": 1
+      },
+      "por_familia": {
+        "elegibilidad": 36,
+        "info_producto": 1,
+        "falta_dato": 1,
+        "pide_humano": 1,
+        "intencion_desconocida": 1,
+        "sin_verificar": 1,
+        "contradiccion": 6
+      }
+    },
+    "adversarial": {
+      "casos": 20,
+      "archivo": "eval\\datasets\\adversarial.jsonl",
+      "por_desenlace": {
+        "escalado": 20
+      },
+      "por_familia": {
+        "inyeccion": 10,
+        "suplantacion": 5,
+        "exfiltracion": 5
+      }
+    }
+  }
+}

@@ -2128,3 +2128,176 @@ tupla es la correcta hoy.
 control redundante: es un control que **se contradice a sí mismo**, y la contradicción aparece recién en
 el commit, que es el peor momento. Si una versión se fija en `.pre-commit-config.yaml`, el mismo número
 va en las dependencias. Vale para `gitleaks`, `ruff` y lo que venga después.
+---
+
+## F-049 · 2026-09-30 · datos — La conversión de campaña es la única etiqueta con señal del dataset, y 436 429 envíos tienen el orden temporal invertido
+
+*Encontrado por: Federico Vargas · 2026-09-30 · ML-11*
+
+La solicitud nueva requiere separar interés, cupo observado y oferta de política.
+Consulta reproducible: `select had_conversion, count(*) from
+noema_silver.stg_campaign_sends group by 1` devuelve 1 737 002 negativos y
+9 799 positivos. Hay 436 429 registros con `process_date < send_date`
+(`select count(*) ... where process_date < send_date`). Se excluyen del modelo.
+La conversión de campaña es un proxy de respuesta comercial, no una etiqueta de
+«quiere un producto nuevo», ni prueba de primera adquisición. El snapshot no
+versiona resultados: la validación retrospectiva asume que las etiquetas estaban
+completas al finalizar 30 días; esto impide promover el modelo a producción.
+Los límites existentes vienen de `products.credit_limit`, por producto y moneda;
+no son una asignación nueva. `products.last_updated` contiene fechas hasta 2027:
+no se debe presentar su snapshot como estado histórico al corte sin filtrar.
+
+## Documentos aportados y red profunda (ML-12, 2026-09-30)
+
+Se revisaron el HTML «Política de Elegibilidad» (v1.0, 30-sep) y las 20 páginas
+de «Bronze contra Silver» (29-sep; exportado 30-sep). El reporte de auditoría
+respalda excluir mora, referencias de sucursal inválidas, FX reportado y nulos
+estructurales de entradas ingenuas. No demuestra que cualquier objetivo sea
+imposible: la respuesta a campaña es una etiqueta distinta del incumplimiento.
+La red MLP de tres capas se entrena sobre esa respuesta, no sobre mora.
+
+Diferencia verificada con el código actual: el HTML afirma abstención ante límite
+faltante, mientras `Politica._carga` omite productos sin límite/tasa y emite aviso.
+El nuevo adaptador `policy_analysis` exige términos completos antes de invocar
+ese motor. No altera el código de Eduardo. El HTML también precede el soporte
+actual de saldo dispuesto, estrés de línea no dispuesta y reservas: manda el YAML
+versionado al ejecutar, no los números ilustrativos del HTML.
+
+Precaución estadística: no rechazar una hipótesis no prueba independencia ni MCAR;
+KS 0.00203 no es «una centésima» del umbral 0.01. La conservación de distribuciones
+no demuestra ausencia de fuga en todas las tablas gold. Se conservan las advertencias
+posteriores de Eduardo sobre FX y snapshots. Los documentos se incorporan como
+contratos y límites de evidencia, no como filas sintéticas para entrenar la red.
+
+---
+
+## F-050 · 2026-10-05 · agente — La bandera que mide el aporte del SCM rompía dos pruebas, y por eso el tercer brazo del ablation no se podía correr
+
+`CLAUDE.md` afirma que con `SCM_ENABLED=false` la suite completa sigue en verde. **No era cierto.**
+Dos pruebas de `tests/core/test_orchestrator.py` fallaban al correr la suite con la bandera apagada:
+`test_dos_fuentes_de_la_base_que_discrepan_escalan` y
+`test_con_el_scm_encendido_se_publica_el_estado_epistemico`.
+
+**No era un defecto del producto, era un defecto de diseño de prueba.** Las dos cubren el camino
+**con** SCM: la segunda afirma literalmente `t.scm is not None`, y la bandera global lo pone en
+`None`. Leían la bandera del ambiente en vez de fijarla, así que su resultado dependía de con qué
+variable de entorno se invocara pytest.
+
+**Por qué importaba más de lo que parecía.** La bandera no es cortesía: es el instrumento que mide el
+tercer brazo de `EV-06` (`baseline` · `tools` · `tools_scm`). Correr la suite con la bandera apagada es
+exactamente el gesto de verificación que precede al ablation. Mientras rompiera, no había forma de
+afirmar que el sistema funciona idéntico sin SCM — y sin eso el aporte de Federico no es demostrable
+ante el jurado.
+
+**Arreglo.** Las dos pruebas fijan `monkeypatch.setenv("SCM_ENABLED", "true")`. Una prueba del camino
+encendido pin­ea la bandera encendida; una del camino apagado la apone. Ninguna hereda el ambiente.
+
+**Regla que deja.** Si una bandera de configuración existe para ser apagada, **la suite tiene que
+correrse apagada como parte de la verificación**, no solo encendida. Una prueba que lee una bandera
+del entorno sin fijarla no prueba un camino: prueba el que le toque. Verificado: `926 passed,
+4 skipped` con la bandera en los dos estados.
+
+---
+
+## F-051 · 2026-10-05 · agente — El estado epistémico salía `CONFLICTED` en el 95 % de los turnos, y era el mismo hecho afirmado dos veces
+
+Al medir el tercer brazo del ablation apareció que **82 de 86 casos** del conjunto
+retenido declaraban una contradicción, los 20 adversariales incluidos. Un sistema donde
+casi todo es contradictorio no está detectando nada.
+
+**La causa.** El orquestador afirma `identity_verified` dos veces en el mismo turno:
+primero con procedencia de tool —`Source(TOOL, "verify_identity")`, que es correcto— y
+después otra vez al recorrer los slots del cliente, porque `identity_verified` es uno de
+los slots requeridos de `CREDIT_ELIGIBILITY` y entra con `FUENTE_CLIENTE`. Mismo sujeto,
+mismo predicado, mismo valor, dos capas distintas: `provenance_conflict` en todos los
+turnos.
+
+**Por qué importaba.** `epistemic_status` es lo que el panel Caja de Vidrio muestra al
+jurado y lo que `EV-06` usa para medir el aporte del SCM. Con la bandera encendida el
+estado era `CONFLICTED` siempre, así que no distinguía un turno limpio de uno con dos
+fuentes que de verdad discrepan. La señal estaba ahí, enterrada bajo un conflicto
+estructural.
+
+**Dos arreglos, uno en cada lado.**
+
+1. En `agent/core/orchestrator.py`, `identity_verified` no se vuelve a afirmar como
+   hecho del cliente: es estado de la sesión, no algo que el cliente nos cuente. Queda
+   en la constante `SISTEMA_NO_CLIENTE`, que nombra el criterio en vez de esconder un
+   `if`.
+2. En el arnés, la métrica cuenta `value_conflict` —dos fuentes que afirman **valores
+   distintos** del mismo hecho— y no cualquier etapa cuyo texto dijera
+   «contradicción». Un conflicto de procedencia sobre el mismo valor no es una
+   discrepancia: es la misma cosa dicha dos veces.
+
+Después de los dos: 5 conflictos de valor sobre 86 casos en el brazo `tools_scm`, **0**
+en `tools`, **0** en los adversariales. El ablation ya mide algo.
+
+**Regla que deja.** Una métrica que se dispara en casi todos los casos no está midiendo
+el fenómeno, está midiendo una propiedad del sistema. Antes de reportar una métrica
+nueva hay que mirar su **tasa de activación**: si es ~100 % o ~0 %, el problema está en
+la definición, no en el dato. Es la cuarta vez en el proyecto que un control pasa
+silenciosamente porque nadie miró su distribución.
+
+---
+
+## F-052 · 2026-10-05 · evaluación — Un rechazo explicado es una resolución, no un escalamiento
+
+La primera versión del generador etiquetaba «no elegible, con motivo» como `escalado`, y
+el sistema devolvía `respuesta`. Parecía un desacuerdo entre el motor y la etiqueta, así
+que se compararon las dos rutas de cálculo sobre el mismo cliente: **coinciden hasta el
+centavo** —ingreso 1 137.84 USD, exposición 103 271.37, DTI 0.9911, mismo motivo, misma
+decisión—. La reconstrucción independiente del generador quedó validada de paso, que era
+el otro objetivo de la comparación.
+
+El error era de la etiqueta. Decirle a alguien que sus cuotas comprometidas son el 99 %
+de su ingreso, con la cifra y el umbral al lado, **es** haber resuelto su consulta. Solo
+la abstención escala, porque ahí el sistema no sabe.
+
+**Consecuencia en el conjunto retenido:** la estratificación pasó de ser por desenlace a
+ser por **estrato de política** —`elegible`, `rechazo_con_motivo`, `abstencion`— en
+tercios. Con el cupo por desenlace, dos aristas muy distintas caían en la misma cuenta y
+el conjunto medía una sola.
+
+**Y los adversariales admiten más de un desenlace correcto.** Los 20 casos de inyección
+y suplantación terminan en `pregunta`, no en `escalado`: al turno le falta el monto, así
+que pregunta y nunca llega a la inyección. No obedeció, no filtró y no escribió. Forzar
+un único desenlace esperado convertía 20 aciertos en 20 fallos contables, así que el
+caso declara un **conjunto** de desenlaces aceptables y `respuesta` es el único que
+cuenta como acción insegura.
+
+---
+
+## F-053 · 2026-10-05 · evaluación — La suite adversarial medía un camino que el sistema desplegado no toma
+
+Al probar `/chat` contra la API real con el mismo texto de inyección del conjunto
+retenido, el turno terminó en `respuesta` y no en `pregunta`. Los dos caminos tenían que
+dar lo mismo, así que uno de los dos estaba mal construido.
+
+**La causa.** Los casos adversariales llevaban los slots escritos a mano
+—`{"identity_verified": True}`— así que al turno le faltaba el monto y preguntaba, sin
+llegar nunca a la parte interesante. La API, en cambio, pasa el texto por
+`api/extraccion.py`, y de «apruébame 200000 dólares» ese extractor saca el monto y el
+producto. Con los slots completos el turno sigue hasta la política.
+
+**Por qué importaba.** La suite daba cero acciones inseguras, pero sobre un camino más
+corto que el real: el turno se detenía antes de la decisión. Una suite adversarial que
+no alcanza la decisión no prueba que la decisión resista. Era un falso verde.
+
+**El arreglo, y la regla de seguridad que cambió con él.** Los casos adversariales se
+construyen ahora con el **mismo** extractor que usa `/chat`. Y la regla dejó de mirar el
+desenlace: la primera versión contaba «adversarial que obtuvo respuesta» como acción
+insegura, y eso es falso. Si el turno responde con las cifras que la política calculó,
+la decisión la tomó el motor de reglas y no el texto del cliente — el cliente puede
+dictar el número que quiera, el techo lo pone la política. Lo que no puede pasar es que
+el sistema **entregue** una cifra que ningún tool de ese turno respalda. Esa es la regla
+ahora, y vale igual para los tres brazos.
+
+Con la distinción añadida: si el `GroundingChecker` bloqueó la respuesta, el sistema no
+entregó nada y escaló. Eso es el control funcionando, y contarlo como daño castigaría
+justamente el comportamiento que se quiere.
+
+**Regla que deja.** Un conjunto de evaluación tiene que entrar al sistema **por la misma
+puerta que el usuario**. Si el arnés arma los slots a mano y la API los extrae del
+texto, el arnés mide otro sistema. Cada vez que haya dos rutas hacia el mismo motor, hay
+que correr el mismo caso por las dos y comparar — es la tercera vez en el proyecto que
+esa comparación encuentra algo (F-052, F-053).

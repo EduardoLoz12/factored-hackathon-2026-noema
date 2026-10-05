@@ -208,7 +208,12 @@ def test_un_cliente_que_se_corrige_no_escala(orq):
 
 
 def test_dos_fuentes_de_la_base_que_discrepan_escalan(orq, monkeypatch):
-    """Ahí el sistema no tiene criterio para preferir una, y afirmar sería inventar."""
+    """Ahí el sistema no tiene criterio para preferir una, y afirmar sería inventar.
+
+    Fija la bandera en `true`: esta prueba cubre el camino CON SCM, y debe seguir
+    cubriéndolo cuando la suite entera corre con `SCM_ENABLED=false` para medir el
+    ablation de `EV-06`. Sin fijarla, el tercer brazo rompe su propia prueba."""
+    monkeypatch.setenv("SCM_ENABLED", "true")
     from agent.core import orchestrator as mod
 
     real = mod.SemanticState
@@ -391,7 +396,8 @@ def test_con_el_scm_apagado_no_se_detectan_contradicciones(orq, monkeypatch):
     assert not any("contradicción" in x.razon for x in t.etapas)
 
 
-def test_con_el_scm_encendido_se_publica_el_estado_epistemico(orq):
+def test_con_el_scm_encendido_se_publica_el_estado_epistemico(orq, monkeypatch):
+    monkeypatch.setenv("SCM_ENABLED", "true")
     t = elegibilidad(orq)
     assert t.scm is not None
     assert t.scm["epistemic_status"] in {"COMPLETE", "INCOMPLETE", "CONFLICTED"}

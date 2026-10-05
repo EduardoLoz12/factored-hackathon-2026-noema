@@ -175,6 +175,24 @@ class LedgerStore:
             campos_json=("expediente",),
         )
 
+    def caso_para_asesor(self, case_id: str) -> dict[str, Any] | None:
+        """Lee un expediente **sin** filtro de cliente, para el rol `HUMAN_AGENT`.
+
+        `releer_caso` exige el `customer_id` porque sirve a la relectura de VERIFY: ahí
+        el dueño del expediente es quien lo pide. Un asesor que recibe un escalamiento
+        no es el dueño, y sin esta lectura la consola no podría mostrar la entrega
+        estructurada. La frontera la pone el rol en la API, no esta consulta.
+        """
+        return self._una(
+            """
+            SELECT case_id, customer_id, conversation_id, intencion, motivo,
+                   expediente, politica_version, creado_en
+            FROM cases WHERE case_id = ?
+            """,
+            (case_id,),
+            campos_json=("expediente",),
+        )
+
     def releer_accion(self, action_id: str, customer_id: str) -> dict[str, Any] | None:
         return self._una(
             """

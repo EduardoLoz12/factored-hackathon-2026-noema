@@ -222,6 +222,11 @@ class ToolRegistry:
     """Catálogo cerrado de herramientas. El modelo solo puede nombrar lo que está acá."""
 
     def __init__(self) -> None:
+        # Bitácora del turno: qué tool se llamó, con qué resultado y desde qué
+        # fuente. No es el log —ese va a `logs/`— sino lo que el panel de la
+        # interfaz necesita para mostrar qué dato se recolectó, cuál se guardó y
+        # cuál se validó. La vacía quien la consume, con `drenar`.
+        self._bitacora: list[dict[str, Any]] = []
         self._tools: dict[str, ToolSpec] = {}
         self._rechazos: list[dict[str, Any]] = []
         self._ledger_idempotencia: dict[str, ToolResult] = {}
@@ -232,6 +237,28 @@ class ToolRegistry:
             raise ValueError(f"{spec.name}: ya registrado")
         self._tools[spec.name] = spec
         return spec
+
+    def drenar(self) -> list[dict[str, Any]]:
+        """Devuelve la bitácora acumulada y la vacía. Una llamada, un turno."""
+        salida = self._bitacora
+        self._bitacora = []
+        return salida
+
+    def _anotar(self, resultado: ToolResult, escribe: bool = False) -> ToolResult:
+        self._bitacora.append(
+            {
+                "tool": resultado.tool,
+                "ok": resultado.ok,
+                "escribe": escribe,
+                "fuente": resultado.source,
+                "ms": round(resultado.latencia_ms or 0.0, 1),
+                "cifras": len(resultado.grounded_values or ()),
+                "ausencias": list(resultado.ausencias or ()),
+                "error": resultado.error,
+                "reintento": bool(getattr(resultado, "reintento", False)),
+            }
+        )
+        return resultado
 
     def get(self, name: str) -> ToolSpec | None:
         return self._tools.get(name)
@@ -290,6 +317,8 @@ class ToolRegistry:
                 raise self._rechazar(spec.name, session, Rechazo.PARAMETRO_INVALIDO)
 
     def _rechazar(self, name: str, session: Session, razon: Rechazo) -> ToolDenied:
+        # Un permiso denegado también es información del turno: el panel tiene que
+        # poder mostrar que el sistema se negó, no solo lo que sí hizo.
         registro = {
             "tool": name,
             "razon": razon.value,
@@ -299,6 +328,19 @@ class ToolRegistry:
             "ts": time.time(),
         }
         self._rechazos.append(registro)
+        self._bitacora.append(
+            {
+                "tool": name,
+                "ok": False,
+                "escribe": False,
+                "fuente": None,
+                "ms": 0.0,
+                "cifras": 0,
+                "ausencias": [],
+                "error": "denegado: " + razon.value,
+                "reintento": False,
+            }
+        )
         LOGGER.warning(
             "tool_denied tool=%s razon=%s role=%s verified=%s",
             name,
@@ -339,7 +381,7 @@ class ToolRegistry:
             previo = self._ledger_idempotencia.get(clave)
             if previo is not None:
                 # Un reintento no abre dos casos. Devuelve el resultado original.
-                return ToolResult(**{**vars(previo), "reintento": True})
+                return self._anotar(ToolResult(**{**vars(previo), "reintento": True}), escribe=True)
 
         inicio = time.perf_counter()
         try:
@@ -355,16 +397,19 @@ class ToolRegistry:
                 type(exc).__name__,
                 session.role.value,
             )
-            return ToolResult(
-                tool=name,
-                ok=False,
-                error=type(exc).__name__,
-                mensaje_cliente=(
-                    "Tuvimos un problema técnico al consultar esa información. "
-                    "Puedo derivarte con un asesor."
+            return self._anotar(
+                ToolResult(
+                    tool=name,
+                    ok=False,
+                    error=type(exc).__name__,
+                    mensaje_cliente=(
+                        "Tuvimos un problema técnico al consultar esa información. "
+                        "Puedo derivarte con un asesor."
+                    ),
+                    latencia_ms=(time.perf_counter() - inicio) * 1000,
+                    idempotency_key=clave,
                 ),
-                latencia_ms=(time.perf_counter() - inicio) * 1000,
-                idempotency_key=clave,
+                escribe=bool(spec.writes),
             )
 
         resultado.latencia_ms = (time.perf_counter() - inicio) * 1000
@@ -373,7 +418,7 @@ class ToolRegistry:
             resultado.source = spec.source
         if spec.writes and clave and resultado.ok:
             self._ledger_idempotencia[clave] = resultado
-        return resultado
+        return self._anotar(resultado, escribe=bool(spec.writes))
 
 
 def comparar_secreto(a: str, b: str) -> bool:
