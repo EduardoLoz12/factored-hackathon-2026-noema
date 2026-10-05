@@ -91,6 +91,38 @@ make review     # who changed what, and whether it stayed inside its boundary
 
 **You do not need to run `make ingest` to work on the cognition layer.** Fixtures in `tests/fixtures/` cover that.
 
+### Running it the way a judge would
+
+Two commands after `make build`, and nothing else is required — no account with anyone:
+
+```bash
+make serve                              # http://localhost:8000 — chat, glass-box trace, console, analytics
+make eval                               # three arms, held-out set, published table
+```
+
+`make serve` serves both the API and the single-page UI from the same origin, so there
+is no CORS to open and no second process to start. Eight preloaded scenarios cover the
+happy path, the reasoned rejection, the missing-slot question, the human handoff,
+injection, impersonation and Brazilian Portuguese — pick one and read the trace beside
+the answer.
+
+Two environment variables matter:
+
+| Variable | What happens without it |
+|---|---|
+| `JWT_SECRET` (≥32 chars) | `/verify` and `/session/demo` return 503. No session is ever issued unsigned. |
+| `ANTHROPIC_API_KEY` | Everything still runs. Slot extraction is deterministic by design. In `make eval` the `baseline` arm is marked `no_corrido` instead of being simulated. |
+
+The identity gate is real: without a verified session, `/chat` returns `bloqueado` and no
+personal data leaves the system. `POST /session/demo` exists because the dataset's
+documents are not public — it looks up a real customer's three factors and passes them
+through the **same** `AccessGuard`. It does not skip verification. Turn it off with
+`NOEMA_DEMO=off`.
+
+Health first, always: `GET /health` reports whether the system is ready, the policy
+version, the cut-off date, whether the SCM flag is on, and the live grounding counters.
+It tells the truth when the system is broken, which is the point.
+
 ## 6. Who owns what
 
 | Area | Owner | Spec |
