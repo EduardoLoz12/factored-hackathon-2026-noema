@@ -146,10 +146,29 @@ La raíz del repo es **`C:\Users\eduar\Factored AI & DATA Hackathon`** — la mi
 
 ## Estado actual
 
-**D1 — 27-sep-2026, completado.** Repo público creado y publicado. Ingesta completa: 7 671 archivos, **23 495 188 filas**, 0 fallos, 5.35 GB → 1.50 GB Parquet. Auditoría con 9 hallazgos. 4 ADRs.
+**Cierre — 5-oct-2026.** Checklist **65/79**. El entregable técnico está en `main` y desplegado.
 
-**Bloqueado:** el spike de Databricks espera `DATABRICKS_HOST` y `DATABRICKS_TOKEN`. El workflow de CI espera `gh auth refresh -h github.com -s workflow`.
+- **URL pública:** https://noema.5-78-236-186.sslip.io — Hetzner, servicio `noema.service`, puerto 8100, tope de memoria 320 MB. El servidor también corre GFV y el trading bot: no tocar sus servicios.
+- **Evaluación de tres brazos** (`make cases` y `make eval`), 154 casos, modelo real `claude-haiku-4-5`. Baseline: 146 acciones inseguras. Con tools: 0. Con SCM: 0 y 6 conflictos de valor declarados.
+- **Interfaz en inglés.** El chatbot responde en el idioma del cliente: español en las conversaciones 1 y 3, portugués en la 2.
+- **Pendiente de entrega:** `ENT-03` cinco diapositivas, `ENT-04` video ≤3 min, `ENT-05` envío a `hackathon.admin@factored.ai`.
+- **Pendiente técnico:** `DAT-13` espera `DATABRICKS_HOST` y `DATABRICKS_TOKEN` (no está en la rúbrica; ver ADR-0002). `ML-05` a `ML-10` quedaron fuera por tiempo, declarado en `LIMITATIONS.md`.
 
-**Listo para Federico:** spec (`docs/07_scm_spec.md`), esqueleto con tipos (`agent/cognition/scm.py`), fixtures (`tests/fixtures/scm_inputs.json`), 26 pruebas de aceptación y su agente `scm-cognition`. Puede trabajar recién clonado el repo, sin base de datos ni ingesta.
+## Operación: ramas, merge y despliegue
 
-**Siguiente (D2):** contratos de calidad con pandera, reporte DQ a escala —confirmar si el «2 % de duplicados» existe— y capa silver.
+- **`main` está protegido.** Todo cambio entra por PR. Federico subió siete commits directo a `main` el 2 y 3 de octubre; se revirtieron en `fccc096` (ver `docs/knowledge/findings.md`).
+- **CI puede quedar en cola** (runners hospedados por GitHub). Si ocurre, el merge con `--admin` solo se hace con aprobación explícita de Eduardo, y se deja escrito.
+- **Despliegue:** el Hetzner sirve `main`. En el servidor, el clon es superficial: `git fetch --depth=1 origin main && git reset --hard FETCH_HEAD`, luego `systemctl restart noema.service`, y comprobar que `gfv-bot.service` sigue activo.
+- **Antes de una operación destructiva** (reset, rollback) se crea un respaldo local `respaldo/<rama>` y se revierte con commits, nunca con `push --force`.
+
+## Idioma
+
+- **La interfaz es en inglés**: página, panel, etiquetas de fase, títulos de eventos y textos de conversación.
+- **El chatbot responde en el idioma del cliente.** El idioma se detecta por marcas de cada mensaje, y la conversación 2 es en portugués de punta a punta.
+- **Los motivos de rechazo del motor están en español.** En conversaciones en portugués se traducen por plantilla (`api/redaccion.py`, `MOTIVOS_PT`) conservando las cifras, porque el anclaje compara números.
+- **Los documentos del repo (`docs/`, README) siguen en español.** Traducirlos está pendiente y no se ha pedido.
+
+## Validación antes de empezar cualquier arreglo
+
+- `node --check` **no detecta** funciones usadas y no definidas en el JavaScript de la página. Un reemplazo de bloque dejó `espera`, `burbuja` y `linea` sin definir, y solo se vio en el navegador. Para la interfaz se valida en Chrome headless por el protocolo de depuración: cargar la página, pulsar el botón y revisar `Runtime.exceptionThrown`.
+- Antes de decir que algo funciona, se corre el flujo completo contra la base de demostración. Una prueba unitaria no alcanza para el chat.
