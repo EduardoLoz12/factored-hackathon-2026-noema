@@ -1,0 +1,115 @@
+{"kind":"deck","id":"pr/p4agdu","name":"Deck"}
+{"kind":"layout","layoutId":"93eea506-7eac-4738-8f0b-b36fdbe51b4c","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"e3119fe6-af19-4024-991f-9e3ecc841a61","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/zyjjyz","slide":1,"title":"NOEMA","textShapes":4}
+{"kind":"shape","id":"sh/7etgja50","slide":1,"bbox":[0,0,590,720]}
+{"kind":"textbox","id":"sh/6t0zq5of","slide":1,"text":"NOEMA","textPreview":"NOEMA","textChars":5,"textLines":1,"bbox":[74,160,390,76]}
+{"kind":"textbox","id":"sh/5sryh0nu","slide":1,"text":"Credit eligibility assistant for safer banking conversations","textPreview":"Credit eligibility assistant for safer banking conversations","textChars":60,"textLines":1,"bbox":[78,244,435,86]}
+{"kind":"shape","id":"sh/krihov6p","slide":1,"bbox":[80,352,86,5]}
+{"kind":"textbox","id":"sh/jq9gfq54","slide":1,"text":"Built for Factored AI & Data Hackathon 2026","textPreview":"Built for Factored AI & Data Hackathon 2026","textChars":43,"textLines":1,"bbox":[80,386,430,28]}
+{"kind":"textbox","id":"sh/ip0zmloj","slide":1,"text":"Spanish and Portuguese · verified data · deterministic credit policy · structured human handoff","textPreview":"Spanish and Portuguese · verified data · deterministic credit policy · structured human handoff","textChars":95,"textLines":1,"bbox":[80,420,430,58]}
+{"kind":"image","id":"im/psz2d8rm","slide":1,"name":"","alt":"Secure digital banking assistant concept","bbox":[0,0,1280,720]}
+{"kind":"notes","id":"nt/zyjjyz","slide":1,"text":"Sources: README.md sections 1, 2, 3, 4, and 10; docs/00_challenge_brief.md."}
+{"kind":"slide","id":"sl/f1ujri","slide":2,"title":"The banking gap NOEMA targets","textShapes":12}
+{"kind":"textbox","id":"sh/fax8r2t8","slide":2,"text":"The banking gap NOEMA targets","textPreview":"The banking gap NOEMA targets","textChars":29,"textLines":1,"bbox":[70,42,840,54]}
+{"kind":"textbox","id":"sh/gb6p07at","slide":2,"text":"Hackathon scoring rewards systems that act safely, not chatbots that sound confident.","textPreview":"Hackathon scoring rewards systems that act safely, not chatbots that sound confident.","textChars":85,"textLines":1,"bbox":[72,96,920,35]}
+{"kind":"shape","id":"sh/1cfqtcbe","slide":2,"bbox":[70,134,92,4]}
+{"kind":"shape","id":"sh/6l47uxsr","slide":2,"bbox":[78,180,336,296]}
+{"kind":"shape","id":"sh/rmx8n2tc","slide":2,"bbox":[78,180,6,296]}
+{"kind":"textbox","id":"sh/sn6pwnax","slide":2,"text":"The risk","textPreview":"The risk","textChars":8,"textLines":1,"bbox":[100,198,292,34]}
+{"kind":"textbox","id":"sh/t8fqpsbi","slide":2,"text":"Credit conversations mix identity, eligibility, personal data, and product terms. A fluent answer can still expose data, invent a number, or approve something the bank cannot defend.","textPreview":"Credit conversations mix identity, eligibility, personal data, and product terms. A fluent answer can still expose data, invent a number,...","textChars":182,"textLines":1,"bbox":[100,240,292,222]}
+{"kind":"shape","id":"sh/ih47qdsf","slide":2,"bbox":[472,180,336,296]}
+{"kind":"shape","id":"sh/jid8jit0","slide":2,"bbox":[472,180,6,296]}
+{"kind":"textbox","id":"sh/bm18balg","slide":2,"text":"The requirement","textPreview":"The requirement","textChars":15,"textLines":1,"bbox":[494,198,292,34]}
+{"kind":"textbox","id":"sh/qls7i54v","slide":2,"text":"The challenge asks for a working customer-service system with visible understand, decide, act, verify, and escalate stages.","textPreview":"The challenge asks for a working customer-service system with visible understand, decide, act, verify, and escalate stages.","textChars":123,"textLines":1,"bbox":[494,240,292,222]}
+{"kind":"shape","id":"sh/d83qdk36","slide":2,"bbox":[866,180,336,296]}
+{"kind":"shape","id":"sh/c7upkfml","slide":2,"bbox":[866,180,6,296]}
+{"kind":"textbox","id":"sh/zal8falc","slide":2,"text":"NOEMA's answer","textPreview":"NOEMA's answer","textChars":14,"textLines":1,"bbox":[888,198,292,34]}
+{"kind":"textbox","id":"sh/y9c7m54r","slide":2,"text":"The language model explains and clarifies. Database tools provide figures. A policy engine decides eligibility. The system escalates with verified facts when evidence is missing.","textPreview":"The language model explains and clarifies. Database tools provide figures. A policy engine decides eligibility. The system escalates with...","textChars":178,"textLines":1,"bbox":[888,240,292,222]}
+{"kind":"textbox","id":"sh/lc3qhk3i","slide":2,"text":"Design principle","textPreview":"Design principle","textChars":16,"textLines":1,"bbox":[82,530,160,28]}
+{"kind":"textbox","id":"sh/0bupofmx","slide":2,"text":"No figure comes from the LLM, and the LLM does not decide eligibility.","textPreview":"No figure comes from the LLM, and the LLM does not decide eligibility.","textChars":70,"textLines":1,"bbox":[252,526,820,38]}
+{"kind":"textbox","id":"sh/feho3ql8","slide":2,"text":"NOEMA · Factored AI & Data Hackathon 2026","textPreview":"NOEMA · Factored AI & Data Hackathon 2026","textChars":41,"textLines":1,"bbox":[72,672,520,24]}
+{"kind":"textbox","id":"sh/ed87al4n","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1165,670,48,24]}
+{"kind":"notes","id":"nt/f1ujri","slide":2,"text":"Sources: README.md sections 1, 2, and 3; docs/00_challenge_brief.md. Framing is summarized from the hackathon requirements documented in the repo."}
+{"kind":"slide","id":"sl/okg2mo","slide":3,"title":"System architecture","textShapes":22}
+{"kind":"textbox","id":"sh/7i5cnitc","slide":3,"text":"System architecture","textPreview":"System architecture","textChars":19,"textLines":1,"bbox":[70,42,840,54]}
+{"kind":"textbox","id":"sh/8jydg3ux","slide":3,"text":"The frontend stays thin. The API owns orchestration, tools, policies, and verified reads.","textPreview":"The frontend stays thin. The API owns orchestration, tools, policies, and verified reads.","textChars":89,"textLines":1,"bbox":[72,96,920,35]}
+{"kind":"shape","id":"sh/tk7up8bi","slide":3,"bbox":[70,134,92,4]}
+{"kind":"shape","id":"sh/ydwbatcv","slide":3,"bbox":[70,184,168,82]}
+{"kind":"shape","id":"sh/je5cjytg","slide":3,"bbox":[70,184,168,7]}
+{"kind":"textbox","id":"sh/kfedc3ul","slide":3,"text":"Understand","textPreview":"Understand","textChars":10,"textLines":1,"bbox":[84,201,140,24]}
+{"kind":"textbox","id":"sh/lgnul8b6","slide":3,"text":"Intent, language, slots, missing facts","textPreview":"Intent, language, slots, missing facts","textChars":38,"textLines":1,"bbox":[84,227,140,28]}
+{"kind":"shape","id":"sh/apcb6tcj","slide":3,"bbox":[255,184,168,82]}
+{"kind":"shape","id":"sh/bqlcfyt4","slide":3,"bbox":[255,184,168,7]}
+{"kind":"textbox","id":"sh/7uh4bud4","slide":3,"text":"Access guard","textPreview":"Access guard","textChars":12,"textLines":1,"bbox":[269,201,140,24]}
+{"kind":"textbox","id":"sh/6t8ni9wj","slide":3,"text":"Document and birth date check","textPreview":"Document and birth date check","textChars":29,"textLines":1,"bbox":[269,227,140,28]}
+{"kind":"shape","id":"sh/twzmd4va","slide":3,"bbox":[440,184,168,82]}
+{"kind":"shape","id":"sh/svq5kzep","slide":3,"bbox":[440,184,168,7]}
+{"kind":"textbox","id":"sh/fy14fed0","slide":3,"text":"Decide","textPreview":"Decide","textChars":6,"textLines":1,"bbox":[454,201,140,24]}
+{"kind":"textbox","id":"sh/uxsnm9wv","slide":3,"text":"Models plus versioned policy","textPreview":"Models plus versioned policy","textChars":28,"textLines":1,"bbox":[454,227,140,28]}
+{"kind":"shape","id":"sh/h0jmhov6","slide":3,"bbox":[625,184,168,82]}
+{"kind":"shape","id":"sh/gza5ojel","slide":3,"bbox":[625,184,168,7]}
+{"kind":"textbox","id":"sh/v2x43adw","slide":3,"text":"Act","textPreview":"Act","textChars":3,"textLines":1,"bbox":[639,201,140,24]}
+{"kind":"textbox","id":"sh/a1o3apwb","slide":3,"text":"Typed tools and role allowlist","textPreview":"Typed tools and role allowlist","textChars":30,"textLines":1,"bbox":[639,227,140,28]}
+{"kind":"shape","id":"sh/exw7ixgz","slide":3,"bbox":[810,184,168,82]}
+{"kind":"shape","id":"sh/zi58bixk","slide":3,"bbox":[810,184,168,7]}
+{"kind":"textbox","id":"sh/0jepkny5","slide":3,"text":"Verify","textPreview":"Verify","textChars":6,"textLines":1,"bbox":[824,201,140,24]}
+{"kind":"textbox","id":"sh/1knqdsfq","slide":3,"text":"Read back every write","textPreview":"Read back every write","textChars":21,"textLines":1,"bbox":[824,227,140,28]}
+{"kind":"shape","id":"sh/qtc7edg3","slide":3,"bbox":[995,184,168,82]}
+{"kind":"shape","id":"sh/rul87ix8","slide":3,"bbox":[995,184,168,7]}
+{"kind":"textbox","id":"sh/cvupgnyt","slide":3,"text":"Escalate","textPreview":"Escalate","textChars":8,"textLines":1,"bbox":[1009,201,140,24]}
+{"kind":"textbox","id":"sh/dw3q9sfe","slide":3,"text":"Structured case file","textPreview":"Structured case file","textChars":20,"textLines":1,"bbox":[1009,227,140,28]}
+{"kind":"shape","id":"sh/2pc7atgr","slide":3,"bbox":[120,338,1040,1]}
+{"kind":"shape","id":"sh/3qlo3yxc","slide":3,"bbox":[78,388,330,160]}
+{"kind":"shape","id":"sh/5kra9gzu","slide":3,"bbox":[78,388,6,160]}
+{"kind":"textbox","id":"sh/kjitgbi9","slide":3,"text":"Channels","textPreview":"Channels","textChars":8,"textLines":1,"bbox":[100,406,286,34]}
+{"kind":"textbox","id":"sh/ji9s76ho","slide":3,"text":"Next.js UI exposes chat, glass-box diagnostics, case console, and analytics views.","textPreview":"Next.js UI exposes chat, glass-box diagnostics, case console, and analytics views.","textChars":82,"textLines":1,"bbox":[100,448,286,86]}
+{"kind":"shape","id":"sh/ih0be103","slide":3,"bbox":[474,388,330,160]}
+{"kind":"shape","id":"sh/xgra5wzy","slide":3,"bbox":[474,388,6,160]}
+{"kind":"textbox","id":"sh/wfy9crid","slide":3,"text":"Service layer","textPreview":"Service layer","textChars":13,"textLines":1,"bbox":[496,406,286,34]}
+{"kind":"textbox","id":"sh/veps3mhs","slide":3,"text":"FastAPI calls the orchestrator, verifier, policy engine, ML models, and tool registry.","textPreview":"FastAPI calls the orchestrator, verifier, policy engine, ML models, and tool registry.","textChars":86,"textLines":1,"bbox":[496,448,286,86]}
+{"kind":"shape","id":"sh/adgrah07","slide":3,"bbox":[870,388,330,160]}
+{"kind":"shape","id":"sh/9c7a1wzm","slide":3,"bbox":[870,388,6,160]}
+{"kind":"textbox","id":"sh/ory98ri1","slide":3,"text":"Data and models","textPreview":"Data and models","textChars":15,"textLines":1,"bbox":[892,406,286,34]}
+{"kind":"textbox","id":"sh/ofq18vid","slide":3,"text":"DuckDB and dbt curate gold tables locally. Databricks supports Delta and MLflow planning.","textPreview":"DuckDB and dbt curate gold tables locally. Databricks supports Delta and MLflow planning.","textChars":89,"textLines":1,"bbox":[892,448,286,86]}
+{"kind":"textbox","id":"sh/9gzih0zi","slide":3,"text":"NOEMA · Factored AI & Data Hackathon 2026","textPreview":"NOEMA · Factored AI & Data Hackathon 2026","textChars":41,"textLines":1,"bbox":[72,672,520,24]}
+{"kind":"textbox","id":"sh/mt8j6l07","slide":3,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1165,670,48,24]}
+{"kind":"notes","id":"nt/okg2mo","slide":3,"text":"Sources: README.md sections 3 and 4; docs/18_noema_ai_final_architecture.md. The architecture summary follows the repository diagram and local deployment constraints."}
+{"kind":"slide","id":"sl/0ktiey","slide":4,"title":"Controls that make the assistant defensible","textShapes":6}
+{"kind":"textbox","id":"sh/2xojyhsn","slide":4,"text":"Controls that make the assistant defensible","textPreview":"Controls that make the assistant defensible","textChars":43,"textLines":1,"bbox":[70,42,840,54]}
+{"kind":"textbox","id":"sh/p0fitwby","slide":4,"text":"NOEMA turns safety rules into executable checks instead of relying on prompt wording.","textPreview":"NOEMA turns safety rules into executable checks instead of relying on prompt wording.","textChars":85,"textLines":1,"bbox":[72,96,920,35]}
+{"kind":"shape","id":"sh/oz610rad","slide":4,"bbox":[70,134,92,4]}
+{"kind":"textbox","id":"sh/e94zuhcb","slide":4,"text":"Security posture","textPreview":"Security posture","textChars":16,"textLines":1,"bbox":[82,548,180,26]}
+{"kind":"textbox","id":"sh/1wfipcb2","slide":4,"text":"The prototype treats synthetic data as real personal data: hashed traces, short retention windows, read-only business tables, and protected metrics.","textPreview":"The prototype treats synthetic data as real personal data: hashed traces, short retention windows, read-only business tables, and protect...","textChars":148,"textLines":1,"bbox":[262,542,865,52]}
+{"kind":"textbox","id":"sh/gv6hw7uh","slide":4,"text":"NOEMA · Factored AI & Data Hackathon 2026","textPreview":"NOEMA · Factored AI & Data Hackathon 2026","textChars":41,"textLines":1,"bbox":[72,672,520,24]}
+{"kind":"textbox","id":"sh/zqh0z6t0","slide":4,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[1165,670,48,24]}
+{"kind":"table","id":"tb/ip4nupkr","slide":4,"name":"","rows":5,"cols":3,"preview":"Risk area | Control in NOEMA | Evidence","bbox":[80,170,1120,330]}
+{"kind":"notes","id":"nt/0ktiey","slide":4,"text":"Sources: README.md section 2; docs/05_security.md sections 2 through 7; docs/03_credit_policy.md for policy behavior. Table is native and editable."}
+{"kind":"slide","id":"sl/mdaa8y","slide":5,"title":"Validation and demo readiness","textShapes":18}
+{"kind":"textbox","id":"sh/at87uhor","slide":5,"text":"Validation and demo readiness","textPreview":"Validation and demo readiness","textChars":29,"textLines":1,"bbox":[70,42,840,54]}
+{"kind":"textbox","id":"sh/xgzq5c72","slide":5,"text":"The current prototype is ready for a credible hackathon demo, with production gaps stated plainly.","textPreview":"The current prototype is ready for a credible hackathon demo, with production gaps stated plainly.","textChars":98,"textLines":1,"bbox":[72,96,920,35]}
+{"kind":"shape","id":"sh/cfqpw76h","slide":5,"bbox":[70,134,92,4]}
+{"kind":"textbox","id":"sh/zih87mp8","slide":5,"text":"945","textPreview":"945","textChars":3,"textLines":1,"bbox":[88,178,190,72]}
+{"kind":"textbox","id":"sh/yh87yhon","slide":5,"text":"backend tests passed","textPreview":"backend tests passed","textChars":20,"textLines":1,"bbox":[94,252,220,34]}
+{"kind":"textbox","id":"sh/lkjq9w7e","slide":5,"text":"23.5M","textPreview":"23.5M","textChars":5,"textLines":1,"bbox":[386,178,220,72]}
+{"kind":"textbox","id":"sh/kjap0r6t","slide":5,"text":"source rows audited","textPreview":"source rows audited","textChars":19,"textLines":1,"bbox":[392,252,240,34]}
+{"kind":"textbox","id":"sh/fmxovip4","slide":5,"text":"25/25","textPreview":"25/25","textChars":5,"textLines":1,"bbox":[704,178,220,72]}
+{"kind":"textbox","id":"sh/elo7mxoj","slide":5,"text":"dbt models and tests passed","textPreview":"dbt models and tests passed","textChars":27,"textLines":1,"bbox":[710,252,270,34]}
+{"kind":"textbox","id":"sh/0nylsfm1","slide":5,"text":"5.57%","textPreview":"5.57%","textChars":5,"textLines":1,"bbox":[1012,178,190,72]}
+{"kind":"textbox","id":"sh/1o72lknm","slide":5,"text":"capacity model coverage under conservative rules","textPreview":"capacity model coverage under conservative rules","textChars":48,"textLines":1,"bbox":[1018,252,210,52]}
+{"kind":"shape","id":"sh/elg3q5ov","slide":5,"bbox":[78,355,1126,1]}
+{"kind":"shape","id":"sh/fmpkja5g","slide":5,"bbox":[82,408,338,146]}
+{"kind":"shape","id":"sh/obilwfmd","slide":5,"bbox":[82,408,6,146]}
+{"kind":"textbox","id":"sh/9crmpkny","slide":5,"text":"Demo strengths","textPreview":"Demo strengths","textChars":14,"textLines":1,"bbox":[104,426,294,34]}
+{"kind":"textbox","id":"sh/mpg3up47","slide":5,"text":"Runnable local flow, visible policy diagnostics, verified write patterns, and structured escalation rather than raw transcripts.","textPreview":"Runnable local flow, visible policy diagnostics, verified write patterns, and structured escalation rather than raw transcripts.","textChars":128,"textLines":1,"bbox":[104,468,294,72]}
+{"kind":"shape","id":"sh/nap4na5s","slide":5,"bbox":[470,408,338,146]}
+{"kind":"shape","id":"sh/4felkv6t","slide":5,"bbox":[470,408,6,146]}
+{"kind":"textbox","id":"sh/5gn2d0ne","slide":5,"text":"Honest limitation","textPreview":"Honest limitation","textChars":17,"textLines":1,"bbox":[492,426,294,34]}
+{"kind":"textbox","id":"sh/5cfihcfi","slide":5,"text":"The main chatbot endpoint should still move onto the stricter orchestrator and grounding path before production use.","textPreview":"The main chatbot endpoint should still move onto the stricter orchestrator and grounding path before production use.","textChars":116,"textLines":1,"bbox":[492,468,294,72]}
+{"kind":"shape","id":"sh/kb61oryx","slide":5,"bbox":[858,408,338,146]}
+{"kind":"shape","id":"sh/jax0fmxc","slide":5,"bbox":[858,408,6,146]}
+{"kind":"textbox","id":"sh/i9ojmhgr","slide":5,"text":"Submission fit","textPreview":"Submission fit","textChars":14,"textLines":1,"bbox":[880,426,294,34]}
+{"kind":"textbox","id":"sh/tgzilwfe","slide":5,"text":"The five-slide deck, repository, live URL, and short demo video map directly to the Factored deliverables.","textPreview":"The five-slide deck, repository, live URL, and short demo video map directly to the Factored deliverables.","textChars":106,"textLines":1,"bbox":[880,468,294,72]}
+{"kind":"textbox","id":"sh/sf61sryt","slide":5,"text":"NOEMA · Factored AI & Data Hackathon 2026","textPreview":"NOEMA · Factored AI & Data Hackathon 2026","textChars":41,"textLines":1,"bbox":[72,672,520,24]}
+{"kind":"textbox","id":"sh/7ex0jmx8","slide":5,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1165,670,48,24]}
+{"kind":"notes","id":"nt/mdaa8y","slide":5,"text":"Sources: docs/23_executive_summary_validation.md; docs/federico_model_and_data_results.txt; README.md section 10. The capacity coverage value reflects conservative abstention rules, not total credit eligibility."}
