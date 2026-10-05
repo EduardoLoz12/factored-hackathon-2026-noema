@@ -110,9 +110,12 @@
         <input type="text" id="mensaje" autocomplete="off" placeholder="Escribe como lo haría un cliente…" aria-label="Mensaje del cliente">
         <button class="primario" type="submit" id="btn-enviar">Enviar</button>
       </form>
-      <p class="aviso" id="estado-sesion">Sin sesión verificada.
-        <button id="btn-demo" style="font:inherit;font-size:12px;text-decoration:underline;background:none;border:0;color:var(--brand);cursor:pointer;padding:0">Abrir sesión de demostración</button>
-      </p>
+      <p class="aviso" id="estado-sesion">Sin sesión verificada. Abre una con el perfil que quieras probar:</p>
+      <div class="chips" style="margin:6px 0 0">
+        <button data-perfil="elegible">Cliente con capacidad</button>
+        <button data-perfil="rechazo_con_motivo">Cliente sobreendeudado</button>
+        <button data-perfil="abstencion">Cliente sin datos suficientes</button>
+      </div>
     </div>
 
     <div class="caja">
@@ -152,6 +155,15 @@
     <div class="caja" style="margin-top:14px">
       <h2>Guardrails en vivo</h2>
       <dl class="cifras" id="vivo"><dt>—</dt><dd>cargando</dd></dl>
+    </div>
+    <div class="caja" style="margin-top:14px">
+      <h2>Auditoría de la capa de datos</h2>
+      <p style="margin:0;font-size:13px;color:var(--ink-soft)">
+        Bronze contra silver, fila por fila y columna por columna: qué cambió la
+        normalización, qué nulos son estructurales y por qué el <code>credit_score</code>
+        no predice la mora. Nueve secciones, construida por Federico Vargas.
+        <a href="/auditoria/bronze-vs-silver" style="color:var(--brand)">Abrir la auditoría</a>
+      </p>
     </div>
     <div class="caja" style="margin-top:14px">
       <h2>Calidad de datos · capa gold</h2>
@@ -226,16 +238,31 @@ async function cargarEscenarios() {
 }
 
 // ── sesión de demostración ──────────────────────────────────────────────────
-$('#btn-demo').addEventListener('click', async () => {
-  $('#btn-demo').disabled = true;
-  try {
-    const d = await pedir('/session/demo', { method: 'POST' });
-    TOKEN = d.token; CONV = d.conversation_id;
-    $('#estado-sesion').textContent = 'Sesión verificada con los tres factores reales de un cliente de la base. Caduca en 15 minutos.';
-  } catch (e) {
-    $('#estado-sesion').textContent = 'No se pudo abrir la sesión: ' + e.message;
-    $('#btn-demo').disabled = false;
-  }
+const NOMBRE_PERFIL = {
+  elegible: 'con capacidad de pago',
+  rechazo_con_motivo: 'sobreendeudado',
+  abstencion: 'sin datos suficientes',
+};
+document.querySelectorAll('[data-perfil]').forEach((b) => {
+  b.addEventListener('click', async () => {
+    document.querySelectorAll('[data-perfil]').forEach((o) => { o.disabled = true; });
+    try {
+      const d = await pedir('/session/demo?perfil=' + encodeURIComponent(b.dataset.perfil), { method: 'POST' });
+      TOKEN = d.token; CONV = d.conversation_id;
+      $('#estado-sesion').textContent =
+        'Sesión verificada con los tres factores reales de un cliente ' +
+        (NOMBRE_PERFIL[d.perfil] || d.perfil) +
+        (d.perfil_garantizado ? '' : ' (perfil no garantizado: falta la lista precalculada)') +
+        '. Caduca en 15 minutos.';
+      $('#hilo').innerHTML = '';
+      burbuja('sistema', 'Sesión abierta sobre un cliente ' + (NOMBRE_PERFIL[d.perfil] || d.perfil) +
+        '. La identidad pasó por la misma puerta que un cliente real: tres factores, tres intentos, espera creciente.');
+    } catch (e) {
+      $('#estado-sesion').textContent = 'No se pudo abrir la sesión: ' + e.message;
+    } finally {
+      document.querySelectorAll('[data-perfil]').forEach((o) => { o.disabled = false; });
+    }
+  });
 });
 
 // ── conversación ────────────────────────────────────────────────────────────

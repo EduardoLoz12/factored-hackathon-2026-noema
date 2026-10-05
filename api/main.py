@@ -496,8 +496,31 @@ def scenarios() -> dict[str, Any]:
     return {"escenarios": ESCENARIOS, "n": len(ESCENARIOS)}
 
 
+EJEMPLOS = ESTATICOS / "demo_clientes.json"
+ESTRATOS = ("elegible", "rechazo_con_motivo", "abstencion")
+
+
+def _cliente_del_estrato(estrato: str) -> str | None:
+    """Un cliente que la política pone en ese estrato, de la lista precalculada.
+
+    La lista la genera `scripts/make_demo_db.py` con la **misma** política que decide
+    en vivo. Sin esto, la demostración abría con el primer cliente de la base y lo
+    primero que veía un juez era una abstención: correcta, pero la menos informativa
+    de las tres salidas.
+    """
+    if not EJEMPLOS.exists():
+        return None
+    try:
+        por = json.loads(EJEMPLOS.read_text(encoding="utf-8"))
+    except Exception:
+        LOGGER.exception("lista_de_ejemplos_ilegible")
+        return None
+    cids = por.get(estrato) or []
+    return str(cids[0]) if cids else None
+
+
 @app.post("/session/demo")
-def sesion_demo() -> dict[str, Any]:
+def sesion_demo(perfil: str = "elegible") -> dict[str, Any]:
     """Una sesión verificada sobre un cliente real, para que el jurado pueda probar.
 
     Existe porque los documentos del dataset no son públicos y sin esto nadie podría
@@ -511,16 +534,30 @@ def sesion_demo() -> dict[str, Any]:
         raise HTTPException(503, detail=f"sistema no disponible: {ESTADO.motivo}")
     if not llave_de_firma_presente():
         raise HTTPException(503, detail="JWT_SECRET ausente o demasiado corta (mínimo 32)")
-    fila = ESTADO.analitica.una(
-        """
-        SELECT c.document_type, c.document_number, c.date_of_birth
-        FROM noema_silver.stg_customers c
-        JOIN noema_silver.stg_products p ON p.customer_id = c.customer_id
-        WHERE p.product_status = 'Active' AND p.product_type = 'Tarjeta Crédito'
-          AND c.document_number IS NOT NULL AND c.date_of_birth IS NOT NULL
-        LIMIT 1
-        """
-    )
+    if perfil not in ESTRATOS:
+        raise HTTPException(422, detail=f"perfil desconocido; usar uno de {list(ESTRATOS)}")
+    cid = _cliente_del_estrato(perfil)
+    if cid:
+        fila = ESTADO.analitica.una(
+            """
+            SELECT document_type, document_number, date_of_birth
+            FROM noema_silver.stg_customers WHERE customer_id = ?
+            """,
+            (cid,),
+        )
+    else:
+        # Sin lista precalculada se cae al primer cliente con tarjeta. Funciona, pero
+        # el perfil pedido no está garantizado y la respuesta lo dice.
+        fila = ESTADO.analitica.una(
+            """
+            SELECT c.document_type, c.document_number, c.date_of_birth
+            FROM noema_silver.stg_customers c
+            JOIN noema_silver.stg_products p ON p.customer_id = c.customer_id
+            WHERE p.product_status = 'Active' AND p.product_type = 'Tarjeta Crédito'
+              AND c.document_number IS NOT NULL AND c.date_of_birth IS NOT NULL
+            LIMIT 1
+            """
+        )
     if not fila:
         raise HTTPException(503, detail="no hay un cliente de demostración en la base")
     conversacion = f"demo-{uuid.uuid4().hex[:12]}"
@@ -533,7 +570,27 @@ def sesion_demo() -> dict[str, Any]:
     if not r.verificado:
         LOGGER.error("demo_no_verificada motivo=%s", redactar(r.mensaje))
         raise HTTPException(503, detail="la sesión de demostración no pudo verificarse")
-    return {"conversation_id": conversacion, "token": r.token, "verificado": True}
+    return {
+        "conversation_id": conversacion,
+        "token": r.token,
+        "verificado": True,
+        "perfil": perfil,
+        "perfil_garantizado": cid is not None,
+        "cliente_hash": hash_pii(cid) if cid else None,
+    }
+
+
+@app.get("/auditoria/bronze-vs-silver")
+def auditoria_bronze_silver() -> FileResponse:
+    """La auditoría interactiva de bronze contra silver, de Federico Vargas.
+
+    Es evidencia del pilar de ingeniería de datos y se sirve tal cual la escribió: 160 KB
+    de una sola pieza, sin dependencias. Se enlaza desde la pestaña de analítica.
+    """
+    archivo = Path("deliverables/bronze_vs_silver.html")
+    if not archivo.exists():
+        raise HTTPException(404, detail="la auditoría no está en este despliegue")
+    return FileResponse(archivo)
 
 
 @app.get("/")

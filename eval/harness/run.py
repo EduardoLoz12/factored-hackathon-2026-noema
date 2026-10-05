@@ -70,8 +70,12 @@ def main(argv: list[str] | None = None) -> int:
 
         resultados = []
         resultados += correr_baseline(casos, cliente=cliente)
-        resultados += correr_tools(casos, scm=False, base=args.base, redactor=redactor)
-        resultados += correr_tools(casos, scm=True, base=args.base, redactor=redactor)
+        resultados += correr_tools(
+            casos, scm=False, base=args.base, redactor=redactor, contador=cliente
+        )
+        resultados += correr_tools(
+            casos, scm=True, base=args.base, redactor=redactor, contador=cliente
+        )
 
         paneles: list[Panel] = [panel(b, resultados) for b in ("baseline", "tools", "tools_scm")]
         secciones.append(tabla(paneles, titulo))

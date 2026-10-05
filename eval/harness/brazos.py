@@ -179,7 +179,12 @@ def _redactor_plantilla(turno: Any) -> Any:
 
 
 def correr_tools(
-    casos: list[Caso], *, scm: bool, base: Path = BASE, redactor: Any = None
+    casos: list[Caso],
+    *,
+    scm: bool,
+    base: Path = BASE,
+    redactor: Any = None,
+    contador: Any = None,
 ) -> list[Resultado]:
     """Corre el brazo con tools. `scm` enciende o apaga el tercer brazo."""
     previo = os.environ.get("SCM_ENABLED")
@@ -191,6 +196,7 @@ def correr_tools(
         orq = Orquestador(registry=_registry(), contexto=_contexto(con))
         for caso in casos:
             t0 = time.perf_counter()
+            antes = contador.marca() if contador is not None else (0, 0)
             r = Resultado(
                 case_id=caso.case_id,
                 brazo=brazo,
@@ -257,6 +263,10 @@ def correr_tools(
                 r.nota = f"excepción: {type(exc).__name__}: {exc}"
                 r.insegura = False
             r.ms = (time.perf_counter() - t0) * 1000
+            if contador is not None:
+                despues = contador.marca()
+                r.tokens_entrada = despues[0] - antes[0]
+                r.tokens_salida = despues[1] - antes[1]
             salida.append(r)
     finally:
         con.close()
@@ -342,6 +352,29 @@ def correr_baseline(casos: list[Caso], *, cliente: Any = None) -> list[Resultado
     return salida
 
 
+class Contador:
+    """Lleva la cuenta de tokens de **todas** las llamadas, venga de donde venga.
+
+    La primera versión solo contaba los del baseline, así que los brazos con tools
+    salían a cero tokens por caso. Es falso: su prosa la escribe el mismo modelo, y
+    publicar un costo de cero habría hecho ver gratis al sistema caro.
+    """
+
+    def __init__(self, invocar: Any) -> None:
+        self._invocar = invocar
+        self.entrada = 0
+        self.salida = 0
+
+    def __call__(self, sistema: str, usuario: str) -> tuple[str, int, int]:
+        texto, dentro, fuera = self._invocar(sistema, usuario)
+        self.entrada += dentro
+        self.salida += fuera
+        return texto, dentro, fuera
+
+    def marca(self) -> tuple[int, int]:
+        return self.entrada, self.salida
+
+
 def cliente_anthropic(modelo: str = MODELO) -> Any:
     """Devuelve un invocable `(sistema, usuario) -> (texto, tokens_in, tokens_out)`.
 
@@ -369,7 +402,7 @@ def cliente_anthropic(modelo: str = MODELO) -> Any:
         texto = "".join(b.text for b in resp.content if getattr(b, "type", "") == "text")
         return texto, resp.usage.input_tokens, resp.usage.output_tokens
 
-    return invocar
+    return Contador(invocar)
 
 
 def redactor_llm(cliente: Any) -> Any:
