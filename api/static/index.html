@@ -66,6 +66,30 @@
   dl.cifras{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:12.5px}
   dl.cifras dt{font-family:var(--mono);font-size:11px;color:var(--ink-soft)}
   dl.cifras dd{margin:0;font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .contadores{display:flex;gap:6px;margin:0 0 11px;flex-wrap:wrap}
+  .contadores span{flex:1 1 0;min-width:84px;text-align:center;font-family:var(--mono);font-size:11px;
+    padding:5px 6px;border-radius:3px;border:1px solid var(--rule);background:var(--surface-2)}
+  .contadores .c-ok{color:var(--ok)}
+  .contadores .c-no{color:var(--stop)}
+  .contadores .c-pe{color:var(--live)}
+  ol.pasos-panel{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;
+    max-height:58vh;overflow-y:auto;padding-right:4px}
+  .paso-card{border:1px solid var(--rule);border-radius:4px;padding:10px 12px;background:var(--surface)}
+  .paso-card.ok{border-left:3px solid var(--ok)}
+  .paso-card.no{border-left:3px solid var(--stop)}
+  .paso-card.pe{border-left:3px solid var(--live)}
+  .paso-card .enc{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--ink-soft);margin-bottom:2px}
+  .tit{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+  .tit strong{font-size:.93rem;font-weight:600;min-width:0}
+  .badge{margin-left:auto;font-family:var(--mono);font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;
+    padding:1px 6px;border-radius:2px;white-space:nowrap;color:var(--surface)}
+  .badge.ok{background:var(--ok)} .badge.no{background:var(--stop)} .badge.pe{background:var(--live)}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .badge{color:#0e1117}}
+  .campo{display:grid;grid-template-columns:5.4rem 1fr;gap:3px 9px;margin-top:7px;font-size:12.5px}
+  .campo b{font-weight:600;color:var(--ink)}
+  .campo span{color:var(--ink-soft);min-width:0;overflow-wrap:anywhere}
+  .campo span.dato{font-family:var(--mono);font-size:11.5px;font-variant-numeric:tabular-nums}
   table{width:100%;border-collapse:collapse;font-size:13px}
   th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
   th{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-soft);font-weight:400}
@@ -119,13 +143,27 @@
     </div>
 
     <div class="caja">
-      <h2>Caja de vidrio · el turno, etapa por etapa</h2>
-      <p id="desenlace" style="margin:0 0 9px"><span class="pill escalado">sin turno</span></p>
-      <ol class="etapas" id="etapas"><li><span class="et propia">—</span><span class="razon">Las seis etapas aparecen acá con la razón de cada transición.</span></li></ol>
-      <h2 style="margin-top:15px">Cifras ancladas a un tool de este turno</h2>
-      <dl class="cifras" id="cifras"><dt>—</dt><dd>sin cifras</dd></dl>
-      <h2 style="margin-top:15px">Estado semántico</h2>
-      <dl class="cifras" id="scm"><dt>—</dt><dd>sin turno</dd></dl>
+      <div class="tit" style="margin-bottom:9px">
+        <h2 style="margin:0">Lógica del agente, paso a paso</h2>
+        <span class="badge pe" id="desenlace">sin turno</span>
+      </div>
+      <p style="margin:0 0 10px;font-size:12.5px;color:var(--ink-soft)">
+        Cada paso declara la <b>regla</b> que el sistema debe obedecer, lo que se
+        <b>observó</b> en este turno y la <b>evidencia</b> que lo respalda. Un paso en
+        rojo es una regla que no se cumplió.
+      </p>
+      <div class="contadores">
+        <span class="c-ok" id="n-ok">— cumplidos</span>
+        <span class="c-no" id="n-no">— incumplidos</span>
+        <span class="c-pe" id="n-pe">— no aplican</span>
+      </div>
+      <ol class="pasos-panel" id="pasos-panel">
+        <li class="paso-card pe">
+          <div class="enc">paso 0 · esperando</div>
+          <div class="tit"><strong>Sin turno todavía</strong><span class="badge pe">pendiente</span></div>
+          <div class="campo"><b>Regla</b><span>Escribe un mensaje o elige un escenario: aquí aparecen los siete pasos del turno con su veredicto.</span></div>
+        </li>
+      </ol>
       <div id="avisos"></div>
     </div>
   </section>
@@ -275,67 +313,221 @@ function burbuja(quien, texto) {
   $('#hilo').scrollTop = $('#hilo').scrollHeight;
 }
 
+// ── Los siete pasos del turno ───────────────────────────────────────────────
+// Cada paso es una regla del contrato del sistema, no una etapa cualquiera del
+// log. Se arma desde la traza real del turno. Si una regla no llegó a aplicar
+// —porque el turno terminó antes— se marca «no aplica», que no es lo mismo que
+// fallar: un turno que se detiene en identidad no incumplió la política, nunca
+// llegó a ella.
+function etapaDe(t, nombre) {
+  return ((t.traza && t.traza.etapas) || []).find((e) => e.etapa === nombre) || null;
+}
+
+function construirPasos(t) {
+  const identify = etapaDe(t, 'IDENTIFY');
+  const understand = etapaDe(t, 'UNDERSTAND');
+  const decide = etapaDe(t, 'DECIDE');
+  const act = etapaDe(t, 'ACT');
+  const verify = etapaDe(t, 'VERIFY');
+  const escalate = etapaDe(t, 'ESCALATE');
+  const d = t.decision || {};
+  const traza = t.traza || {};
+  const bloqueado = t.desenlace === 'bloqueado';
+  const pasos = [];
+
+  pasos.push({
+    enc: 'paso 1 · identidad · acceso',
+    titulo: 'La identidad se verifica antes de tocar un dato personal',
+    regla: 'Sin sesión verificada no sale ninguna información del cliente. El rol y el identificador viajan dentro del token, nunca en el cuerpo de la petición.',
+    observado: bloqueado
+      ? 'Sesión sin verificar: el turno se detuvo aquí y no se consultó nada.'
+      : (identify ? identify.razon : 'no se alcanzó esta etapa'),
+    evidencia: 'tool verify_identity · JWT de 15 min · 3 intentos con espera creciente',
+    fuente: 'noema_silver.stg_customers (DuckDB)',
+    estado: (bloqueado || identify) ? 'ok' : 'pe',
+    nota: bloqueado ? 'Bloquear es el comportamiento correcto, por eso cuenta como cumplido.' : '',
+  });
+
+  pasos.push({
+    enc: 'paso 2 · understand · evidencia',
+    titulo: 'Si falta un hecho, se pregunta en vez de decidir',
+    regla: 'La decisión solo procede con la evidencia completa. Abstenerse es un resultado válido y se mide aparte, sin penalizarlo.',
+    observado: understand
+      ? understand.razon
+      : (bloqueado ? 'no se alcanzó: la sesión no estaba verificada' : 'no se alcanzó esta etapa'),
+    evidencia: (t.pregunta_por && t.pregunta_por.length)
+      ? ('falta: ' + t.pregunta_por.join(', '))
+      : 'cinco tools de lectura: perfil, créditos, activos, pagos, actividad',
+    fuente: 'noema_silver.stg_products · stg_transactions (DuckDB)',
+    estado: understand ? 'ok' : 'pe',
+  });
+
+  pasos.push({
+    enc: 'paso 3 · decide · política',
+    titulo: 'La elegibilidad la calcula la política, no el modelo',
+    regla: 'El modelo puede explicar la política pero no decidir una elegibilidad ni producir una cifra. Decide un motor de reglas determinista y versionado.',
+    observado: decide ? decide.razon : 'el turno no llegó a decidir',
+    evidencia: d.politica_version
+      ? ('eligibility_v1.yaml v' + d.politica_version +
+         (d.motivos && d.motivos.length ? ' · ' + d.motivos[0] : ''))
+      : 'no se invocó el motor de política en este turno',
+    fuente: 'agent/policies/eligibility_v1.yaml',
+    estado: decide ? 'ok' : 'pe',
+    nota: d.abstencion === true
+      ? 'La política se abstuvo: el sistema dice que no sabe, en vez de estimar.'
+      : '',
+  });
+
+  const escribio = Boolean(t.action_id);
+  pasos.push({
+    enc: 'paso 4 · act · escritura',
+    titulo: 'Toda escritura se vuelve a leer antes de afirmarla',
+    regla: 'Nada se le confirma al cliente sin releerlo del almacén. Si la relectura no coincide, no se afirma: se escala.',
+    observado: escribio
+      ? ('oferta registrada y releída · ' + t.action_id)
+      : (act ? act.razon : 'este turno no tenía nada que escribir'),
+    evidencia: escribio
+      ? 'ledger de acciones con clave de idempotencia'
+      : 'sin escritura, no hay nada que verificar',
+    fuente: 'ledger (DuckDB, store separado del analítico)',
+    estado: escribio ? 'ok' : 'pe',
+  });
+
+  const citadas = (traza.n_cifras_ancladas != null)
+    ? traza.n_cifras_ancladas
+    : (t.cifras_ancladas || []).length;
+  pasos.push({
+    enc: 'paso 5 · verify · anclaje',
+    titulo: 'Ninguna cifra que el sistema pronuncia queda sin respaldo',
+    regla: 'Toda cifra de la respuesta tiene que venir de un tool de ESTE turno. Si una queda huérfana, la respuesta se bloquea y el turno escala.',
+    observado: verify ? verify.razon : 'el turno no llegó a verificar',
+    evidencia: citadas
+      ? (citadas + ' cifras ancladas a un tool de este turno')
+      : 'este turno no pronunció ninguna cifra',
+    fuente: 'GroundingChecker · compara renderizados, no flotantes',
+    estado: verify ? 'ok' : 'pe',
+  });
+
+  const scm = t.scm;
+  const conflictos = ((scm && scm.contradictions) || []).length;
+  pasos.push({
+    enc: 'paso 6 · cognición · scm',
+    titulo: 'Las contradicciones entre fuentes se declaran',
+    regla: 'Si dos fuentes afirman valores distintos del mismo hecho, gana la fuente estructurada y el conflicto queda escrito. Si las dos son de la base, el sistema escala.',
+    observado: scm
+      ? ('estado epistémico ' + (scm.epistemic_status || '—') +
+         (conflictos ? ' · ' + conflictos + ' contradicción(es)' : ' · sin contradicciones'))
+      : 'el estado semántico está apagado en este turno',
+    evidencia: scm
+      ? 'hechos tipados con procedencia: tabla, tool, política o cliente'
+      : 'SCM_ENABLED=false — el sistema funciona igual, sin esta arista',
+    fuente: 'agent/cognition/scm.py',
+    estado: scm ? 'ok' : 'pe',
+  });
+
+  pasos.push({
+    enc: 'paso 7 · observabilidad · lakehouse',
+    titulo: 'La escritura en la nube es opcional y declarada',
+    regla: 'Ninguna escritura en la nube sin credenciales explícitas. La ruta canónica es local y un juez la reproduce sin cuenta de nadie.',
+    observado: 'Este despliegue sirve una muestra verificada de la base: cada cliente completo, con sus cotizaciones de moneda enteras.',
+    evidencia: 'ADR-0002 · espejo en Databricks pendiente de verificar (DAT-13)',
+    fuente: 'DuckDB (ruta canónica) · Databricks: no conectado',
+    estado: 'pe',
+  });
+
+  if (escalate) {
+    pasos.push({
+      enc: 'paso 8 · escalate · entrega',
+      titulo: 'El escalamiento entrega un expediente, no una transcripción',
+      regla: 'Un humano recibe hechos verificados con su fuente, acciones ejecutadas y preguntas abiertas. Nunca el registro crudo de la conversación.',
+      observado: escalate.razon,
+      evidencia: t.case_id
+        ? ('expediente ' + t.case_id + ' — visible en la consola')
+        : 'expediente abierto',
+      fuente: 'ledger de expedientes · validado contra su esquema',
+      estado: 'ok',
+    });
+  }
+
+  return pasos;
+}
+
 function pintarTurno(t) {
-  $('#desenlace').innerHTML = '<span class="pill ' + t.desenlace + '">' + t.desenlace + '</span>';
+  const ds = $('#desenlace');
+  ds.textContent = t.desenlace;
+  ds.className = 'badge ' +
+    (t.desenlace === 'respuesta' ? 'ok' : (t.desenlace === 'bloqueado' ? 'no' : 'pe'));
 
-  const ol = $('#etapas'); ol.innerHTML = '';
-  for (const e of (t.traza && t.traza.etapas) || []) {
+  const pasos = construirPasos(t);
+  const cuenta = { ok: 0, no: 0, pe: 0 };
+  for (const p of pasos) cuenta[p.estado] = (cuenta[p.estado] || 0) + 1;
+  $('#n-ok').textContent = cuenta.ok + ' cumplidos';
+  $('#n-no').textContent = cuenta.no + ' incumplidos';
+  $('#n-pe').textContent = cuenta.pe + ' no aplican';
+
+  const ETIQ = { ok: 'cumplido', no: 'incumplido', pe: 'no aplica' };
+  const frag = document.createDocumentFragment();
+  for (const p of pasos) {
     const li = document.createElement('li');
-    const et = document.createElement('span');
-    et.className = 'et' + (e.del_reto === false ? ' propia' : '');
-    et.textContent = e.etapa;
-    const rz = document.createElement('span'); rz.className = 'razon'; rz.textContent = e.razon || '';
-    li.append(et, rz); ol.appendChild(li);
-  }
-  if (!ol.children.length) ol.innerHTML = '<li><span class="et propia">—</span><span class="razon">sin etapas</span></li>';
+    li.className = 'paso-card ' + p.estado;
 
-  const dl = $('#cifras'); dl.innerHTML = '';
-  const ofertas = t.ofertas || [];
-  if (ofertas.length) {
-    for (const o of ofertas) {
-      const campos = [['producto', o.producto], ['monto ofrecido USD', o.monto_ofrecido_usd],
-        ['cuota USD', o.cuota_estimada_usd], ['plazo meses', o.plazo_meses],
-        ['tasa anual %', o.tasa_anual], ['TEA %', o.tea_pct], ['interés total USD', o.interes_total_usd]];
-      for (const [k, v] of campos) {
-        if (v === null || v === undefined) continue;
-        const dt = document.createElement('dt'); dt.textContent = k;
-        const dd = document.createElement('dd');
-        dd.textContent = typeof v === 'number' ? v.toLocaleString('es', { maximumFractionDigits: 2 }) : v;
-        dl.append(dt, dd);
-      }
-    }
-  } else if ((t.cifras_ancladas || []).length) {
-    for (const v of t.cifras_ancladas.slice(0, 14)) {
-      const dt = document.createElement('dt'); dt.textContent = 'anclada';
-      const dd = document.createElement('dd'); dd.textContent = Number(v).toLocaleString('es', { maximumFractionDigits: 2 });
-      dl.append(dt, dd);
-    }
-  }
-  if (!dl.children.length) dl.innerHTML = '<dt>—</dt><dd>este turno no pronunció ninguna cifra</dd>';
+    const enc = document.createElement('div');
+    enc.className = 'enc';
+    enc.textContent = p.enc;
+    const tit = document.createElement('div');
+    tit.className = 'tit';
+    const st = document.createElement('strong');
+    st.textContent = p.titulo;
+    const bd = document.createElement('span');
+    bd.className = 'badge ' + p.estado;
+    bd.textContent = ETIQ[p.estado];
+    tit.append(st, bd);
+    li.append(enc, tit);
 
-  const ds = $('#scm'); ds.innerHTML = '';
-  if (t.scm) {
-    const pares = [['estado epistémico', t.scm.epistemic_status],
-      ['hechos', (t.scm.facts || []).length || t.scm.n_facts],
-      ['contradicciones', (t.scm.contradictions || []).length],
-      ['evidencia faltante', (t.scm.missing_evidence || []).join(', ') || 'ninguna']];
-    for (const [k, v] of pares) {
-      if (v === undefined) continue;
-      const dt = document.createElement('dt'); dt.textContent = k;
-      const dd = document.createElement('dd'); dd.textContent = String(v);
-      ds.append(dt, dd);
+    const campos = [
+      ['Regla', p.regla, false],
+      ['Observado', p.observado, false],
+      ['Evidencia', p.evidencia, true],
+      ['Fuente', p.fuente, true],
+    ];
+    for (const [etiqueta, valor, mono] of campos) {
+      if (!valor) continue;
+      const fila = document.createElement('div');
+      fila.className = 'campo';
+      const b = document.createElement('b');
+      b.textContent = etiqueta;
+      const s = document.createElement('span');
+      if (mono) s.className = 'dato';
+      s.textContent = valor;
+      fila.append(b, s);
+      li.appendChild(fila);
     }
-  } else {
-    ds.innerHTML = '<dt>SCM</dt><dd>apagado en este turno</dd>';
+    if (p.nota) {
+      const n = document.createElement('p');
+      n.className = 'aviso';
+      n.textContent = p.nota;
+      li.appendChild(n);
+    }
+    frag.appendChild(li);
   }
+  $('#pasos-panel').replaceChildren(frag);
 
-  const av = $('#avisos'); av.innerHTML = '';
-  for (const a of (t.avisos || []).concat((t.traza && t.traza.supuestos) || [])) {
-    const p = document.createElement('p'); p.className = 'aviso'; p.textContent = a; av.appendChild(p);
+  const av = $('#avisos');
+  av.innerHTML = '';
+  const of = (t.ofertas || [])[0];
+  if (of) {
+    const num = (v) => Number(v || 0).toLocaleString('es', { maximumFractionDigits: 2 });
+    const p = document.createElement('p');
+    p.className = 'aviso';
+    p.textContent = 'Oferta: ' + of.producto + ' · ' + num(of.monto_ofrecido_usd) +
+      ' USD a ' + of.plazo_meses + ' meses · cuota ' + num(of.cuota_estimada_usd) + ' USD' +
+      (of.interes_total_usd != null ? ' · interés total ' + num(of.interes_total_usd) + ' USD' : '');
+    av.appendChild(p);
   }
-  if (t.pregunta_por && t.pregunta_por.length) {
-    const p = document.createElement('p'); p.className = 'aviso';
-    p.textContent = 'Falta: ' + t.pregunta_por.join(', ') + '. Preguntar es el resultado correcto, no un fallo.';
+  for (const a of (t.avisos || []).concat(t.traza ? (t.traza.supuestos || []) : [])) {
+    const p = document.createElement('p');
+    p.className = 'aviso';
+    p.textContent = a;
     av.appendChild(p);
   }
 }

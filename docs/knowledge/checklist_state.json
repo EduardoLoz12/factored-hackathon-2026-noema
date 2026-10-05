@@ -108,5 +108,10 @@
     "status": "terminado",
     "note": "FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen",
     "at": "2026-10-05 10:01"
+  },
+  "UI-08": {
+    "status": "terminado",
+    "note": "https://noema.5-78-236-186.sslip.io en el Hetzner, systemd con tope de memoria y HTTPS por certbot",
+    "at": "2026-10-05 10:18"
   }
 }

@@ -2,17 +2,17 @@
 
 Generado por `make checklist` contra el estado real del repo. Cuando alguien crea o completa un archivo de evidencia, el ítem avanza solo en la siguiente corrida. **No editar estados a mano aquí** — usar `python -m scripts.checklist --done ID --note "..."`.
 
-Última evaluación: 2026-10-05 10:01
+Última evaluación: 2026-10-05 10:18
 
 Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
-## Avance global — 57/79 `█████████████████░░░░░░░`
+## Avance global — 58/79 `██████████████████░░░░░░`
 
-**57 terminado · 8 avanzado · 14 falta**
+**58 terminado · 8 avanzado · 13 falta**
 
 | Dueño | Terminado | Avanzado | Falta | Total |
 |---|---:|---:|---:|---:|
-| Eduardo | 36 | 5 | 14 | 55 |
+| Eduardo | 37 | 5 | 13 | 55 |
 | Federico | 21 | 3 | 0 | 24 |
 
 ## Plataforma de datos — 11/15 `█████████░░░`
@@ -100,10 +100,10 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
-| [x] | `API-01` | FastAPI con chat, trace, cases, metrics, eval, scenarios | Eduardo | D7 · 3-oct | sin commit | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
+| [x] | `API-01` | FastAPI con chat, trace, cases, metrics, eval, scenarios | Eduardo | D7 · 3-oct | Eduardo · 2026-10-05 | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
 | [x] | `API-02` | Seguridad: JWT, rate limit, CORS cerrado, redaccion de PII | Eduardo | D7 · 3-oct | — | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
 
-## Frontend — 6/8 `█████████░░░`
+## Frontend — 7/8 `██████████░░`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
@@ -114,14 +114,14 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [x] | `UI-05` | /console con los expedientes estructurados | Eduardo | D7 · 3-oct | — | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
 | [x] | `UI-06` | /analytics: metricas del agente y evidencia del ablation | Eduardo | D7 · 3-oct | — | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
 | [x] | `UI-07` | /analytics: insights del negocio y calidad de datos | Eduardo | D7 · 3-oct | — | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
-| [ ] | `UI-08` | Deploy publico accesible para el jurado | Eduardo | D7 · 3-oct | — |
+| [x] | `UI-08` | Deploy publico accesible para el jurado | Eduardo | D7 · 3-oct | — | https://noema.5-78-236-186.sslip.io en el Hetzner, systemd con tope de memoria y HTTPS por certbot
 
 ## Entregables — 0/5 `░░░░░░░░░░░░`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
-| [~] | `ENT-01` | docs 02 arquitectura, 03 politica, 04 evaluacion, 06 runbook completos | Eduardo | D8 · 4-oct | Eduardo · 2026-09-27 |
-| [~] | `ENT-02` | LIMITATIONS final, con lo que realmente falto | Eduardo | D8 · 4-oct | Eduardo · 2026-09-27 |
+| [~] | `ENT-01` | docs 02 arquitectura, 03 politica, 04 evaluacion, 06 runbook completos | Eduardo | D8 · 4-oct | Eduardo · 2026-10-05 |
+| [~] | `ENT-02` | LIMITATIONS final, con lo que realmente falto | Eduardo | D8 · 4-oct | Eduardo · 2026-10-05 |
 | [ ] | `ENT-03` | Cinco diapositivas | Eduardo | D9 · 5-oct | — |
 | [ ] | `ENT-04` | Video de maximo 3 minutos | Eduardo | D9 · 5-oct | — |
 | [ ] | `ENT-05` | Envio a hackathon.admin@factored.ai | Eduardo | D9 · 5-oct | — |
@@ -130,7 +130,7 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
-| [x] | `INF-01` | Repo publico, estructura y contrato operativo | Eduardo | D1 · 27-sep | Eduardo · 2026-10-05 |
+| [x] | `INF-01` | Repo publico, estructura y contrato operativo | Eduardo | D1 · 27-sep | fedevargas93 · 2026-09-29 |
 | [x] | `INF-02` | CI: secretos, lint, tests, dependencias | Eduardo | D1 · 27-sep | Eduardo · 2026-10-02 |
 | [x] | `INF-03` | Auditoria del dataset documentada | Eduardo | D1 · 27-sep | Eduardo · 2026-09-29 |
 | [x] | `INF-04` | Decisiones de arquitectura registradas | Eduardo | D1 · 27-sep | Eduardo · 2026-09-27 |
