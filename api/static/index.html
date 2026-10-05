@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <link rel="icon" href="data:,">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>noema · elegibilidad de productos de crédito</title>
+<title>noema · credit eligibility</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
   /* Un solo tema, claro, a propósito: es una consola de operación bancaria y así
@@ -204,14 +204,14 @@
 
 <header class="barra">
   <div class="barra-in">
-    <div class="marca">noema <span>· elegibilidad de productos de crédito</span></div>
+    <div class="marca">noema <span>· credit eligibility</span></div>
     <nav role="tablist">
-      <button role="tab" aria-selected="true" data-vista="chat">Conversación</button>
-      <button role="tab" aria-selected="false" data-vista="consola">Consola</button>
-      <button role="tab" aria-selected="false" data-vista="analitica">Analítica</button>
+      <button role="tab" aria-selected="true" data-vista="chat">Conversation</button>
+      <button role="tab" aria-selected="false" data-vista="consola">Console</button>
+      <button role="tab" aria-selected="false" data-vista="analitica">Analytics</button>
     </nav>
   </div>
-  <div class="salud" id="salud"><span>comprobando estado…</span></div>
+  <div class="salud" id="salud"><span>checking status…</span></div>
 </header>
 
 <main>
@@ -219,17 +219,17 @@
 <div class="elige">
   <div class="elige-cab">
     <div>
-      <h2>Conversaciones guiadas</h2>
-      <p>Abre una sesión con uno de los tres perfiles de arriba y escribe como lo haría un cliente.
-        Antes de hablar de productos verifico identidad: los tres factores salen de la base,
-        no se saltan.</p>
+      <h2>Guided conversations</h2>
+      <p>Open a session with one of the three profiles above and write as a client would.
+        Before discussing products, identity is verified: the three factors come from the database
+        and cannot be skipped.</p>
     </div>
     <div class="elige-botones">
-      <button class="btn azul" id="reproducir">Reproducir conversación</button>
-      <button class="btn claro" id="nueva">Nueva sesión</button>
+      <button class="btn azul" id="reproducir">Play conversation</button>
+      <button class="btn claro" id="nueva">New session</button>
     </div>
   </div>
-  <div id="conversaciones" class="lista-conv" role="radiogroup" aria-label="Conversaciones guiadas"></div>
+  <div id="conversaciones" class="lista-conv" role="radiogroup" aria-label="Guided conversations"></div>
 </div>
 
 <div class="dos">
@@ -238,46 +238,46 @@
   <div class="tarjeta">
     <div class="tarjeta-cab oscura">
       <div>
-        <h2>Asistente noema</h2>
-        <p>La identidad se pide en la conversación y se valida contra la base</p>
+        <h2>noema assistant</h2>
+        <p>Identity is requested in the chat and checked against the database</p>
       </div>
       <div class="cab-der">
-        <span class="estado-ses sin" id="estado-ses">sin verificar</span>
+        <span class="estado-ses sin" id="estado-ses">not verified</span>
       </div>
     </div>
 
     <div class="hilo" id="hilo"></div>
 
     <form class="escribir" id="forma">
-      <input type="text" id="mensaje" autocomplete="off" aria-label="Mensaje del cliente"
-             placeholder="Escribe como lo haría un cliente…">
-      <button class="btn azul" type="submit" id="enviar">Enviar</button>
+      <input type="text" id="mensaje" autocomplete="off" aria-label="Client message"
+             placeholder="Write as a client would…">
+      <button class="btn azul" type="submit" id="enviar">Send</button>
     </form>
   </div>
 
-  <!-- ── Lógica del agente, paso a paso ────────────────────────────────── -->
+  <!-- ── Agent logic, step by step ────────────────────────────────── -->
   <div class="tarjeta">
     <div class="tarjeta-cab">
       <div>
-        <h2>Lógica del agente, paso a paso</h2>
-        <p>Reglas, política, guardrails, evidencia y origen de cada dato.</p>
+        <h2>Agent logic, step by step</h2>
+        <p>Rules, policy, guardrails, evidence and the source of every datum.</p>
       </div>
       <div class="cab-der">
-        <span class="insignia pe" id="desenlace">sin turno</span>
-        <button class="btn oscuro" id="repetir" disabled>Repetir</button>
+        <span class="insignia pe" id="desenlace">no turn</span>
+        <button class="btn oscuro" id="repetir" disabled>Repeat</button>
       </div>
     </div>
     <div class="conteos">
-      <span class="c-ok" id="n-ok">— cumplidos</span>
-      <span class="c-no" id="n-no">— incumplidos</span>
-      <span class="c-pe" id="n-pe">— no aplican</span>
+      <span class="c-ok" id="n-ok">— passed</span>
+      <span class="c-no" id="n-no">— inpassed</span>
+      <span class="c-pe" id="n-pe">— not applicable</span>
     </div>
     <ol class="flujo" id="flujo">
       <li class="evento pe">
-        <div class="ev-cab"><span class="ev-fase">esperando</span>
-          <strong>Aquí se ve el turno, paso a paso</strong></div>
-        <p class="ev-det">Cada línea dice qué hizo el sistema, de qué tabla o archivo
-          salió el dato y qué regla o control se estaba aplicando.</p>
+        <div class="ev-cab"><span class="ev-fase">waiting</span>
+          <strong>The turn appears here, step by step</strong></div>
+        <p class="ev-det">Each line says what the system did, which table or file the data came from,
+          and which rule or control applied.</p>
       </li>
     </ol>
     <div class="cuerpo" id="avisos" hidden></div>
@@ -292,14 +292,14 @@
   <div class="tarjeta">
     <div class="tarjeta-cab">
       <div>
-        <h2>Expedientes escalados</h2>
-        <p>Entrega estructurada a un humano: hechos verificados con su fuente, no la transcripción.</p>
+        <h2>Escalated case files</h2>
+        <p>Structured hand-off to a person: verified facts with their source, not the transcript.</p>
       </div>
     </div>
     <div class="scroll">
       <table id="tabla-casos"><thead><tr>
-        <th>Expediente</th><th>Motivo</th><th>Cliente (hash)</th><th>Abierto</th>
-      </tr></thead><tbody><tr><td colspan="4">Cargando…</td></tr></tbody></table>
+        <th>Case file</th><th>Reason</th><th>Client (hash)</th><th>Opened</th>
+      </tr></thead><tbody><tr><td colspan="4">Loading…</td></tr></tbody></table>
     </div>
     <div class="cuerpo" id="detalle" hidden></div>
   </div>
@@ -310,35 +310,35 @@
   <div class="tarjeta">
     <div class="tarjeta-cab"><div>
       <h2>Baseline · tools · tools + SCM</h2>
-      <p>Conjunto retenido de 154 casos. La etiqueta la calcula la política versionada, no un modelo.</p>
+      <p>Held-out set of 154 cases. The label comes from the versioned policy, not from a model.</p>
     </div></div>
-    <div class="cuerpo md" id="tabla-eval">Cargando la comparación…</div>
+    <div class="cuerpo md" id="tabla-eval">Loading the comparison…</div>
   </div>
 
   <div class="tarjeta" style="margin-top:16px">
-    <div class="tarjeta-cab"><div><h2>Guardrails en vivo</h2>
-      <p>Contadores de este proceso, desde que arrancó.</p></div></div>
+    <div class="tarjeta-cab"><div><h2>Live guardrails</h2>
+      <p>Counters for this process since it started.</p></div></div>
     <div class="scroll"><table id="tabla-vivo"><tbody></tbody></table></div>
   </div>
 
   <div class="tarjeta" style="margin-top:16px">
-    <div class="tarjeta-cab"><div><h2>Auditoría de la capa de datos</h2>
-      <p>Bronze contra silver, columna por columna. Nueve secciones, construida por Federico Vargas.</p></div>
-      <div class="cab-der"><a class="btn oscuro" href="/auditoria/bronze-vs-silver" style="text-decoration:none">Abrir</a></div>
+    <div class="tarjeta-cab"><div><h2>Data layer audit</h2>
+      <p>Bronze vs silver, column by column. Nine sections, built by Federico Vargas.</p></div>
+      <div class="cab-der"><a class="btn oscuro" href="/auditoria/bronze-vs-silver" style="text-decoration:none">Open</a></div>
     </div>
   </div>
 
   <div class="tarjeta" style="margin-top:16px">
-    <div class="tarjeta-cab"><div><h2>Calidad de datos · capa gold</h2>
-      <p>Reporte publicable, tal como lo deja la capa gold.</p></div></div>
-    <div class="scroll"><table id="tabla-dq"><thead><tr><th>Comprobación</th><th class="n">Valor</th></tr></thead>
-      <tbody><tr><td colspan="2">Cargando…</td></tr></tbody></table></div>
+    <div class="tarjeta-cab"><div><h2>Data quality · gold layer</h2>
+      <p>Publishable report, as the gold layer leaves it.</p></div></div>
+    <div class="scroll"><table id="tabla-dq"><thead><tr><th>Check</th><th class="n">Value</th></tr></thead>
+      <tbody><tr><td colspan="2">Loading…</td></tr></tbody></table></div>
   </div>
 </section>
 </main>
 
 <footer>
-  <span>v1.1 · política v3 · corte 2025-12-31 · ninguna cifra sale del modelo</span>
+  <span>v1.1 · policy v3 · cut-off 2025-12-31 · no figure comes from the model</span>
   <span>Eloz Consulting · <a href="https://elozconsulting.com">elozconsulting.com</a></span>
 </footer>
 
@@ -375,20 +375,20 @@ async function cargarSalud() {
   try {
     const s = await pedir('/health');
     $('#salud').innerHTML =
-      '<span>' + punto(s.listo) + (s.listo ? 'sistema listo' : ('no disponible: ' + (s.motivo || '—'))) + '</span>' +
-      '<span>' + punto(s.llave_de_firma) + 'llave de firma</span>' +
-      '<span>' + punto(true) + 'SCM ' + (s.scm_habilitado ? 'encendido' : 'apagado') + '</span>' +
-      '<span>política v' + (s.politica_version ?? '—') + '</span>' +
+      '<span>' + punto(s.listo) + (s.listo ? 'system ready' : ('unavailable: ' + (s.motivo || '—'))) + '</span>' +
+      '<span>' + punto(s.llave_de_firma) + 'signing key</span>' +
+      '<span>' + punto(true) + 'SCM ' + (s.scm_habilitado ? 'on' : 'off') + '</span>' +
+      '<span>policy v' + (s.politica_version ?? '—') + '</span>' +
       '<span>corte ' + s.corte + '</span>';
   } catch (e) {
-    $('#salud').innerHTML = '<span>' + punto(false) + 'no se pudo consultar el estado: ' + e.message + '</span>';
+    $('#salud').innerHTML = '<span>' + punto(false) + 'could not read status: ' + e.message + '</span>';
   }
 }
 
 const NOMBRE_PERFIL = {
-  elegible: 'con capacidad de pago',
-  rechazo_con_motivo: 'sobreendeudado',
-  abstencion: 'sin datos suficientes',
+  elegible: 'with repayment capacity',
+  rechazo_con_motivo: 'over-indebted',
+  abstencion: 'insufficient data',
 };
 
 let CONVS = [];
@@ -491,7 +491,7 @@ async function cargarConversaciones() {
   const cont = $('#conversaciones');
   cont.innerHTML = '';
   if (!CONVS.length) {
-    cont.innerHTML = '<p class="conv-desc" style="padding:12px 16px">No se pudieron cargar las conversaciones.</p>';
+    cont.innerHTML = '<p class="conv-desc" style="padding:12px 16px">The conversations could not be loaded.</p>';
     return;
   }
   CONVS.forEach((c, i) => {
@@ -530,7 +530,7 @@ function pintarEleccion() {
     const r = el.querySelector('input');
     if (r) r.checked = activa;
   });
-  $('#reproducir').textContent = CORRIENDO ? 'Reproduciendo…' : 'Reproducir conversación';
+  $('#reproducir').textContent = CORRIENDO ? 'Playing…' : 'Play conversation';
 }
 
 async function reproducir() {
@@ -538,7 +538,7 @@ async function reproducir() {
   if (!c || CORRIENDO) return;
   CORRIENDO = true;
   $('#reproducir').disabled = true;
-  $('#reproducir').textContent = 'Reproduciendo…';
+  $('#reproducir').textContent = 'Playing…';
   $('#hilo').innerHTML = '';
   $('#flujo').innerHTML = '';
   $('#avisos').hidden = true;
@@ -547,7 +547,7 @@ async function reproducir() {
   TOKEN = null;
   CONV = 'demo-' + Math.random().toString(36).slice(2, 12);
   const ses = $('#estado-ses');
-  ses.textContent = 'sin verificar';
+  ses.textContent = 'not verified';
   ses.className = 'estado-ses sin';
   try {
     for (const m of c.mensajes) {
@@ -561,12 +561,12 @@ async function reproducir() {
       if (!CORRIENDO) break;
     }
   } catch (e) {
-    burbuja('sistema', 'No se pudo reproducir la conversación: ' + e.message);
+    burbuja('sistema', 'The conversation could not be played: ' + e.message);
   } finally {
     CORRIENDO = false;
     $('#reproducir').disabled = false;
     pintarEleccion();
-    $('#reproducir').textContent = 'Reproducir otra vez';
+    $('#reproducir').textContent = 'Play again';
   }
 }
 
@@ -575,14 +575,14 @@ async function reproducir() {
 // qué orden ocurrieron las cosas. Acá solo se reproduce, con una pausa entre cada
 // una: la gracia es ver el turno formarse, no leer el resultado.
 const FASES = {
-  entrada: 'entrada',
-  identidad: 'identidad',
-  consulta: 'consulta',
-  escritura: 'escritura',
-  politica: 'política',
-  cognicion: 'cognición',
-  verificacion: 'verificación',
-  desenlace: 'desenlace',
+  entrada: 'input',
+  identidad: 'identity',
+  consulta: 'query',
+  escritura: 'write',
+  politica: 'policy',
+  cognicion: 'cognition',
+  verificacion: 'verification',
+  desenlace: 'outcome',
 };
 
 function filaEvento(e) {
@@ -637,9 +637,9 @@ async function reproducirEventos(eventos) {
     ol.appendChild(filaEvento(e));
     const k = e.estado || 'pe';
     cuenta[k] = (cuenta[k] || 0) + 1;
-    $('#n-ok').textContent = cuenta.ok + ' cumplidos';
-    $('#n-no').textContent = cuenta.no + ' incumplidos';
-    $('#n-pe').textContent = cuenta.pe + ' sin aplicar';
+    $('#n-ok').textContent = cuenta.ok + ' passed';
+    $('#n-no').textContent = cuenta.no + ' inpassed';
+    $('#n-pe').textContent = cuenta.pe + ' not applicable';
     ol.scrollTop = ol.scrollHeight;
     // Las consultas van más rápido entre sí que los veredictos: lo que hay que
     // alcanzar a leer es la regla que corta, no cada lectura de tabla.
@@ -648,7 +648,7 @@ async function reproducirEventos(eventos) {
   if (!ol.children.length) {
     const li = document.createElement('li');
     li.className = 'evento pe';
-    li.textContent = 'Este turno no produjo eventos.';
+    li.textContent = 'This turn produced no events.';
     ol.appendChild(li);
   }
 }
@@ -660,9 +660,9 @@ async function pintarTurno(t) {
     (t.desenlace === 'respuesta' || t.desenlace === 'verificado') ? 'ok'
       : (t.desenlace === 'bloqueado' ? 'no' : 'pe'));
 
-  $('#n-ok').textContent = '— cumplidos';
-  $('#n-no').textContent = '— incumplidos';
-  $('#n-pe').textContent = '— sin aplicar';
+  $('#n-ok').textContent = '— passed';
+  $('#n-no').textContent = '— inpassed';
+  $('#n-pe').textContent = '— not applicable';
 
   await reproducirEventos(t.eventos);
 
@@ -671,9 +671,9 @@ async function pintarTurno(t) {
   const num = (v) => Number(v || 0).toLocaleString('es', { maximumFractionDigits: 2 });
   const of = (t.ofertas || [])[0];
   if (of) {
-    av.append(linea('Oferta', of.producto + ' · ' + num(of.monto_ofrecido_usd) + ' USD a ' +
-      of.plazo_meses + ' meses · cuota ' + num(of.cuota_estimada_usd) + ' USD' +
-      (of.interes_total_usd != null ? ' · interés total ' + num(of.interes_total_usd) + ' USD' : ''),
+    av.append(linea('Offer', of.producto + ' · ' + num(of.monto_ofrecido_usd) + ' USD a ' +
+      of.plazo_meses + ' months · instalment ' + num(of.cuota_estimada_usd) + ' USD' +
+      (of.interes_total_usd != null ? ' · total interest ' + num(of.interes_total_usd) + ' USD' : ''),
       true));
   }
   for (const a of (t.avisos || []).concat(t.traza ? (t.traza.supuestos || []) : [])) {
@@ -702,7 +702,7 @@ async function enviar(texto) {
       // tres factores cuadran contra la base. No hay atajo de demostración.
       TOKEN = t.token;
       const ses = $('#estado-ses');
-      ses.textContent = 'identidad verificada';
+      ses.textContent = 'identity verified';
       ses.className = 'estado-ses';
     }
     // Mínimo de medio segundo con los puntos: si la respuesta vuelve en 40 ms,
@@ -714,7 +714,7 @@ async function enviar(texto) {
     await pintarTurno(t);
   } catch (e) {
     puntos.remove();
-    burbuja('sistema', 'No pudimos completar el turno: ' + e.message);
+    burbuja('sistema', 'The turn could not be completed: ' + e.message);
   } finally {
     $('#enviar').disabled = false;
     $('#repetir').disabled = !ULTIMO;
@@ -734,12 +734,12 @@ $('#repetir').addEventListener('click', () => { if (ULTIMO) enviar(ULTIMO); });
 // ── Consola ─────────────────────────────────────────────────────────────────
 async function cargarCasos() {
   const tb = $('#tabla-casos').querySelector('tbody');
-  tb.innerHTML = '<tr><td colspan="4">Cargando…</td></tr>';
+  tb.innerHTML = '<tr><td colspan="4">Loading…</td></tr>';
   try {
     const d = await pedir('/cases?limite=25');
     tb.innerHTML = '';
     if (!d.casos.length) {
-      tb.innerHTML = '<tr><td colspan="4">Ningún expediente abierto todavía. Pide hablar con un asesor y aparece aquí.</td></tr>';
+      tb.innerHTML = '<tr><td colspan="4">No case files open yet. Ask for an advisor and it appears here.</td></tr>';
       return;
     }
     for (const c of d.casos) {
@@ -753,24 +753,24 @@ async function cargarCasos() {
       tb.appendChild(tr);
     }
   } catch (e) {
-    tb.innerHTML = '<tr><td colspan="4">No se pudieron leer los expedientes: ' + e.message + '</td></tr>';
+    tb.innerHTML = '<tr><td colspan="4">The case files could not be read: ' + e.message + '</td></tr>';
   }
 }
 
 async function verCaso(id) {
   const caja = $('#detalle');
   caja.hidden = false;
-  caja.textContent = 'Cargando…';
+  caja.textContent = 'Loading…';
   try {
     const d = await pedir('/cases/' + encodeURIComponent(id));
     caja.innerHTML = '';
     const h = document.createElement('h2');
     h.style.cssText = 'margin:0 0 8px;font-size:15px;font-weight:600';
-    h.textContent = 'Expediente ' + d.case_id;
+    h.textContent = 'Case file ' + d.case_id;
     caja.appendChild(h);
-    caja.append(linea('Motivo', d.motivo || '—', false));
-    caja.append(linea('Política', 'v' + d.politica_version, true));
-    caja.append(linea('Esquema', d.validacion && d.validacion.esquema_ok === false ? 'degradado' : 'válido', true));
+    caja.append(linea('Reason', d.motivo || '—', false));
+    caja.append(linea('Policy', 'v' + d.politica_version, true));
+    caja.append(linea('Schema', d.validacion && d.validacion.esquema_ok === false ? 'degraded' : 'valid', true));
     const e = d.expediente || {};
     for (const bloque of ['hechos_verificados', 'fuentes', 'ofertas_cotizadas',
                           'evidencia_faltante', 'pregunta_abierta_no_verificada',
@@ -785,7 +785,7 @@ async function verCaso(id) {
       caja.append(t, pre);
     }
   } catch (err) {
-    caja.textContent = 'No se pudo leer el expediente: ' + err.message;
+    caja.textContent = 'The case file could not be read: ' + err.message;
   }
 }
 
@@ -822,18 +822,18 @@ async function cargarAnalitica() {
   try {
     const r = await fetch('/eval');
     $('#tabla-eval').innerHTML = md(await r.text());
-  } catch (e) { $('#tabla-eval').textContent = 'No se pudo cargar la comparación: ' + e.message; }
+  } catch (e) { $('#tabla-eval').textContent = 'The comparison could not be loaded: ' + e.message; }
 
   try {
     const m = await pedir('/metrics');
     const tb = $('#tabla-vivo').querySelector('tbody');
     tb.innerHTML = '';
     const filas = [
-      ['Respuestas revisadas por el anclaje', m.grounding.revisadas],
-      ['Respuestas bloqueadas por el anclaje', m.grounding.bloqueadas],
-      ['Mensajes revisados por inyección', m.inyeccion && m.inyeccion.mensajes_revisados],
-      ['Marcados como sospechosos', m.inyeccion && m.inyeccion.mensajes_sospechosos],
-      ['Estado semántico', m.scm_habilitado ? 'encendido' : 'apagado'],
+      ['Replies checked by anchoring', m.grounding.revisadas],
+      ['Replies blocked by anchoring', m.grounding.bloqueadas],
+      ['Messages checked for injection', m.inyeccion && m.inyeccion.mensajes_revisados],
+      ['Flagged as suspicious', m.inyeccion && m.inyeccion.mensajes_sospechosos],
+      ['Semantic state', m.scm_habilitado ? 'on' : 'off'],
     ];
     for (const [k, v] of filas) {
       if (v === undefined || v === null) continue;
@@ -858,9 +858,9 @@ async function cargarAnalitica() {
       b.textContent = num ? Number(f[num]).toLocaleString('es') : '';
       tr.append(a, b); tb.appendChild(tr);
     }
-    if (!tb.children.length) tb.innerHTML = '<tr><td colspan="2">El reporte está vacío.</td></tr>';
+    if (!tb.children.length) tb.innerHTML = '<tr><td colspan="2">The report is empty.</td></tr>';
   } catch (e) {
-    tb.innerHTML = '<tr><td colspan="2">No disponible: ' + e.message + '</td></tr>';
+    tb.innerHTML = '<tr><td colspan="2">Not available: ' + e.message + '</td></tr>';
   }
 }
 
@@ -875,9 +875,9 @@ $('#nueva').addEventListener('click', () => {
   $('#flujo').innerHTML = '';
   $('#avisos').hidden = true;
   const ses = $('#estado-ses');
-  ses.textContent = 'sin verificar';
+  ses.textContent = 'not verified';
   ses.className = 'estado-ses sin';
-  burbuja('sistema', 'Sesión nueva. Escribe como lo haría un cliente: la identidad se pide en el chat.');
+  burbuja('sistema', 'New session. Write as a client would: identity is requested in the chat.');
 });
 </script>
 </body>
