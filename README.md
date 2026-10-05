@@ -145,13 +145,6 @@ Full audit with reproducible numbers: [`docs/01_data_audit.md`](docs/01_data_aud
 | [`docs/05_security.md`](docs/05_security.md) | Secrets, identity, authorization, injection, PII, network |
 | [`docs/07_scm_spec.md`](docs/07_scm_spec.md) | **Federico's task**: the Semantic Cognition Matrix |
 | [`docs/09_etl_spec.md`](docs/09_etl_spec.md) | **Federico's task**: cleaning, ETL and payment capacity |
-| [`docs/19_estado_integracion_federico.md`](docs/19_estado_integracion_federico.md) | Branch status, local validation, blockers and demo run plan |
-| [`docs/20_reporte_completo_codigo.md`](docs/20_reporte_completo_codigo.md) | Plain-English report of every code module, logs and tests |
-| [`docs/21_agent_tool_policy_diagnostics.md`](docs/21_agent_tool_policy_diagnostics.md) | Agent-tool diagnostics and live policy validation in the chatbot UI |
-| [`docs/22_deep_validation_report.md`](docs/22_deep_validation_report.md) | Deep validation report with line-level review and remaining findings |
-| [`docs/23_executive_summary_validation.md`](docs/23_executive_summary_validation.md) | Executive summary of the deep validation results |
-| [`docs/24_bot_interaction_accuracy_report.md`](docs/24_bot_interaction_accuracy_report.md) | Blunt report on available bot interactions, data, and answer accuracy |
-| [`docs/26_deployment_runbook.md`](docs/26_deployment_runbook.md) | Render + Vercel deployment path and public health-check proof |
 | [`docs/knowledge/findings.md`](docs/knowledge/findings.md) | Project memory — every finding that changed a decision |
 | [`docs/knowledge/contributions.md`](docs/knowledge/contributions.md) | Contribution ledger: who changed what, and whether it advanced the project |
 | [`docs/decisions/`](docs/decisions/) | Architecture Decision Records |
@@ -167,23 +160,3 @@ The dataset is synthetic and was provided by Factored for the hackathon. It is n
 
 Repository · live URL · 5 slides · 3-minute video → `hackathon.admin@factored.ai`
 **Deadline: 5 October 2026, 23:59 Colombia time.**
-
-## Product interest and recorded customer limits
-
-Experimental 30-day campaign conversion model and per-customer quota lookup:
-[method, results and reproduction](docs/13_interes_producto_y_cupo.md).
-Run `python -m ml.training.product_interest`, then
-`python -m ml.serving.product_advisor --customer-id ID --product 'Tarjeta Crédito'`.
-Conversion probability is not confirmed intent or credit eligibility. New limits
-still require the existing policy engine and verified inputs.
-
-The [deep-learning challenger and unified advisor](docs/14_red_profunda_y_asesor.md)
-add a trained three-hidden-layer MLP, comparison with logistic regression, and an
-integration with Eduardo's policy engine for verified inputs. Train with
-`python -m ml.training.deep_interest`; analyze with
-`python -m ml.serving.client_analysis --customer-id ID_AUTORIZADO`.
-
-A [controlled depth experiment](docs/15_experimento_profundidad.md) compares three
-and six hidden layers across three seeds, with separate early-stopping and selection
-periods. Run `python -m ml.training.depth_experiment`; the six-layer artifact remains
-an optional challenger and does not replace the default advisor model.

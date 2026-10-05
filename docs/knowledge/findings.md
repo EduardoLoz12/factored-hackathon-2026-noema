@@ -1471,42 +1471,6 @@ Conviene añadir a `tests/data/test_feature_contract.py` una prueba de que ningu
 
 **Evidencia.** `select distinct valuation_date from noema_gold.customer_360` y la tabla de medianas de ingreso por país, ambas reproducibles contra `data/noema.duckdb`.
 
-## Interés comercial y cupos — auditoría de implementación (2026-09-30)
-
-La solicitud nueva requiere separar interés, cupo observado y oferta de política.
-Consulta reproducible: `select had_conversion, count(*) from
-noema_silver.stg_campaign_sends group by 1` devuelve 1 737 002 negativos y
-9 799 positivos. Hay 436 429 registros con `process_date < send_date`
-(`select count(*) ... where process_date < send_date`). Se excluyen del modelo.
-La conversión de campaña es un proxy de respuesta comercial, no una etiqueta de
-«quiere un producto nuevo», ni prueba de primera adquisición. El snapshot no
-versiona resultados: la validación retrospectiva asume que las etiquetas estaban
-completas al finalizar 30 días; esto impide promover el modelo a producción.
-Los límites existentes vienen de `products.credit_limit`, por producto y moneda;
-no son una asignación nueva. `products.last_updated` contiene fechas hasta 2027:
-no se debe presentar su snapshot como estado histórico al corte sin filtrar.
-
-## Documentos aportados y red profunda (ML-12, 2026-09-30)
-
-Se revisaron el HTML «Política de Elegibilidad» (v1.0, 30-sep) y las 20 páginas
-de «Bronze contra Silver» (29-sep; exportado 30-sep). El reporte de auditoría
-respalda excluir mora, referencias de sucursal inválidas, FX reportado y nulos
-estructurales de entradas ingenuas. No demuestra que cualquier objetivo sea
-imposible: la respuesta a campaña es una etiqueta distinta del incumplimiento.
-La red MLP de tres capas se entrena sobre esa respuesta, no sobre mora.
-
-Diferencia verificada con el código actual: el HTML afirma abstención ante límite
-faltante, mientras `Politica._carga` omite productos sin límite/tasa y emite aviso.
-El nuevo adaptador `policy_analysis` exige términos completos antes de invocar
-ese motor. No altera el código de Eduardo. El HTML también precede el soporte
-actual de saldo dispuesto, estrés de línea no dispuesta y reservas: manda el YAML
-versionado al ejecutar, no los números ilustrativos del HTML.
-
-Precaución estadística: no rechazar una hipótesis no prueba independencia ni MCAR;
-KS 0.00203 no es «una centésima» del umbral 0.01. La conservación de distribuciones
-no demuestra ausencia de fuga en todas las tablas gold. Se conservan las advertencias
-posteriores de Eduardo sobre FX y snapshots. Los documentos se incorporan como
-contratos y límites de evidencia, no como filas sintéticas para entrenar la red.
 ---
 
 ## F-037 · 2026-10-01 · agente — El motor de política pronuncia cuatro cifras que no publica, y dos de ellas solo existen en los rechazos

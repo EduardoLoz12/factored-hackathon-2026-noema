@@ -1,6 +1,0 @@
-"ReplacementContent":"def _generate_with_llm(prompt: str) -> str:\n    api_key = os.getenv(\"
-"ReplacementContent":"    def redactar(_attempt: int, _previous) -> str:\n        context = _draft_orchestrated_response(turn)\n        prompt = f\"
-"ReplacementContent":"    final_msg = core_result[\"
-"ReplacementContent":"    if final_escalation:\n        final_msg = \"
-"ReplacementContent":"            final_msg = \"
-"ReplacementContent":"### 3. Reescritura Dinámica de Respuestas Estáticas (Fallback Drafting)\n**Archivo Modificado:** `api/main.py`\n**Función:** `chat_endpoint`\n\nSe agregó una capa de envoltura (wrapper) generativa en el endpoint final de chat para procesar las respuestas que bypassan el orquestador y son resueltas internamente por las reglas duras de `NoemaCore` (por ejemplo, los comandos de verificación de identidad de la demo, mensajes de escalamiento final, o consultas de saldo simples).\n- Antes, la API devolvía la cadena pre-programada exacta desde `core_result[\"

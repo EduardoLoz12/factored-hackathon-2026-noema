@@ -82,15 +82,3 @@ clean:
 
 train-capacity:
 	$(PY) -m ml.training.capacity
-
-.PHONY: train-interest
-train-interest:
-	$(PY) -m ml.training.product_interest
-
-.PHONY: train-deep-interest
-train-deep-interest:
-	$(PY) -m ml.training.deep_interest
-
-.PHONY: train-depth-experiment
-train-depth-experiment:
-	$(PY) -m ml.training.depth_experiment
