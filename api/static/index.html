@@ -657,7 +657,7 @@ async function pintarTurno(t) {
   const ds = $('#desenlace');
   ds.textContent = t.desenlace;
   ds.className = 'insignia ' + (
-    (t.desenlace === 'respuesta' || t.desenlace === 'verificado') ? 'ok'
+    (t.desenlace === 'respuesta' || t.desenlace === 'verificado' || t.desenlace === 'conversacion') ? 'ok'
       : (t.desenlace === 'bloqueado' ? 'no' : 'pe'));
 
   $('#n-ok').textContent = '— passed';

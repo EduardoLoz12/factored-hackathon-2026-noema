@@ -128,6 +128,36 @@ def de_identidad(lectura: dict[str, Any], reunidos: list[str], faltan: list[str]
     return eventos
 
 
+def de_conversacion(lectura: dict[str, Any], verificado: bool) -> list:
+    """Un turno que se contesta sin decisión ni consulta a la base."""
+    origen = lectura.get("origen", "determinista")
+    return [
+        _ev(
+            "entrada",
+            "Client message received",
+            detalle=f"idioma detected: {lectura['idioma']} · reading: {origen}",
+            fuente="api/comprension.py" if origen == "modelo" else "api/extraccion.py",
+            control="model reads intent; fallback is the deterministic extractor",
+        ),
+        _ev(
+            "identidad",
+            "No identity needed for this message" if not verificado else "Session verified",
+            detalle=f"intent: {lectura['intencion']}",
+            fuente="api/main.py",
+            control="AG-05 · identity is asked only when the request needs it",
+            estado="ok",
+        ),
+        _ev(
+            "desenlace",
+            "Outcome: conversation",
+            detalle="reply without figures; no tool queried",
+            fuente="api/comprension.py",
+            control="reply is checked to contain no digits",
+            estado="ok",
+        ),
+    ]
+
+
 def _decision_txt(d: dict[str, Any], hechos: dict[str, Any]) -> str:
     """Lo que la decisión concluyó, en una línea. No repite el motivo de otro producto."""
     if d.get("abstencion"):
@@ -310,7 +340,11 @@ def del_turno(
             ),
             fuente="agent/core/orchestrator.py",
             control="six-stage state machine, one test per edge",
-            estado="ok" if turno.desenlace.value in {"respuesta", "verificado"} else "pe",
+            estado=(
+                "ok"
+                if turno.desenlace.value in {"respuesta", "verificado", "conversacion"}
+                else "pe"
+            ),
         )
     )
     return eventos
