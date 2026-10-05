@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<link rel="icon" href="data:,">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>noema · elegibilidad de productos de crédito</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -41,6 +42,28 @@
   .dos{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
   @media (max-width:900px){.dos{grid-template-columns:1fr}}
 
+  .elige{background:var(--card);border:1px solid var(--rule);border-radius:10px;
+    margin-bottom:16px;overflow:hidden}
+  .elige-cab{padding:14px 16px;border-bottom:1px solid var(--rule);display:flex;gap:12px 16px;
+    align-items:flex-start;flex-wrap:wrap}
+  .elige-cab h2{margin:0;font-size:15px;font-weight:600;letter-spacing:-.01em}
+  .elige-cab p{margin:3px 0 0;font-size:12.5px;color:var(--ink-soft);max-width:44rem}
+  .elige-botones{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .lista-conv{display:flex;flex-direction:column}
+  .conv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;padding:12px 16px;
+    border-bottom:1px solid var(--rule);cursor:pointer;align-items:start}
+  .conv:last-child{border-bottom:0}
+  .conv:hover{background:var(--tint)}
+  .conv.activa{background:#eef4ff;box-shadow:inset 3px 0 0 var(--accent)}
+  .conv input{margin-top:4px;accent-color:var(--accent);width:16px;height:16px}
+  .conv .conv-tit{font-size:14px;font-weight:600;letter-spacing:-.01em}
+  .conv .conv-perfil{display:inline-block;margin-top:2px;font-family:var(--mono);font-size:10.5px;
+    letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft)}
+  .conv .conv-desc{grid-column:2;margin:4px 0 0;font-size:13px;color:var(--ink);overflow-wrap:anywhere}
+  .conv details{grid-column:2;margin-top:4px;font-size:12.5px;color:var(--ink-soft)}
+  .conv details summary{cursor:pointer;color:var(--accent)}
+  .conv ol{margin:6px 0 0;padding-left:20px}
+  .conv ol li{margin:2px 0;overflow-wrap:anywhere}
   .tarjeta{background:var(--card);border:1px solid var(--rule);border-radius:10px;overflow:hidden;min-width:0}
   .tarjeta-cab{padding:14px 16px;border-bottom:1px solid var(--rule);display:flex;gap:10px;
     align-items:flex-start;flex-wrap:wrap}
@@ -195,7 +218,23 @@
 </header>
 
 <main>
-<section id="v-chat" class="dos">
+<section id="v-chat">
+<div class="elige">
+  <div class="elige-cab">
+    <div>
+      <h2>Conversaciones guiadas</h2>
+      <p>Elige un cliente. Cada conversación empieza sin verificar identidad: el agente
+        la pide en el chat y la valida contra la base.</p>
+    </div>
+    <div class="elige-botones">
+      <button class="btn azul" id="reproducir">Reproducir conversación</button>
+      <button class="btn claro" id="nueva">Nueva sesión</button>
+    </div>
+  </div>
+  <div id="conversaciones" class="lista-conv" role="radiogroup" aria-label="Conversaciones guiadas"></div>
+</div>
+
+<div class="dos">
 
   <!-- ── Conversación ──────────────────────────────────────────────────── -->
   <div class="tarjeta">
@@ -207,11 +246,6 @@
       <div class="cab-der">
         <span class="estado-ses sin" id="estado-ses">sin verificar</span>
       </div>
-    </div>
-
-    <div class="selector">
-      <div class="segmentos" id="conversaciones" role="tablist"></div>
-      <button class="btn azul" id="reproducir">Reproducir</button>
     </div>
 
     <div class="hilo" id="hilo">
@@ -255,6 +289,9 @@
     </ol>
     <div class="cuerpo" id="avisos" hidden></div>
   </div>
+</section>
+
+</div>
 </section>
 
 <!-- ── Consola ───────────────────────────────────────────────────────────── -->
@@ -365,6 +402,94 @@ let CONVS = [];
 let ELEGIDA = 0;
 let CORRIENDO = false;
 
+// ── Utilidades de la conversación ───────────────────────────────────────────
+const REDUCIDO = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const espera = (ms) => new Promise((r) => setTimeout(r, REDUCIDO ? 0 : ms));
+
+function hora() {
+  const d = new Date();
+  return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+
+function alFondo() {
+  const h = $('#hilo');
+  h.scrollTop = h.scrollHeight;
+}
+
+// Burbuja de chat: el cliente a la derecha, noema a la izquierda, el sistema centrado.
+function burbuja(quien, texto) {
+  const clase = quien === 'cliente' ? 'cli' : (quien === 'sistema' ? 'sis' : 'age');
+  const b = document.createElement('div');
+  b.className = 'burbuja ' + clase;
+  const cuerpo = document.createElement('span');
+  cuerpo.textContent = texto || '';
+  b.appendChild(cuerpo);
+  if (clase !== 'sis') {
+    const h = document.createElement('span');
+    h.className = 'hora';
+    h.textContent = hora();
+    b.appendChild(h);
+  }
+  $('#hilo').appendChild(b);
+  alFondo();
+  return { burbuja: b, cuerpo };
+}
+
+// Los tres puntos mientras noema contesta.
+function tecleando() {
+  const b = document.createElement('div');
+  b.className = 'burbuja age';
+  const p = document.createElement('span');
+  p.className = 'puntos';
+  p.innerHTML = '<i></i><i></i><i></i>';
+  b.appendChild(p);
+  $('#hilo').appendChild(b);
+  alFondo();
+  return b;
+}
+
+// Escribe el texto a velocidad de lectura. Trozos y no carácter a carácter: a 8 ms por
+// carácter el navegador no alcanza a pintar cada cuadro.
+async function teclear(elemento, texto) {
+  if (REDUCIDO) { elemento.textContent = texto; alFondo(); return; }
+  const paso = Math.max(8, Math.min(26, 2200 / Math.max(texto.length, 1)));
+  const trozo = paso < 12 ? 3 : 1;
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor';
+  cursor.textContent = ' ';
+  elemento.after(cursor);
+  for (let i = 0; i < texto.length; i += trozo) {
+    elemento.textContent = texto.slice(0, i + trozo);
+    alFondo();
+    await espera(paso * trozo);
+  }
+  elemento.textContent = texto;
+  cursor.remove();
+  alFondo();
+}
+
+// El mensaje del cliente se escribe dentro del campo, como lo escribiría cualquiera.
+async function tecleaEnCampo(texto) {
+  const campo = $('#mensaje');
+  campo.value = '';
+  if (REDUCIDO) { campo.value = texto; return; }
+  for (let i = 0; i < texto.length; i += 2) {
+    campo.value = texto.slice(0, i + 2);
+    await espera(14);
+  }
+  campo.value = texto;
+}
+
+// Una fila de dato: etiqueta en negrita y el valor a continuación.
+function linea(etiqueta, valor, mono) {
+  const p = document.createElement('p');
+  if (mono) p.className = 'mono';
+  const b = document.createElement('b');
+  b.textContent = etiqueta + ': ';
+  p.append(b, document.createTextNode(valor));
+  return p;
+}
+
 async function cargarConversaciones() {
   try {
     const d = await pedir('/conversations');
@@ -372,23 +497,61 @@ async function cargarConversaciones() {
   } catch { CONVS = []; }
   const cont = $('#conversaciones');
   cont.innerHTML = '';
+  if (!CONVS.length) {
+    cont.innerHTML = '<p class="conv-desc" style="padding:12px 16px">No se pudieron cargar las conversaciones.</p>';
+    return;
+  }
   CONVS.forEach((c, i) => {
-    const b = document.createElement('button');
-    b.setAttribute('role', 'tab');
-    b.setAttribute('aria-selected', String(i === ELEGIDA));
-    b.textContent = (i + 1) + ' · ' + c.titulo;
-    b.title = c.demuestra;
-    b.addEventListener('click', () => { if (!CORRIENDO) { ELEGIDA = i; pintarEleccion(); } });
-    cont.appendChild(b);
+    const etiqueta = document.createElement('label');
+    etiqueta.className = 'conv';
+    etiqueta.dataset.i = String(i);
+
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'conv';
+    radio.value = String(i);
+    radio.checked = i === ELEGIDA;
+    radio.addEventListener('change', () => { if (!CORRIENDO) { ELEGIDA = i; pintarEleccion(); } });
+
+    const cabeza = document.createElement('div');
+    cabeza.style.minWidth = '0';
+    const tit = document.createElement('span');
+    tit.className = 'conv-tit';
+    tit.textContent = (i + 1) + '. ' + c.titulo;
+    const perfil = document.createElement('span');
+    perfil.className = 'conv-perfil';
+    perfil.textContent = 'perfil: ' + (NOMBRE_PERFIL[c.perfil] || c.perfil);
+    cabeza.append(tit, document.createElement('br'), perfil);
+
+    const desc = document.createElement('p');
+    desc.className = 'conv-desc';
+    desc.textContent = c.demuestra;
+
+    const det = document.createElement('details');
+    const sum = document.createElement('summary');
+    sum.textContent = 'ver los mensajes del cliente (' + c.mensajes.length + ')';
+    const lista = document.createElement('ol');
+    for (const m of c.mensajes) {
+      const li = document.createElement('li');
+      li.textContent = m;
+      lista.appendChild(li);
+    }
+    det.append(sum, lista);
+
+    etiqueta.append(radio, cabeza, desc, det);
+    cont.appendChild(etiqueta);
   });
   pintarEleccion();
 }
 
 function pintarEleccion() {
-  const c = CONVS[ELEGIDA];
-  document.querySelectorAll('#conversaciones button').forEach((b, i) => {
-    b.setAttribute('aria-selected', String(i === ELEGIDA));
+  document.querySelectorAll('#conversaciones .conv').forEach((el) => {
+    const activa = Number(el.dataset.i) === ELEGIDA;
+    el.classList.toggle('activa', activa);
+    const r = el.querySelector('input');
+    if (r) r.checked = activa;
   });
+  $('#reproducir').textContent = CORRIENDO ? 'Reproduciendo…' : 'Reproducir conversación';
 }
 
 async function reproducir() {
@@ -398,9 +561,9 @@ async function reproducir() {
   $('#reproducir').disabled = true;
   $('#reproducir').textContent = 'Reproduciendo…';
   $('#hilo').innerHTML = '';
-  $('#datos').hidden = true;
-  $('#pasos').innerHTML = '';
+  $('#flujo').innerHTML = '';
   $('#avisos').hidden = true;
+  pintarEleccion();
   // Sesión nueva y sin verificar: la conversación arranca en la etapa 0.
   TOKEN = null;
   CONV = 'demo-' + Math.random().toString(36).slice(2, 12);
@@ -423,7 +586,8 @@ async function reproducir() {
   } finally {
     CORRIENDO = false;
     $('#reproducir').disabled = false;
-    $('#reproducir').textContent = 'Reproducir de nuevo';
+    pintarEleccion();
+    $('#reproducir').textContent = 'Reproducir otra vez';
   }
 }
 
@@ -724,6 +888,18 @@ async function cargarAnalitica() {
 cargarSalud();
 cargarConversaciones();
 $('#reproducir').addEventListener('click', reproducir);
+$('#nueva').addEventListener('click', () => {
+  if (CORRIENDO) return;
+  TOKEN = null;
+  CONV = 'web-' + Math.random().toString(36).slice(2, 12);
+  $('#hilo').innerHTML = '';
+  $('#flujo').innerHTML = '';
+  $('#avisos').hidden = true;
+  const ses = $('#estado-ses');
+  ses.textContent = 'sin verificar';
+  ses.className = 'estado-ses sin';
+  burbuja('sistema', 'Sesión nueva. Escribe como lo haría un cliente: la identidad se pide en el chat.');
+});
 </script>
 </body>
 </html>

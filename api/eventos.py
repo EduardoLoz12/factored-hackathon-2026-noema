@@ -128,6 +128,16 @@ def de_identidad(lectura: dict[str, Any], reunidos: list[str], faltan: list[str]
     return eventos
 
 
+def _decision_txt(d: dict[str, Any], hechos: dict[str, Any]) -> str:
+    """Lo que la decisión concluyó, en una línea. No repite el motivo de otro producto."""
+    if d.get("abstencion"):
+        return "la política se abstuvo: el turno pregunta o escala en vez de afirmar"
+    if d.get("elegible"):
+        nombres = sorted({str(o.get("producto")) for o in (d.get("productos_elegibles") or [])})
+        return "productos que sí caben: " + ", ".join(nombres) if nombres else "elegible"
+    return (d.get("motivos") or ["no elegible"])[0]
+
+
 def del_turno(
     turno: Any,
     lectura: dict[str, Any],
@@ -219,14 +229,24 @@ def del_turno(
         )
 
     # 6 · El veredicto por producto, que es donde se ve el techo.
+    # Un producto cabe si tiene al menos una opción de plazo. Así lo publica el motor
+    # (`opciones` vacío = ningún plazo pasa). Si no cabe, el motivo está en la lista
+    # de motivos de la decisión, que empieza por el nombre del producto.
+    motivos = d.get("motivos") or []
     for producto, detalle in (hechos.get("evaluacion_por_producto") or {}).items():
-        acepta = bool(detalle.get("aceptado", detalle.get("acepta", False)))
-        motivo = detalle.get("motivo") or detalle.get("razon") or ""
+        opciones = detalle.get("opciones") or {}
+        acepta = bool(opciones)
+        if acepta:
+            plazos = ", ".join(str(m) for m in sorted(opciones, key=lambda x: int(x)))
+            detalle_txt = f"cabe a {plazos} meses"
+        else:
+            motivo = next((m for m in motivos if str(m).startswith(producto)), "")
+            detalle_txt = motivo or "ningún plazo del catálogo pasa las reglas"
         eventos.append(
             _ev(
                 "politica",
                 f"{producto}: {'cabe' if acepta else 'no cabe'}",
-                detalle=str(motivo)[:160],
+                detalle=str(detalle_txt)[:200],
                 fuente="eligibility_v1.yaml · catálogo",
                 control="R7 monto mínimo · R8 segmento · plazos ofertables",
                 estado="ok" if acepta else "no",
@@ -238,7 +258,7 @@ def del_turno(
             _ev(
                 "politica",
                 "Decisión de la política",
-                detalle=(d.get("motivos") or ["elegible"])[0][:160],
+                detalle=_decision_txt(d, hechos),
                 fuente=(
                     f"eligibility_v1.yaml v{d.get('politica_version')} · "
                     f"corte {hechos.get('corte')}"

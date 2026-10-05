@@ -2,7 +2,7 @@
 
 Generado por `make checklist` contra el estado real del repo. Cuando alguien crea o completa un archivo de evidencia, el ítem avanza solo en la siguiente corrida. **No editar estados a mano aquí** — usar `python -m scripts.checklist --done ID --note "..."`.
 
-Última evaluación: 2026-10-05 14:46
+Última evaluación: 2026-10-05 15:08
 
 Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 

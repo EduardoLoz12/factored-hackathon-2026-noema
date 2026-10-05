@@ -318,3 +318,21 @@ def test_el_turno_bloqueado_por_identidad_no_consulta_nada(cliente):
     fases = {e["fase"] for e in r["eventos"]}
     assert "consulta" not in fases, "sin identidad no se consulta la base"
     assert "politica" not in fases
+
+
+def test_el_panel_dice_que_cabe_lo_mismo_que_dice_el_chat(cliente):
+    """Regresión: el panel marcaba «no cabe» a productos que el chat sí ofrecía.
+
+    La aceptación se lee de `opciones` del motor; cualquier cambio que la lea de otra
+    clave vuelve a contradecir al chat. Esta prueba compara los dos.
+    """
+    token, cid = _sesion(cliente, "elegible")
+    t = _turno(cliente, token, cid, "¿Y si pidiera un préstamo personal de 40000 dólares?")
+    ofrecidos = {o["producto"] for o in t["ofertas"]}
+    cabe = {
+        e["titulo"].split(":")[0]
+        for e in t["eventos"]
+        if e["fase"] == "politica" and e["titulo"].endswith(": cabe")
+    }
+    assert ofrecidos, "el turno debía ofrecer algo para que la prueba signifique algo"
+    assert ofrecidos <= cabe, f"el chat ofrece {ofrecidos} y el panel solo dice que cabe {cabe}"
