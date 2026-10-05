@@ -2168,3 +2168,31 @@ KS 0.00203 no es «una centésima» del umbral 0.01. La conservación de distrib
 no demuestra ausencia de fuga en todas las tablas gold. Se conservan las advertencias
 posteriores de Eduardo sobre FX y snapshots. Los documentos se incorporan como
 contratos y límites de evidencia, no como filas sintéticas para entrenar la red.
+
+---
+
+## F-050 · 2026-10-05 · agente — La bandera que mide el aporte del SCM rompía dos pruebas, y por eso el tercer brazo del ablation no se podía correr
+
+`CLAUDE.md` afirma que con `SCM_ENABLED=false` la suite completa sigue en verde. **No era cierto.**
+Dos pruebas de `tests/core/test_orchestrator.py` fallaban al correr la suite con la bandera apagada:
+`test_dos_fuentes_de_la_base_que_discrepan_escalan` y
+`test_con_el_scm_encendido_se_publica_el_estado_epistemico`.
+
+**No era un defecto del producto, era un defecto de diseño de prueba.** Las dos cubren el camino
+**con** SCM: la segunda afirma literalmente `t.scm is not None`, y la bandera global lo pone en
+`None`. Leían la bandera del ambiente en vez de fijarla, así que su resultado dependía de con qué
+variable de entorno se invocara pytest.
+
+**Por qué importaba más de lo que parecía.** La bandera no es cortesía: es el instrumento que mide el
+tercer brazo de `EV-06` (`baseline` · `tools` · `tools_scm`). Correr la suite con la bandera apagada es
+exactamente el gesto de verificación que precede al ablation. Mientras rompiera, no había forma de
+afirmar que el sistema funciona idéntico sin SCM — y sin eso el aporte de Federico no es demostrable
+ante el jurado.
+
+**Arreglo.** Las dos pruebas fijan `monkeypatch.setenv("SCM_ENABLED", "true")`. Una prueba del camino
+encendido pin­ea la bandera encendida; una del camino apagado la apone. Ninguna hereda el ambiente.
+
+**Regla que deja.** Si una bandera de configuración existe para ser apagada, **la suite tiene que
+correrse apagada como parte de la verificación**, no solo encendida. Una prueba que lee una bandera
+del entorno sin fijarla no prueba un camino: prueba el que le toque. Verificado: `926 passed,
+4 skipped` con la bandera en los dos estados.
