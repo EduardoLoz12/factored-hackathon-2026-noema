@@ -26,17 +26,17 @@
   },
   "ML-11": {
     "status": "terminado",
-    "note": "149 pruebas pasan; modelo entrenado y consulta local verificada; uso experimental documentado",
-    "at": "2026-09-30 22:10"
+    "note": "propension de conversion de campana, cherry-pick de la rama de Federico",
+    "at": "2026-10-05 09:17"
   },
   "ML-12": {
     "status": "terminado",
-    "note": "160 pruebas pasan; MLP entrenado; advisor y paridad con motor de Eduardo verificados",
-    "at": "2026-09-30 22:27"
+    "note": "red profunda y asesor con puerta de evidencia, cherry-pick",
+    "at": "2026-10-05 09:17"
   },
   "ML-13": {
     "status": "terminado",
-    "note": "162 pruebas pasan; comparación de 3/6 capas con 3 semillas; test excluido de selección",
-    "at": "2026-10-01 12:41"
+    "note": "experimento de profundidad: la logistica gana",
+    "at": "2026-10-05 09:17"
   }
 }
