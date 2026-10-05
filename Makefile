@@ -1,4 +1,4 @@
-.PHONY: help setup ingest summary audit build train eval review checklist changelog worklog serve ui test lint check clean
+.PHONY: help setup ingest summary audit build train cases eval review checklist changelog worklog serve ui test lint check clean
 
 PY ?= python
 DBT ?= dbt
@@ -9,7 +9,8 @@ help:
 	@echo "audit   - perfil de calidad de las 13 tablas"
 	@echo "build   - dbt: bronze -> silver -> gold"
 	@echo "train   - baseline + PD + capacidad de pago -> MLflow"
-	@echo "eval    - harness: baseline vs tools vs tools+SCM"
+	@echo "cases   - genera el conjunto retenido: 80 es, 40 pt, 20 adversariales"
+	@echo "eval    - harness: baseline vs tools vs tools+SCM (necesita ANTHROPIC_API_KEY)"
 	@echo "review  - quien cambio que, si respeto su frontera, + checklist"
 	@echo "checklist - estado de los 75 items del entregable, por dueno y por dia"
 	@echo "changelog - control de cambios desde el historial de git"
@@ -44,8 +45,11 @@ build-databricks:
 train:
 	$(PY) -m ml.training.run_all
 
-eval:
-	$(PY) -m eval.harness.run --systems baseline tools tools_scm
+cases:
+	$(PY) -m eval.generator.build --es 80 --pt 40
+
+eval: cases
+	$(PY) -m eval.harness.run --llm
 
 serve:
 	uvicorn api.main:app --reload --port 8000

@@ -2,17 +2,17 @@
 
 Generado por `make checklist` contra el estado real del repo. Cuando alguien crea o completa un archivo de evidencia, el ítem avanza solo en la siguiente corrida. **No editar estados a mano aquí** — usar `python -m scripts.checklist --done ID --note "..."`.
 
-Última evaluación: 2026-10-05 09:17
+Última evaluación: 2026-10-05 09:47
 
 Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
-## Avance global — 43/79 `█████████████░░░░░░░░░░░`
+## Avance global — 49/79 `███████████████░░░░░░░░░`
 
-**43 terminado · 8 avanzado · 28 falta**
+**49 terminado · 8 avanzado · 22 falta**
 
 | Dueño | Terminado | Avanzado | Falta | Total |
 |---|---:|---:|---:|---:|
-| Eduardo | 22 | 5 | 28 | 55 |
+| Eduardo | 28 | 5 | 22 | 55 |
 | Federico | 21 | 3 | 0 | 24 |
 
 ## Plataforma de datos — 11/15 `█████████░░░`
@@ -84,16 +84,16 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [ ] | `AG-12` | Observabilidad: traza por turno, costo, health checks | Eduardo | D5 · 1-oct | — |
 | [~] | `AG-13` | Integracion del SCM tras la bandera SCM_ENABLED | Eduardo | D5 · 1-oct | Eduardo · 2026-10-02 |
 
-## Evaluacion — 0/7 `░░░░░░░░░░░░`
+## Evaluacion — 6/7 `██████████░░`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
-| [ ] | `EV-01` | Generador de casos desde las plantillas reales | Eduardo | D7 · 3-oct | — |
-| [ ] | `EV-02` | Conjunto retenido en espanol (~80 casos) | Eduardo | D7 · 3-oct | — |
-| [ ] | `EV-03` | Conjunto en portugues de Brasil (~40 casos) | Eduardo | D7 · 3-oct | — |
-| [ ] | `EV-04` | Suite adversarial (~20 casos de inyeccion y suplantacion) | Eduardo | D6 · 2-oct | — |
-| [ ] | `EV-05` | Harness de los tres brazos: baseline, tools, tools+SCM | Eduardo | D7 · 3-oct | — |
-| [ ] | `EV-06` | Metricas: resolucion segura, acciones inseguras, grounding, costo | Eduardo | D8 · 4-oct | — |
+| [x] | `EV-01` | Generador de casos desde las plantillas reales | Eduardo | D7 · 3-oct | — | conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa
+| [x] | `EV-02` | Conjunto retenido en espanol (~80 casos) | Eduardo | D7 · 3-oct | — | conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa
+| [x] | `EV-03` | Conjunto en portugues de Brasil (~40 casos) | Eduardo | D7 · 3-oct | — | conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa
+| [x] | `EV-04` | Suite adversarial (~20 casos de inyeccion y suplantacion) | Eduardo | D6 · 2-oct | — | conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa
+| [x] | `EV-05` | Harness de los tres brazos: baseline, tools, tools+SCM | Eduardo | D7 · 3-oct | sin commit | conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa
+| [x] | `EV-06` | Metricas: resolucion segura, acciones inseguras, grounding, costo | Eduardo | D8 · 4-oct | — | conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa
 | [ ] | `EV-07` | Resultados publicados y comparados | Eduardo | D8 · 4-oct | — |
 
 ## API — 0/2 `░░░░░░░░░░░░`

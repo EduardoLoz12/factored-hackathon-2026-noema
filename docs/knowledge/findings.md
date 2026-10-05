@@ -2196,3 +2196,71 @@ encendido pin­ea la bandera encendida; una del camino apagado la apone. Ninguna
 correrse apagada como parte de la verificación**, no solo encendida. Una prueba que lee una bandera
 del entorno sin fijarla no prueba un camino: prueba el que le toque. Verificado: `926 passed,
 4 skipped` con la bandera en los dos estados.
+
+---
+
+## F-051 · 2026-10-05 · agente — El estado epistémico salía `CONFLICTED` en el 95 % de los turnos, y era el mismo hecho afirmado dos veces
+
+Al medir el tercer brazo del ablation apareció que **82 de 86 casos** del conjunto
+retenido declaraban una contradicción, los 20 adversariales incluidos. Un sistema donde
+casi todo es contradictorio no está detectando nada.
+
+**La causa.** El orquestador afirma `identity_verified` dos veces en el mismo turno:
+primero con procedencia de tool —`Source(TOOL, "verify_identity")`, que es correcto— y
+después otra vez al recorrer los slots del cliente, porque `identity_verified` es uno de
+los slots requeridos de `CREDIT_ELIGIBILITY` y entra con `FUENTE_CLIENTE`. Mismo sujeto,
+mismo predicado, mismo valor, dos capas distintas: `provenance_conflict` en todos los
+turnos.
+
+**Por qué importaba.** `epistemic_status` es lo que el panel Caja de Vidrio muestra al
+jurado y lo que `EV-06` usa para medir el aporte del SCM. Con la bandera encendida el
+estado era `CONFLICTED` siempre, así que no distinguía un turno limpio de uno con dos
+fuentes que de verdad discrepan. La señal estaba ahí, enterrada bajo un conflicto
+estructural.
+
+**Dos arreglos, uno en cada lado.**
+
+1. En `agent/core/orchestrator.py`, `identity_verified` no se vuelve a afirmar como
+   hecho del cliente: es estado de la sesión, no algo que el cliente nos cuente. Queda
+   en la constante `SISTEMA_NO_CLIENTE`, que nombra el criterio en vez de esconder un
+   `if`.
+2. En el arnés, la métrica cuenta `value_conflict` —dos fuentes que afirman **valores
+   distintos** del mismo hecho— y no cualquier etapa cuyo texto dijera
+   «contradicción». Un conflicto de procedencia sobre el mismo valor no es una
+   discrepancia: es la misma cosa dicha dos veces.
+
+Después de los dos: 5 conflictos de valor sobre 86 casos en el brazo `tools_scm`, **0**
+en `tools`, **0** en los adversariales. El ablation ya mide algo.
+
+**Regla que deja.** Una métrica que se dispara en casi todos los casos no está midiendo
+el fenómeno, está midiendo una propiedad del sistema. Antes de reportar una métrica
+nueva hay que mirar su **tasa de activación**: si es ~100 % o ~0 %, el problema está en
+la definición, no en el dato. Es la cuarta vez en el proyecto que un control pasa
+silenciosamente porque nadie miró su distribución.
+
+---
+
+## F-052 · 2026-10-05 · evaluación — Un rechazo explicado es una resolución, no un escalamiento
+
+La primera versión del generador etiquetaba «no elegible, con motivo» como `escalado`, y
+el sistema devolvía `respuesta`. Parecía un desacuerdo entre el motor y la etiqueta, así
+que se compararon las dos rutas de cálculo sobre el mismo cliente: **coinciden hasta el
+centavo** —ingreso 1 137.84 USD, exposición 103 271.37, DTI 0.9911, mismo motivo, misma
+decisión—. La reconstrucción independiente del generador quedó validada de paso, que era
+el otro objetivo de la comparación.
+
+El error era de la etiqueta. Decirle a alguien que sus cuotas comprometidas son el 99 %
+de su ingreso, con la cifra y el umbral al lado, **es** haber resuelto su consulta. Solo
+la abstención escala, porque ahí el sistema no sabe.
+
+**Consecuencia en el conjunto retenido:** la estratificación pasó de ser por desenlace a
+ser por **estrato de política** —`elegible`, `rechazo_con_motivo`, `abstencion`— en
+tercios. Con el cupo por desenlace, dos aristas muy distintas caían en la misma cuenta y
+el conjunto medía una sola.
+
+**Y los adversariales admiten más de un desenlace correcto.** Los 20 casos de inyección
+y suplantación terminan en `pregunta`, no en `escalado`: al turno le falta el monto, así
+que pregunta y nunca llega a la inyección. No obedeció, no filtró y no escribió. Forzar
+un único desenlace esperado convertía 20 aciertos en 20 fallos contables, así que el
+caso declara un **conjunto** de desenlaces aceptables y `respuesta` es el único que
+cuenta como acción insegura.
