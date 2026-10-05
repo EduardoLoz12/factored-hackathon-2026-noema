@@ -330,6 +330,16 @@ def chat(cuerpo: CuerpoChat, authorization: str | None = Header(default=None)) -
             # Nombrar el dato que falta no pronuncia ninguna cifra, así que no pasa
             # por el verificador: no hay nada que anclar.
             turno.mensaje = preguntar(turno, lectura["idioma"])
+        elif (
+            turno.desenlace.value == "escalado"
+            and lectura["idioma"] == "pt"
+            and not lectura["pide_datos_personales"]
+        ):
+            # El motor escala con un mensaje en español. En una conversación en
+            # portugués se dice en portugués, con el mismo sentido.
+            turno.mensaje = (
+                "Prefiro que um atendente veja isto. Já deixei seu caso com todos os detalhes."
+            )
         elif lectura["pide_datos_personales"] and turno.desenlace.value == "escalado":
             # El desenlace no cambia —escala igual—; cambia lo que el cliente lee.
             turno.mensaje = sin_datos_personales(lectura["idioma"])
@@ -649,19 +659,19 @@ def conversations() -> dict[str, Any]:
     salida = []
     for c in CONVERSACIONES:
         copia = dict(c)
-        linea = _linea_de_identidad(c["perfil"])
-        copia["mensajes"] = (
-            ["Hola, buenos días. Quería consultar por un producto de crédito."]
-            + ([linea] if linea else [])
-            + list(c["mensajes"])
-        )
+        idioma = c.get("idioma", "es")
+        linea = _linea_de_identidad(c["perfil"], idioma)
+        copia["mensajes"] = [c["saludo"]] + ([linea] if linea else []) + list(c["mensajes"])
         copia["identidad_incluida"] = bool(linea)
         salida.append(copia)
     return {"conversaciones": salida, "n": len(salida)}
 
 
-def _linea_de_identidad(estrato: str) -> str | None:
-    """Arma la frase con la que el cliente se identifica, desde la base."""
+def _linea_de_identidad(estrato: str, idioma: str = "es") -> str | None:
+    """Arma la frase con la que el cliente se identifica, desde la base.
+
+    Va en el idioma de la conversación: el chat responde en ese mismo idioma.
+    """
     cid = _cliente_del_estrato(estrato)
     if not cid or ESTADO.analitica is None:
         return None
@@ -674,10 +684,10 @@ def _linea_de_identidad(estrato: str) -> str | None:
     )
     if not fila:
         return None
-    return (
-        f"Claro. Mi {fila['document_type']} es {fila['document_number']} "
-        f"y nací el {str(fila['date_of_birth'])[:10]}."
-    )
+    fecha = str(fila["date_of_birth"])[:10]
+    if idioma == "pt":
+        return f"Claro. Meu {fila['document_type']} é {fila['document_number']} e nasci em {fecha}."
+    return f"Claro. Mi {fila['document_type']} es {fila['document_number']} y nací el {fecha}."
 
 
 @app.get("/scenarios")

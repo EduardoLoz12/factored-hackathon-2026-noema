@@ -151,6 +151,44 @@ def sin_datos_personales(idioma: str = ES) -> str:
     )
 
 
+# El motor escribe sus motivos en español. Para una conversación en portugués, cada
+# plantilla conocida se traduce conservando las cifras tal como vienen: el anclaje
+# compara números, y las cifras no cambian al cambiar la frase.
+MOTIVOS_PT = (
+    (
+        r"Tu relación con el banco es de (\d+) meses y pedimos al menos (\d+) para un producto adicional\.",  # noqa: E501 — texto o patrón que no se parte
+        "Sua relação com o banco é de {0} meses e exigimos pelo menos {1} para um produto adicional.",  # noqa: E501 — texto o patrón que no se parte
+    ),
+    (
+        r"Ya tienes (\d+) productos de crédito activos y el máximo es (\d+)\.",
+        "Você já tem {0} produtos de crédito ativos e o máximo é {1}.",
+    ),
+    (
+        r"Tus cuotas comprometidas son el ([\d,.]+%) de tu ingreso mensual, por encima del límite de ([\d,.]+%)\.",  # noqa: E501 — texto o patrón que no se parte
+        "Suas parcelas comprometidas são {0} da sua renda mensal, acima do limite de {1}.",
+    ),
+    (
+        r"El crédito que ya tienes concedido equivale a ([\d,.]+) veces tu ingreso anual y el tope es ([\d,.]+)\.",  # noqa: E501 — texto o patrón que no se parte
+        "O crédito que você já tem concedido equivale a {0} vezes sua renda anual e o teto é {1}.",
+    ),
+    (
+        r"Con tus cuotas actuales de ([\d,.]+) USD no queda margen bajo el tope de ([\d,.]+%) de tu ingreso\.",  # noqa: E501 — texto o patrón que no se parte
+        "Com suas parcelas atuais de {0} USD não sobra margem abaixo do teto de {1} da sua renda.",
+    ),
+)
+
+
+def motivo_pt(motivo: str) -> str:
+    """Traduce un motivo conocido del motor. Si no lo reconoce, lo deja tal cual."""
+    import re
+
+    for patron, plantilla in MOTIVOS_PT:
+        m = re.fullmatch(patron, motivo.strip())
+        if m:
+            return plantilla.format(*m.groups())
+    return motivo
+
+
 def redactar(turno: Any, idioma: str = ES, pedido: str | None = None) -> str:
     """Arma la respuesta del turno. Solo usa cifras que los tools publicaron.
 
@@ -223,11 +261,13 @@ def redactar(turno: Any, idioma: str = ES, pedido: str | None = None) -> str:
             if pt
             else "Ahora mismo no puedo ofrecerte un producto de crédito, y te digo por qué: "
         )
+        if pt:
+            motivos = [motivo_pt(m) for m in motivos]
         cuerpo = motivos[0]
         cola = (
             ""
             if len(motivos) == 1
-            else ("\\nOutros motivos: " if pt else "\nOtros motivos: ") + " ".join(motivos[1:3])
+            else ("\nOutros motivos: " if pt else "\nOtros motivos: ") + " ".join(motivos[1:3])
         )
         return cabeza + cuerpo + cola
 

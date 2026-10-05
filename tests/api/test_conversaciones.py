@@ -332,7 +332,7 @@ def test_el_panel_dice_que_cabe_lo_mismo_que_dice_el_chat(cliente):
     cabe = {
         e["titulo"].split(":")[0]
         for e in t["eventos"]
-        if e["fase"] == "politica" and e["titulo"].endswith(": cabe")
+        if e["fase"] == "politica" and e["titulo"].endswith(": fits")
     }
     assert ofrecidos, "el turno debía ofrecer algo para que la prueba signifique algo"
     assert ofrecidos <= cabe, f"el chat ofrece {ofrecidos} y el panel solo dice que cabe {cabe}"

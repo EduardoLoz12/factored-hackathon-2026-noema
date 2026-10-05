@@ -43,7 +43,8 @@ PIDE_HUMANO = (
     "una persona",
     "humano",
     "atendente",
-    "pessoa",
+    "uma pessoa",
+    "com alguem",
     "hablar con alguien",
     "falar com",
 )
@@ -158,8 +159,43 @@ def _a_numero(bruto: str) -> float | None:
 def detectar_idioma(texto: str) -> str:
     """Español o portugués. Solo dos, porque solo dos pide el reto."""
     p = _plano(texto)
-    marcas_pt = ("voce", "nao", "obrigado", "bom dia", "gostaria", "emprestimo", "cartao", "mes")
-    marcas_es = ("usted", "buenos dias", "quisiera", "prestamo", "tarjeta", "gracias", "mes")
+    marcas_pt = (
+        "voce",
+        "nao",
+        "obrigad",
+        "bom dia",
+        "gostaria",
+        "emprestimo",
+        "cartao",
+        "meu ",
+        "minha",
+        "nasci",
+        "preciso",
+        "olá",
+        "ola,",
+        "prefiro",
+        "entendo",
+        "e um ",
+        "dolares",
+        "senhor",
+        "por favor",
+    )
+    marcas_es = (
+        "usted",
+        "buenos dias",
+        "quisiera",
+        "prestamo",
+        "tarjeta",
+        "gracias",
+        "mi ",
+        "nací",
+        "necesito",
+        "quiero",
+        "dame",
+        "por favor",
+        "tengo",
+        "puedo",
+    )
     pt = sum(1 for m in marcas_pt if m in p)
     es = sum(1 for m in marcas_es if m in p)
     return "pt" if pt > es else "es"

@@ -37,26 +37,26 @@ TABLAS = {
 }
 
 QUE_HACE = {
-    "verify_identity": "Compara los tres factores contra la base",
-    "get_customer_profile": "Lee ingreso, segmento y antigüedad",
-    "get_customer_credit_products": "Lee los productos de crédito vigentes al corte",
-    "get_customer_assets": "Lee cuentas e inversiones, que entran como reservas",
-    "get_payment_history": "Cuenta los pagos observados por producto",
-    "get_last_real_activity": "Busca la última transacción real de cada producto",
-    "get_product_catalog": "Lee el catálogo y sus condiciones vigentes",
-    "evaluate_eligibility": "Ejecuta la política sobre los hechos reunidos",
-    "record_offer_quote": "Registra la cotización y la vuelve a leer",
-    "create_escalation_case": "Abre el expediente para el asesor",
+    "verify_identity": "Compares the three identity factors against the database",
+    "get_customer_profile": "Reads income, segment and tenure",
+    "get_customer_credit_products": "Reads the credit products active at the cut-off",
+    "get_customer_assets": "Reads accounts and investments, which count as reserves",
+    "get_payment_history": "Counts observed payments per product",
+    "get_last_real_activity": "Finds the last real transaction of each product",
+    "get_product_catalog": "Reads the catalogue and its current conditions",
+    "evaluate_eligibility": "Runs the policy over the facts gathered",
+    "record_offer_quote": "Records the quote and reads it back",
+    "create_escalation_case": "Opens the case file for the advisor",
 }
 
 NOMBRE_REGLA = {
-    "R1_antiguedad": "Antigüedad mínima como cliente",
-    "R2_numero_de_productos": "Tope de productos de crédito activos",
-    "R3_corte_duro_de_dti": "Corte duro de endeudamiento",
-    "R4_exposicion_sobre_ingreso": "Exposición sobre el ingreso anual",
-    "R5_margen_disponible": "Margen mensual bajo el tope de DTI",
-    "R7_monto_minimo": "Monto mínimo del producto",
-    "R8_segmento": "Producto disponible para el segmento",
+    "R1_antiguedad": "Minimum tenure as a client",
+    "R2_numero_de_productos": "Cap on active credit products",
+    "R3_corte_duro_de_dti": "Hard debt-service cut-off",
+    "R4_exposicion_sobre_ingreso": "Exposure over annual income",
+    "R5_margen_disponible": "Monthly margin under the DTI cap",
+    "R7_monto_minimo": "Product minimum amount",
+    "R8_segmento": "Product available for the client's segment",
 }
 
 
@@ -86,17 +86,17 @@ def de_identidad(lectura: dict[str, Any], reunidos: list[str], faltan: list[str]
     eventos = [
         _ev(
             "entrada",
-            "Mensaje del cliente recibido",
-            detalle=f"idioma detectado: {lectura['idioma']}",
+            "Client message received",
+            detalle=f"idioma detected: {lectura['idioma']}",
             fuente="api/extraccion.py",
-            control="detección de idioma",
+            control="language detection",
         ),
         _ev(
             "identidad",
-            "Lectura de los factores de identidad",
-            detalle=("reunidos: " + (", ".join(reunidos) if reunidos else "ninguno todavía")),
+            "Reading identity factors",
+            detalle=("collected: " + (", ".join(reunidos) if reunidos else "none yet")),
             fuente="api/identidad.py",
-            control="tres factores: tipo, número y fecha de nacimiento",
+            control="three factors: document type, number and date of birth",
             estado="ok" if reunidos else "pe",
         ),
     ]
@@ -104,10 +104,10 @@ def de_identidad(lectura: dict[str, Any], reunidos: list[str], faltan: list[str]
         eventos.append(
             _ev(
                 "identidad",
-                "No se consulta nada todavía",
-                detalle="faltan " + ", ".join(faltan),
+                "Nothing queried yet",
+                detalle="missing: " + ", ".join(faltan),
                 fuente="agent/core/access_guard.py",
-                control="AG-05 · sin sesión no sale información personal",
+                control="AG-05 · no personal information without a session",
                 estado="pe",
             )
         )
@@ -116,12 +116,12 @@ def de_identidad(lectura: dict[str, Any], reunidos: list[str], faltan: list[str]
     eventos.append(
         _ev(
             "identidad",
-            "Verificación contra la base"
+            "Checking against the database"
             if r is None
-            else ("Identidad verificada" if r.verificado else "Los factores no coinciden"),
-            detalle=(f"intentos restantes: {r.intentos_restantes}" if r is not None else ""),
+            else ("Identity verified" if r.verificado else "Factors do not match"),
+            detalle=(f"attempts left: {r.intentos_restantes}" if r is not None else ""),
             fuente="noema_silver.stg_customers",
-            control="AG-05 · 3 intentos, espera creciente, JWT de 15 min",
+            control="AG-05 · 3 attempts, growing wait, JWT valid 15 min",
             estado="ok" if (r is not None and r.verificado) else "no",
         )
     )
@@ -131,11 +131,11 @@ def de_identidad(lectura: dict[str, Any], reunidos: list[str], faltan: list[str]
 def _decision_txt(d: dict[str, Any], hechos: dict[str, Any]) -> str:
     """Lo que la decisión concluyó, en una línea. No repite el motivo de otro producto."""
     if d.get("abstencion"):
-        return "la política se abstuvo: el turno pregunta o escala en vez de afirmar"
-    if d.get("elegible"):
-        nombres = sorted({str(o.get("producto")) for o in (d.get("productos_elegibles") or [])})
-        return "productos que sí caben: " + ", ".join(nombres) if nombres else "elegible"
-    return (d.get("motivos") or ["no elegible"])[0]
+        return "the policy abstained: the turn asks or escalates instead of asserting"
+    if d.get("eligible"):
+        nombres = sorted({str(o.get("producto")) for o in (d.get("productos_eligibles") or [])})
+        return "products that fit: " + ", ".join(nombres) if nombres else "eligible"
+    return (d.get("motivos") or ["no eligible"])[0]
 
 
 def del_turno(
@@ -155,14 +155,12 @@ def del_turno(
     eventos.append(
         _ev(
             "entrada",
-            "El mensaje se envuelve como dato, no como instrucción",
+            "Message wrapped as data, not as an instruction",
             detalle=(
-                "patrones detectados: " + ", ".join(patrones)
-                if patrones
-                else "sin patrones de inyección"
+                "patterns detected: " + ", ".join(patrones) if patrones else "no injection patterns"
             ),
             fuente="agent/guardrails/injection.py",
-            control="AG-10 · contención con sello aleatorio por turno",
+            control="AG-10 · containment with a per-turn random seal",
             estado="pe" if sospechoso else "ok",
         )
     )
@@ -172,10 +170,10 @@ def del_turno(
     eventos.append(
         _ev(
             "entrada",
-            f"Intención: {lectura['intencion']}",
-            detalle=("datos extraídos: " + ", ".join(slots)) if slots else "sin datos en el texto",
+            f"Intent: {lectura['intencion']}",
+            detalle=("data extracted: " + ", ".join(slots)) if slots else "no data in the text",
             fuente="api/extraccion.py",
-            control="el modelo extrae, el orquestador decide",
+            control="the model extracts, the orchestrator decides",
         )
     )
 
@@ -183,10 +181,10 @@ def del_turno(
     eventos.append(
         _ev(
             "identidad",
-            "Sesión verificada",
-            detalle="el identificador del cliente viaja dentro del token",
+            "Verified session",
+            detalle="the client identifier travels inside the token",
             fuente="agent/core/access_guard.py",
-            control="AG-05 · permisos en código, no en el prompt",
+            control="AG-05 · permissions enforced in code, not in the prompt",
         )
     )
 
@@ -201,12 +199,12 @@ def del_turno(
                     x["error"]
                     if x["error"]
                     else (
-                        f"{x['cifras']} cifras publicadas"
-                        + (" · releída tras escribir" if x["escribe"] else "")
+                        f"{x['cifras']} figures published"
+                        + (" · read back after writing" if x["escribe"] else "")
                     )
                 ),
                 fuente=TABLAS.get(nombre, x.get("fuente") or "—"),
-                control=f"AG-03 · {nombre}, permitido para este rol",
+                control=f"AG-03 · {nombre}, allowed for this role",
                 estado="no" if x["error"] else "ok",
                 ms=x["ms"],
             )
@@ -223,14 +221,14 @@ def del_turno(
                 NOMBRE_REGLA.get(r["id"], r["id"]),
                 detalle=r.get("exige", ""),
                 fuente=f"eligibility_v1.yaml v{d.get('politica_version')} · {r['id']}",
-                control="AG-02 · la elegibilidad la calcula la política, no el modelo",
+                control="AG-02 · eligibility is computed by the policy, not by the model",
                 estado="ok" if (aplica and cumple) else ("no" if aplica else "pe"),
             )
         )
 
     # 6 · El veredicto por producto, que es donde se ve el techo.
-    # Un producto cabe si tiene al menos una opción de plazo. Así lo publica el motor
-    # (`opciones` vacío = ningún plazo pasa). Si no cabe, el motivo está en la lista
+    # Un producto fits si tiene al menos una opción de plazo. Así lo publica el motor
+    # (`opciones` vacío = ningún plazo pasa). Si does not fit, el motivo está en la lista
     # de motivos de la decisión, que empieza por el nombre del producto.
     motivos = d.get("motivos") or []
     for producto, detalle in (hechos.get("evaluacion_por_producto") or {}).items():
@@ -238,17 +236,17 @@ def del_turno(
         acepta = bool(opciones)
         if acepta:
             plazos = ", ".join(str(m) for m in sorted(opciones, key=lambda x: int(x)))
-            detalle_txt = f"cabe a {plazos} meses"
+            detalle_txt = f"fits at {plazos} months"
         else:
             motivo = next((m for m in motivos if str(m).startswith(producto)), "")
-            detalle_txt = motivo or "ningún plazo del catálogo pasa las reglas"
+            detalle_txt = motivo or "no term passes the rules"
         eventos.append(
             _ev(
                 "politica",
-                f"{producto}: {'cabe' if acepta else 'no cabe'}",
+                f"{producto}: {'fits' if acepta else 'does not fit'}",
                 detalle=str(detalle_txt)[:200],
-                fuente="eligibility_v1.yaml · catálogo",
-                control="R7 monto mínimo · R8 segmento · plazos ofertables",
+                fuente="eligibility_v1.yaml · catalogue",
+                control="R7 minimum amount · R8 segment · term options",
                 estado="ok" if acepta else "no",
             )
         )
@@ -257,14 +255,14 @@ def del_turno(
         eventos.append(
             _ev(
                 "politica",
-                "Decisión de la política",
+                "Policy decision",
                 detalle=_decision_txt(d, hechos),
                 fuente=(
                     f"eligibility_v1.yaml v{d.get('politica_version')} · "
                     f"corte {hechos.get('corte')}"
                 ),
-                control="abstenerse es un resultado válido",
-                estado="pe" if d.get("abstencion") else ("ok" if d.get("elegible") else "no"),
+                control="abstaining is a valid outcome",
+                estado="pe" if d.get("abstencion") else ("ok" if d.get("eligible") else "no"),
             )
         )
 
@@ -275,14 +273,14 @@ def del_turno(
         eventos.append(
             _ev(
                 "cognicion",
-                f"Estado epistémico: {scm.get('epistemic_status')}",
+                f"Epistemic state: {scm.get('epistemic_status')}",
                 detalle=(
-                    f"{conflictos} contradicción(es) entre fuentes"
+                    f"{conflictos} contradiction(s) between sources"
                     if conflictos
-                    else "ninguna fuente contradice a otra"
+                    else "no source contradicts another"
                 ),
                 fuente="agent/cognition/scm.py",
-                control="SCM_ENABLED · hechos tipados con procedencia",
+                control="SCM_ENABLED · typed facts with provenance",
                 estado="pe" if conflictos else "ok",
             )
         )
@@ -292,12 +290,10 @@ def del_turno(
     eventos.append(
         _ev(
             "verificacion",
-            "Toda cifra de la respuesta viene de un tool de este turno",
-            detalle=(
-                f"{citadas} cifras ancladas" if citadas else "este turno no pronunció ninguna cifra"
-            ),
+            "Every figure in the reply comes from a tool of this turn",
+            detalle=(f"{citadas} figures anchored" if citadas else "this turn stated no figures"),
             fuente="agent/guardrails/grounding.py",
-            control="AG-09 · dos intentos y se escala",
+            control="AG-09 · two attempts, then escalate",
             estado="ok",
         )
     )
@@ -306,14 +302,14 @@ def del_turno(
     eventos.append(
         _ev(
             "desenlace",
-            f"Desenlace: {turno.desenlace.value}",
+            f"Outcome: {turno.desenlace.value}",
             detalle=(
-                f"expediente {turno.case_id}"
+                f"case file {turno.case_id}"
                 if turno.case_id
-                else (f"acción {turno.action_id}" if turno.action_id else "sin escritura")
+                else (f"action {turno.action_id}" if turno.action_id else "no write")
             ),
             fuente="agent/core/orchestrator.py",
-            control="máquina de seis etapas, una prueba por arista",
+            control="six-stage state machine, one test per edge",
             estado="ok" if turno.desenlace.value in {"respuesta", "verificado"} else "pe",
         )
     )
