@@ -42,7 +42,9 @@ from agent.tools import customer as cu
 from agent.tools.ledger import abrir_ledger
 from agent.tools.registry import Role, Session, ToolRegistry, hash_pii
 from agent.tools.store import AnalyticsStore, Contexto
+from api.conversaciones import CONVERSACIONES
 from api.extraccion import extraer
+from api.redaccion import preguntar, redactor, sin_datos_personales
 from api.seguridad import (
     FiltroPII,
     Limitador,
@@ -274,16 +276,18 @@ def chat(cuerpo: CuerpoChat, authorization: str | None = Header(default=None)) -
     seguro = DETECTOR.revisar(cuerpo.mensaje[:MAX_MENSAJE])
     lectura = extraer(cuerpo.mensaje[:MAX_MENSAJE])
 
+    sesion_turno = Session(
+        role=sesion.role,
+        verified=sesion.verified,
+        customer_id=sesion.customer_id,
+        jti=sesion.jti,
+        conversation_id=cuerpo.conversation_id,
+        expires_at=sesion.expires_at,
+    )
+    orq.registry.drenar()
     try:
         turno = orq.turno(
-            Session(
-                role=sesion.role,
-                verified=sesion.verified,
-                customer_id=sesion.customer_id,
-                jti=sesion.jti,
-                conversation_id=cuerpo.conversation_id,
-                expires_at=sesion.expires_at,
-            ),
+            sesion_turno,
             intencion=lectura["intencion"],
             slots=dict(lectura["slots"]),
             producto_elegido=(cuerpo.producto, cuerpo.plazo_meses)
@@ -302,6 +306,24 @@ def chat(cuerpo: CuerpoChat, authorization: str | None = Header(default=None)) -
             ),
         ) from exc
 
+    # La prosa pasa por el mismo verificador de anclaje que la del modelo en la
+    # evaluación. Si la plantilla pronunciara una cifra que los tools no publicaron,
+    # el turno escala en vez de entregarla.
+    try:
+        if turno.desenlace.value == "respuesta":
+            escribir = redactor(lectura["idioma"], lectura["slots"].get("product_type"))
+            turno, _ = orq.redactar_y_verificar(turno, sesion_turno, escribir(turno))
+        elif turno.desenlace.value == "pregunta":
+            # Nombrar el dato que falta no pronuncia ninguna cifra, así que no pasa
+            # por el verificador: no hay nada que anclar.
+            turno.mensaje = preguntar(turno, lectura["idioma"])
+        elif lectura["pide_datos_personales"] and turno.desenlace.value == "escalado":
+            # El desenlace no cambia —escala igual—; cambia lo que el cliente lee.
+            turno.mensaje = sin_datos_personales(lectura["idioma"])
+    except Exception:
+        LOGGER.exception("redaccion_fallida conversacion=%s", cuerpo.conversation_id[:8])
+
+    bitacora = orq.registry.drenar()
     traza = turno.a_traza()
     traza["idioma"] = lectura["idioma"]
     traza["supuestos"] = lectura["supuestos"]
@@ -328,6 +350,9 @@ def chat(cuerpo: CuerpoChat, authorization: str | None = Header(default=None)) -
         "ausencias": list(turno.ausencias),
         "cifras_ancladas": [v for v in turno.cifras_ancladas if isinstance(v, (int, float))],
         "scm": turno.scm,
+        # Qué se consultó, qué se escribió y qué respaldó cada cifra. Es la
+        # bitácora real del turno, no un resumen redactado después.
+        "tools": bitacora,
         "traza": traza,
     }
 
@@ -488,6 +513,12 @@ ESCENARIOS = [
         "espera": "Mismo ciclo, respuesta en portugués. Los casos PT son construidos.",
     },
 ]
+
+
+@app.get("/conversations")
+def conversations() -> dict[str, Any]:
+    """Las tres conversaciones guiadas. Son mensajes del cliente, no respuestas."""
+    return {"conversaciones": CONVERSACIONES, "n": len(CONVERSACIONES)}
 
 
 @app.get("/scenarios")

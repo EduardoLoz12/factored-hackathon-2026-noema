@@ -82,6 +82,25 @@
     background:var(--card);color:var(--ink);border-radius:6px;cursor:pointer;max-width:100%}
   .fichas button:hover{border-color:var(--accent);color:var(--accent)}
 
+  .selector{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid var(--rule);
+    align-items:center;flex-wrap:wrap}
+  .segmentos{display:flex;gap:0;border:1px solid var(--rule);border-radius:7px;overflow:hidden;
+    flex:1 1 320px;min-width:0}
+  .segmentos button{flex:1 1 0;min-width:0;font:inherit;font-size:12px;font-weight:500;
+    padding:7px 10px;border:0;border-right:1px solid var(--rule);background:var(--card);
+    color:var(--ink-soft);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .segmentos button:last-child{border-right:0}
+  .segmentos button[aria-selected="true"]{background:var(--head);color:#fff;font-weight:600}
+  .demuestra{margin:0;padding:10px 16px;border-bottom:1px solid var(--rule);
+    font-size:12.5px;color:var(--ink-soft);background:var(--tint)}
+  .datos{border-bottom:1px solid var(--rule)}
+  .datos-tit{font-family:var(--mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;
+    color:#98a0ae;padding:12px 16px 6px}
+  .datos table{font-size:12px}
+  .datos td,.datos th{padding:6px 16px}
+  .datos .guardado{color:var(--ok);font-weight:600}
+  .datos .leido{color:var(--ink-soft)}
+  .datos .fallo{color:var(--no);font-weight:600}
   .conteos{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid var(--rule);flex-wrap:wrap}
   .conteos span{flex:1 1 0;min-width:96px;text-align:center;font-size:12px;font-weight:600;
     padding:7px 8px;border-radius:7px;border:1px solid}
@@ -156,12 +175,11 @@
       </div>
     </div>
 
-    <div class="fichas" id="perfiles">
-      <button class="btn claro" data-perfil="elegible">Cliente con capacidad</button>
-      <button class="btn claro" data-perfil="rechazo_con_motivo">Cliente sobreendeudado</button>
-      <button class="btn claro" data-perfil="abstencion">Cliente sin datos suficientes</button>
+    <div class="selector">
+      <div class="segmentos" id="conversaciones" role="tablist"></div>
+      <button class="btn azul" id="reproducir">Reproducir</button>
     </div>
-    <div class="fichas" id="escenarios"></div>
+    <p class="demuestra" id="demuestra"></p>
 
     <div class="hilo" id="hilo">
       <div class="turno agente">
@@ -193,6 +211,12 @@
       <span class="c-ok" id="n-ok">— cumplidos</span>
       <span class="c-no" id="n-no">— incumplidos</span>
       <span class="c-pe" id="n-pe">— no aplican</span>
+    </div>
+    <div class="datos" id="datos" hidden>
+      <div class="datos-tit">Datos de este turno</div>
+      <div class="scroll"><table id="tabla-datos"><thead><tr>
+        <th>Herramienta</th><th>Origen</th><th class="n">Cifras</th><th class="n">ms</th><th>Qué hizo</th>
+      </tr></thead><tbody></tbody></table></div>
     </div>
     <ol class="pasos" id="pasos">
       <li class="paso">
@@ -303,46 +327,75 @@ async function cargarSalud() {
   }
 }
 
-async function cargarEscenarios() {
-  try {
-    const d = await pedir('/scenarios');
-    const cont = $('#escenarios');
-    cont.innerHTML = '';
-    for (const e of d.escenarios) {
-      const b = document.createElement('button');
-      b.textContent = e.titulo;
-      b.title = e.espera;
-      b.addEventListener('click', () => { $('#mensaje').value = e.mensaje; $('#mensaje').focus(); });
-      cont.appendChild(b);
-    }
-  } catch { /* la conversación funciona sin escenarios precargados */ }
-}
-
 const NOMBRE_PERFIL = {
   elegible: 'con capacidad de pago',
   rechazo_con_motivo: 'sobreendeudado',
   abstencion: 'sin datos suficientes',
 };
-document.querySelectorAll('[data-perfil]').forEach((b) => {
-  b.addEventListener('click', async () => {
-    document.querySelectorAll('[data-perfil]').forEach((o) => { o.disabled = true; });
-    try {
-      const d = await pedir('/session/demo?perfil=' + encodeURIComponent(b.dataset.perfil), { method: 'POST' });
-      TOKEN = d.token; CONV = d.conversation_id;
-      const ses = $('#estado-ses');
-      ses.textContent = 'verificado · ' + (NOMBRE_PERFIL[d.perfil] || d.perfil);
-      ses.className = 'estado-ses';
-      $('#hilo').innerHTML = '';
-      turno('noema', 'Identidad verificada con los tres factores de un cliente ' +
-        (NOMBRE_PERFIL[d.perfil] || d.perfil) +
-        ', leídos de la base. La sesión caduca en 15 minutos. ¿En qué te ayudo?');
-    } catch (e) {
-      turno('sistema', 'No se pudo abrir la sesión: ' + e.message);
-    } finally {
-      document.querySelectorAll('[data-perfil]').forEach((o) => { o.disabled = false; });
-    }
+
+let CONVS = [];
+let ELEGIDA = 0;
+let CORRIENDO = false;
+
+async function cargarConversaciones() {
+  try {
+    const d = await pedir('/conversations');
+    CONVS = d.conversaciones || [];
+  } catch { CONVS = []; }
+  const cont = $('#conversaciones');
+  cont.innerHTML = '';
+  CONVS.forEach((c, i) => {
+    const b = document.createElement('button');
+    b.setAttribute('role', 'tab');
+    b.setAttribute('aria-selected', String(i === ELEGIDA));
+    b.textContent = (i + 1) + ' · ' + c.titulo;
+    b.title = c.demuestra;
+    b.addEventListener('click', () => { if (!CORRIENDO) { ELEGIDA = i; pintarEleccion(); } });
+    cont.appendChild(b);
   });
-});
+  pintarEleccion();
+}
+
+function pintarEleccion() {
+  const c = CONVS[ELEGIDA];
+  document.querySelectorAll('#conversaciones button').forEach((b, i) => {
+    b.setAttribute('aria-selected', String(i === ELEGIDA));
+  });
+  $('#demuestra').textContent = c ? c.demuestra : '';
+}
+
+const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function reproducir() {
+  const c = CONVS[ELEGIDA];
+  if (!c || CORRIENDO) return;
+  CORRIENDO = true;
+  $('#reproducir').disabled = true;
+  $('#reproducir').textContent = 'Reproduciendo…';
+  $('#hilo').innerHTML = '';
+  $('#datos').hidden = true;
+  try {
+    // Identidad primero, con los tres factores reales del cliente de ese estrato.
+    const d = await pedir('/session/demo?perfil=' + encodeURIComponent(c.perfil), { method: 'POST' });
+    TOKEN = d.token; CONV = d.conversation_id;
+    const ses = $('#estado-ses');
+    ses.textContent = 'verificado · ' + (NOMBRE_PERFIL[d.perfil] || d.perfil);
+    ses.className = 'estado-ses';
+    turno('noema', 'Identidad verificada con los tres factores de un cliente ' +
+      (NOMBRE_PERFIL[d.perfil] || d.perfil) + ', leídos de la base. ¿En qué te ayudo?');
+    await espera(700);
+    for (const m of c.mensajes) {
+      await enviar(m);
+      await espera(1100);
+    }
+  } catch (e) {
+    turno('sistema', 'No se pudo reproducir la conversación: ' + e.message);
+  } finally {
+    CORRIENDO = false;
+    $('#reproducir').disabled = false;
+    $('#reproducir').textContent = 'Reproducir de nuevo';
+  }
+}
 
 function turno(quien, texto, clase) {
   const d = document.createElement('div');
@@ -491,7 +544,34 @@ function linea(etiqueta, valor, mono) {
   return p;
 }
 
+function pintarDatos(tools) {
+  const caja = $('#datos');
+  const tb = $('#tabla-datos').querySelector('tbody');
+  tb.innerHTML = '';
+  if (!tools || !tools.length) { caja.hidden = true; return; }
+  caja.hidden = false;
+  for (const x of tools) {
+    const tr = document.createElement('tr');
+    const celdas = [
+      [x.tool, ''],
+      [x.fuente || '—', ''],
+      [String(x.cifras || 0), 'n'],
+      [String(x.ms), 'n'],
+      [x.error ? x.error : (x.escribe ? 'escribió y releyó' : 'leyó'), ''],
+    ];
+    celdas.forEach(([v, cls], i) => {
+      const td = document.createElement('td');
+      if (cls) td.className = cls;
+      if (i === 4) td.className = x.error ? 'fallo' : (x.escribe ? 'guardado' : 'leido');
+      td.textContent = v;
+      tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  }
+}
+
 function pintarTurno(t) {
+  pintarDatos(t.tools);
   const ds = $('#desenlace');
   ds.textContent = t.desenlace;
   ds.className = 'insignia ' + (t.desenlace === 'respuesta' ? 'ok' : (t.desenlace === 'bloqueado' ? 'no' : 'pe'));
@@ -709,7 +789,8 @@ async function cargarAnalitica() {
 }
 
 cargarSalud();
-cargarEscenarios();
+cargarConversaciones();
+$('#reproducir').addEventListener('click', reproducir);
 </script>
 </body>
 </html>

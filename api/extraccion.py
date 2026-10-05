@@ -66,6 +66,48 @@ CONSULTA = (
     "me interesa saber",
 )
 
+# Pedir los datos que el banco tiene guardados no es una consulta de producto ni una
+# solicitud de crédito: es otra cosa, y no se resuelve por este canal. Reconocerla
+# sirve para escalar diciendo por qué, en vez de contestar «no entendí».
+# Un sustantivo solo no alcanza: «quiero cambiar mi dirección postal» nombra un dato
+# personal y no es una petición de datos. Hace falta el verbo de petición **y** el dato.
+VERBOS_PEDIR = (
+    "dame",
+    "dime",
+    "damelo",
+    "muestrame",
+    "enviame",
+    "mandame",
+    "pasame",
+    "me das",
+    "me puedes dar",
+    "cual es mi",
+    "cuales son mis",
+    "necesito saber",
+    "quiero saber",
+    "me diga",
+    "me passe",
+    "me envie",
+    "qual e o meu",
+    "quais sao os meus",
+)
+
+DATOS_GUARDADOS = (
+    "documento",
+    "telefono",
+    "correo",
+    "email",
+    "direccion",
+    "fecha de nacimiento",
+    "data de nascimento",
+    "datos registrados",
+    "datos que tienes",
+    "tienes registrados",
+    "tienes registrado",
+    "meus dados",
+    "numero de identidad",
+)
+
 PIDE_MONTO = (
     "quiero",
     "quisiera",
@@ -159,6 +201,7 @@ def extraer(texto: str) -> dict[str, Any]:
         slots["currency"] = moneda
 
     pide_humano = any(x in p for x in PIDE_HUMANO)
+    pide_datos = any(v in p for v in VERBOS_PEDIR) and any(x in p for x in DATOS_GUARDADOS)
     consulta = any(x in p for x in CONSULTA)
     pide = any(x in p for x in PIDE_MONTO)
 
@@ -166,7 +209,10 @@ def extraer(texto: str) -> dict[str, Any]:
     # con «quiero». Para que el turno entre al workflow de crédito tiene que haber un
     # producto del catálogo o un importe. Si no, es otra cosa y se escala.
     del_workflow = producto is not None or monto is not None
-    if pide_humano:
+    if pide_datos:
+        # Fuera del workflow a propósito: el turno escala y la redacción dice por qué.
+        intencion = "DATOS_PERSONALES"
+    elif pide_humano:
         intencion = "CREDIT_ELIGIBILITY"
     elif consulta and del_workflow and not (pide and monto is not None):
         intencion = "PRODUCT_INFO"
@@ -181,6 +227,7 @@ def extraer(texto: str) -> dict[str, Any]:
         "slots": slots,
         "idioma": detectar_idioma(texto),
         "pide_humano": pide_humano,
+        "pide_datos_personales": pide_datos,
         "supuestos": (
             ["moneda asumida en USD porque no se nombró ninguna"]
             if monto is not None and moneda is None

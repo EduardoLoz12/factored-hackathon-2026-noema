@@ -91,8 +91,8 @@
   },
   "UI-04": {
     "status": "terminado",
-    "note": "FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen",
-    "at": "2026-10-05 10:01"
+    "note": "tres conversaciones guiadas que corren el flujo real, con prueba de punta a punta",
+    "at": "2026-10-05 10:41"
   },
   "UI-05": {
     "status": "terminado",

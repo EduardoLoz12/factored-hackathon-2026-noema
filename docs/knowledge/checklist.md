@@ -2,7 +2,7 @@
 
 Generado por `make checklist` contra el estado real del repo. Cuando alguien crea o completa un archivo de evidencia, el ítem avanza solo en la siguiente corrida. **No editar estados a mano aquí** — usar `python -m scripts.checklist --done ID --note "..."`.
 
-Última evaluación: 2026-10-05 10:18
+Última evaluación: 2026-10-05 10:41
 
 Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
@@ -110,7 +110,7 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [ ] | `UI-01` | Proyecto Next.js configurado | Eduardo | D6 · 2-oct | — |
 | [x] | `UI-02` | /chat en espanol y portugues | Eduardo | D6 · 2-oct | — | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
 | [x] | `UI-03` | Panel Caja de Vidrio con la traza en vivo | Eduardo | D6 · 2-oct | — | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
-| [x] | `UI-04` | Escenarios precargados para el jurado | Eduardo | D6 · 2-oct | — | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
+| [x] | `UI-04` | Escenarios precargados para el jurado | Eduardo | D6 · 2-oct | — | tres conversaciones guiadas que corren el flujo real, con prueba de punta a punta
 | [x] | `UI-05` | /console con los expedientes estructurados | Eduardo | D7 · 3-oct | — | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
 | [x] | `UI-06` | /analytics: metricas del agente y evidencia del ablation | Eduardo | D7 · 3-oct | — | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
 | [x] | `UI-07` | /analytics: insights del negocio y calidad de datos | Eduardo | D7 · 3-oct | — | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
