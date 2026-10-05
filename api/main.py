@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import uuid
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
@@ -44,6 +45,7 @@ from agent.tools.registry import Role, Session, ToolRegistry, hash_pii
 from agent.tools.store import AnalyticsStore, Contexto
 from api import eventos as ev
 from api import identidad
+from api.comprension import comprender, lectura_desde
 from api.conversaciones import CONVERSACIONES
 from api.extraccion import extraer
 from api.redaccion import preguntar, redactor, sin_datos_personales
@@ -83,6 +85,9 @@ class Estado:
     # efímero a propósito: no es un almacén de PII, es el estado de un diálogo que
     # dura minutos. Se borra en cuanto la sesión queda emitida.
     identidades: dict[str, dict[str, str]] = field(default_factory=dict)
+    # Últimos mensajes de cada conversación, para que el modelo siga el hilo. Acotado y
+    # sin cifras: los dígitos se sustituyen antes de guardar.
+    historial: dict[str, list[str]] = field(default_factory=dict)
     motivo: str = ""
 
     @property
@@ -273,21 +278,106 @@ def verify(cuerpo: CuerpoVerificar) -> dict[str, Any]:
 @app.post("/chat")
 def chat(cuerpo: CuerpoChat, authorization: str | None = Header(default=None)) -> dict[str, Any]:
     """Un turno completo. Devuelve la respuesta **y** la traza que la produjo."""
+    resultado = _procesar(cuerpo, authorization)
+    _recordar(cuerpo.conversation_id, cuerpo.mensaje, resultado["mensaje"])
+    return resultado
+
+
+def _procesar(cuerpo: CuerpoChat, authorization: str | None) -> dict[str, Any]:
     orq = _exigir_listo()
     sesion = _sesion(authorization)
     # El texto del cliente se envuelve en un bloque delimitado con sello aleatorio
     # antes de que nada lo interprete: la contención es la garantía, y la detección
-    # es observabilidad (AG-10, F-045). La extracción trabaja sobre el texto, que
+    # es observabilidad (AG-10, F-045). La comprensión trabaja sobre el texto, que
     # entra como dato.
     seguro = DETECTOR.revisar(cuerpo.mensaje[:MAX_MENSAJE])
-    lectura = extraer(cuerpo.mensaje[:MAX_MENSAJE])
 
     # ── Etapa 0, dentro de la conversación ──────────────────────────────────
-    # Si la sesión no está verificada, el turno no llega al orquestador: el agente
-    # pide los tres factores y los va juntando. Nada personal sale mientras tanto,
-    # que es lo que el desenlace `bloqueado` significa.
+    # Sin sesión verificada, el turno no llega al orquestador. Un saludo se contesta
+    # sin pedir nada; pedir identidad solo se hace cuando el cliente pide algo que la
+    # necesita. Nada personal sale mientras tanto: eso es lo que `bloqueado` significa.
     if not sesion.verified:
-        return _turno_de_identidad(cuerpo, lectura)
+        lectura = _leer(cuerpo, verificado=False)
+        previo = _turno_sin_sesion(cuerpo, lectura)
+        if previo["desenlace"] != "verificado" or not _pide_servicio(lectura):
+            return previo
+        # La identidad quedó confirmada en este mismo mensaje: se atiende lo que pidió,
+        # para que el cliente no tenga que repetirlo.
+        sesion_nueva = ESTADO.guard.sesion_desde_token(previo["token"]) if ESTADO.guard else None
+        if sesion_nueva is None:
+            return previo
+        return _unir(previo, _turno_verificado(orq, cuerpo, sesion_nueva, lectura, seguro))
+
+    lectura = _leer(cuerpo, verificado=True)
+    return _turno_verificado(orq, cuerpo, sesion, lectura, seguro)
+
+
+def _leer(cuerpo: CuerpoChat, *, verificado: bool) -> dict[str, Any]:
+    """La lectura del turno: el modelo si responde; si no, el extractor determinista."""
+    conv = cuerpo.conversation_id
+    mensaje = cuerpo.mensaje[:MAX_MENSAJE]
+    faltan = [] if verificado else identidad.faltantes(ESTADO.identidades.get(conv, {}))
+    # Sin sesión, los datos de identidad no son importes: se quitan antes de extraer.
+    # Con sesión el mensaje es un pedido y no se toca.
+    factores = {} if verificado else identidad.leer(mensaje)
+    det = extraer(identidad.sin_identidad(mensaje, factores))
+    comp = comprender(
+        mensaje,
+        verificado=verificado,
+        faltan=faltan,
+        historial=ESTADO.historial.get(conv, []),
+    )
+    if comp is None:
+        return {
+            **det,
+            "factores": factores,
+            "respuesta": None,
+            "origen": "determinista",
+            "intencion_modelo": None,
+        }
+    return {
+        **lectura_desde(comp, det),
+        "origen": "modelo",
+        "intencion_modelo": comp["intencion"],
+    }
+
+
+def _pide_servicio(lectura: dict[str, Any]) -> bool:
+    """El cliente pidió algo que necesita identidad: un producto, sus datos o un humano."""
+    return lectura["pide_humano"] or lectura["intencion"] in {
+        "PRODUCT_INFO",
+        "CREDIT_ELIGIBILITY",
+        "DATOS_PERSONALES",
+    }
+
+
+def _requiere_identidad(lectura: dict[str, Any]) -> bool:
+    """Sin sesión, lo que no es un saludo ni una aclaración espera la identidad.
+
+    Un mensaje que el extractor no entiende (`DESCONOCIDA`) también espera: es el lado
+    seguro. Solo el modelo puede decir «esto es charla» sin pedir identidad.
+    """
+    return _pide_servicio(lectura) or lectura["intencion"] == "DESCONOCIDA"
+
+
+def _recordar(conversacion: str, cliente: str, respuesta: str) -> None:
+    """Guarda el hilo para el modelo. Los dígitos se sustituyen: no hay datos en la memoria."""
+    hilo = ESTADO.historial.setdefault(conversacion, [])
+    hilo.append("Cliente: " + re.sub(r"\d", "#", cliente[:200]))
+    hilo.append("Asistente: " + re.sub(r"\d", "#", respuesta[:200]))
+    del hilo[:-8]
+
+
+def _turno_verificado(
+    orq: Orquestador,
+    cuerpo: CuerpoChat,
+    sesion: Session,
+    lectura: dict[str, Any],
+    seguro: Any,
+) -> dict[str, Any]:
+    """Un turno con identidad verificada: conversación simple, o el orquestador."""
+    if not lectura["pide_humano"] and lectura["intencion"] in CONVERSACIONALES:
+        return _turno_conversacional(cuerpo, lectura, verificado=True)
 
     sesion_turno = Session(
         role=sesion.role,
@@ -349,16 +439,19 @@ def chat(cuerpo: CuerpoChat, authorization: str | None = Header(default=None)) -
     bitacora = orq.registry.drenar()
     traza = turno.a_traza()
     traza["idioma"] = lectura["idioma"]
+    traza["origen"] = lectura["origen"]
+    traza["intencion_modelo"] = lectura["intencion_modelo"]
     traza["supuestos"] = lectura["supuestos"]
     traza["intencion"] = lectura["intencion"]
     traza["slots_extraidos"] = sorted(lectura["slots"])
     traza["inyeccion"] = seguro.analisis.a_traza()
     ESTADO.trazas.setdefault(cuerpo.conversation_id, []).append(traza)
     LOGGER.info(
-        "turno conversacion=%s desenlace=%s etapas=%s",
+        "turno conversacion=%s desenlace=%s etapas=%s origen=%s",
         cuerpo.conversation_id[:8],
         turno.desenlace.value,
         len(turno.etapas),
+        lectura["origen"],
     )
 
     return {
@@ -383,15 +476,117 @@ def chat(cuerpo: CuerpoChat, authorization: str | None = Header(default=None)) -
     }
 
 
-def _turno_de_identidad(cuerpo: CuerpoChat, lectura: dict[str, Any]) -> dict[str, Any]:
-    """Pide los tres factores, los junta y verifica cuando están los tres."""
+def _turno_conversacional(
+    cuerpo: CuerpoChat, lectura: dict[str, Any], *, verificado: bool
+) -> dict[str, Any]:
+    """Un turno que no necesita decisión ni base: saludo, aclaración o duda de identidad.
+
+    La respuesta la redacta el modelo sin cifras (se verificó en `comprension.validar`),
+    o una plantilla si el modelo no contestó. No llama a ningún tool.
+    """
+    idioma = lectura["idioma"]
+    mensaje = lectura["respuesta"] or _plantilla_conversacional(lectura["intencion"], idioma)
+    traza = {
+        "desenlace": "conversacion",
+        "etapas": [
+            {
+                "etapa": "UNDERSTAND",
+                "razon": "sin decisión ni consulta: se responde la conversación",
+                "del_reto": False,
+            }
+        ],
+        "idioma": idioma,
+        "origen": lectura["origen"],
+        "intencion_modelo": lectura["intencion_modelo"],
+        "intencion": lectura["intencion"],
+        "identidad_verificada": verificado,
+    }
+    ESTADO.trazas.setdefault(cuerpo.conversation_id, []).append(traza)
+    return _respuesta(
+        desenlace="conversacion",
+        mensaje=mensaje,
+        traza=traza,
+        eventos=ev.de_conversacion(lectura, verificado),
+    )
+
+
+def _plantilla_conversacional(intencion: str, idioma: str) -> str:
+    """Respaldo sin modelo. Ninguna frase lleva cifras."""
+    pt = idioma == "pt"
+    if intencion == "SALUDO":
+        return (
+            "Olá, em que posso ajudar? Posso informar sobre nossos produtos ou analisar "
+            "um pedido de empréstimo."
+            if pt
+            else "Hola, ¿en qué te puedo ayudar? Puedo darte información de nuestros "
+            "productos o revisar una solicitud de préstamo."
+        )
+    return (
+        "Não tenho certeza de ter entendido. Posso ajudar com empréstimos pessoais, "
+        "cartões de crédito ou as condições dos nossos produtos. O que você precisa?"
+        if pt
+        else "No estoy seguro de haberte entendido. Puedo ayudarte con préstamos "
+        "personales, tarjetas de crédito o las condiciones de nuestros productos. "
+        "¿Qué necesitas?"
+    )
+
+
+def _respuesta(
+    *,
+    desenlace: str,
+    mensaje: str,
+    traza: dict[str, Any],
+    eventos: list[dict[str, Any]],
+    tools: list[dict[str, Any]] | None = None,
+    pregunta_por: list[str] | None = None,
+    token: str | None = None,
+) -> dict[str, Any]:
+    """La forma de respuesta de `/chat`, la misma para todos los desenlaces."""
+    return {
+        "desenlace": desenlace,
+        "mensaje": mensaje,
+        "token": token,
+        "pregunta_por": pregunta_por or [],
+        "ofertas": [],
+        "decision": None,
+        "case_id": None,
+        "action_id": None,
+        "avisos": [],
+        "ausencias": [],
+        "cifras_ancladas": [],
+        "scm": None,
+        "tools": tools or [],
+        "eventos": eventos,
+        "traza": traza,
+    }
+
+
+def _unir(previo: dict[str, Any], pedido: dict[str, Any]) -> dict[str, Any]:
+    """Une la confirmación de identidad con la respuesta al pedido del mismo mensaje."""
+    unido = dict(pedido)
+    unido["token"] = previo["token"]
+    unido["mensaje"] = f"{identidad.confirmada(previo['traza']['idioma'])} {pedido['mensaje']}"
+    unido["eventos"] = previo["eventos"] + pedido["eventos"]
+    unido["tools"] = previo["tools"] + pedido["tools"]
+    return unido
+
+
+CONVERSACIONALES = frozenset({"SALUDO", "CONVERSAR"})
+
+
+def _turno_sin_sesion(cuerpo: CuerpoChat, lectura: dict[str, Any]) -> dict[str, Any]:
+    """Sin sesión: conversa, o pide y junta los tres factores, y verifica al tenerlos."""
     if ESTADO.guard is None:
         raise HTTPException(503, detail=f"sistema no disponible: {ESTADO.motivo}")
+    conv = cuerpo.conversation_id
     idioma = lectura["idioma"]
-    reunidos = dict(ESTADO.identidades.get(cuerpo.conversation_id, {}))
-    nuevos = identidad.leer(cuerpo.mensaje)
+    nuevos = dict(lectura["factores"])
+    if not nuevos and not _requiere_identidad(lectura):
+        return _turno_conversacional(cuerpo, lectura, verificado=False)
+
+    reunidos = dict(ESTADO.identidades.get(conv, {}))
     reunidos.update(nuevos)
-    ESTADO.identidades[cuerpo.conversation_id] = reunidos
+    ESTADO.identidades[conv] = reunidos
     faltan = identidad.faltantes(reunidos)
 
     etapas = [
@@ -407,34 +602,36 @@ def _turno_de_identidad(cuerpo: CuerpoChat, lectura: dict[str, Any]) -> dict[str
     ]
 
     if faltan:
-        return {
+        # Si el cliente solo habló (no dio ningún dato), la respuesta del modelo puede
+        # sostener la conversación. Si dio datos, se nombra lo que falta, sin rodeos.
+        usar_modelo = not nuevos and lectura["intencion"] == "CONVERSAR" and lectura["respuesta"]
+        mensaje = (
+            lectura["respuesta"]
+            if usar_modelo
+            else identidad.pedir(faltan, idioma, primera_vez=not nuevos)
+        )
+        traza = {
             "desenlace": "bloqueado",
-            "mensaje": identidad.pedir(faltan, idioma, primera_vez=not nuevos),
+            "etapas": etapas,
+            "idioma": idioma,
+            "origen": lectura["origen"],
+            "intencion_modelo": lectura["intencion_modelo"],
+            "identidad_reunida": sorted(reunidos),
             "pregunta_por": faltan,
-            "ofertas": [],
-            "decision": None,
-            "case_id": None,
-            "action_id": None,
-            "avisos": [],
-            "ausencias": [],
-            "cifras_ancladas": [],
-            "scm": None,
-            "tools": [],
-            "eventos": ev.de_identidad(lectura, sorted(reunidos), faltan, None),
-            "traza": {
-                "desenlace": "bloqueado",
-                "etapas": etapas,
-                "idioma": idioma,
-                "identidad_reunida": sorted(reunidos),
-                "pregunta_por": faltan,
-            },
         }
+        ESTADO.trazas.setdefault(conv, []).append(traza)
+        return _respuesta(
+            desenlace="bloqueado",
+            mensaje=mensaje,
+            traza=traza,
+            eventos=ev.de_identidad(lectura, sorted(reunidos), faltan, None),
+            pregunta_por=faltan,
+        )
 
     # Los tres están: decide el AccessGuard, no esta capa.
-    ESTADO.orquestador.registry.drenar() if ESTADO.orquestador else None
     try:
         r = ESTADO.guard.verificar(
-            cuerpo.conversation_id,
+            conv,
             document_type=reunidos["document_type"],
             document_number=reunidos["document_number"],
             date_of_birth=reunidos["date_of_birth"],
@@ -445,7 +642,6 @@ def _turno_de_identidad(cuerpo: CuerpoChat, lectura: dict[str, Any]) -> dict[str
         LOGGER.exception("verificacion_conversacional_fallida")
         raise HTTPException(500, detail="no pudimos verificar tu identidad ahora") from exc
 
-    bitacora = ESTADO.orquestador.registry.drenar() if ESTADO.orquestador else []
     etapas.append(
         {
             "etapa": "IDENTIFY",
@@ -456,35 +652,28 @@ def _turno_de_identidad(cuerpo: CuerpoChat, lectura: dict[str, Any]) -> dict[str
     if r.verificado:
         # El estado del diálogo se borra en cuanto hay sesión: los factores no se
         # guardan más allá del momento en que sirvieron.
-        ESTADO.identidades.pop(cuerpo.conversation_id, None)
+        ESTADO.identidades.pop(conv, None)
     else:
-        ESTADO.identidades[cuerpo.conversation_id] = {}
+        ESTADO.identidades[conv] = {}
 
     traza = {
         "desenlace": "verificado" if r.verificado else "bloqueado",
         "etapas": etapas,
         "idioma": idioma,
+        "origen": lectura["origen"],
+        "intencion_modelo": lectura["intencion_modelo"],
         "intentos_restantes": r.intentos_restantes,
         "bloqueado": r.bloqueado,
     }
-    ESTADO.trazas.setdefault(cuerpo.conversation_id, []).append(traza)
-    return {
-        "desenlace": "verificado" if r.verificado else "bloqueado",
-        "mensaje": identidad.bienvenida(idioma) if r.verificado else r.mensaje,
-        "token": r.token,
-        "pregunta_por": [] if r.verificado else list(identidad.FACTORES),
-        "ofertas": [],
-        "decision": None,
-        "case_id": None,
-        "action_id": None,
-        "avisos": [],
-        "ausencias": [],
-        "cifras_ancladas": [],
-        "scm": None,
-        "tools": bitacora,
-        "eventos": ev.de_identidad(lectura, sorted(reunidos), [], r),
-        "traza": traza,
-    }
+    ESTADO.trazas.setdefault(conv, []).append(traza)
+    return _respuesta(
+        desenlace="verificado" if r.verificado else "bloqueado",
+        mensaje=identidad.bienvenida(idioma) if r.verificado else r.mensaje,
+        traza=traza,
+        eventos=ev.de_identidad(lectura, sorted(reunidos), [], r),
+        pregunta_por=[] if r.verificado else list(identidad.FACTORES),
+        token=r.token,
+    )
 
 
 @app.get("/trace/{conversation_id}")
@@ -661,7 +850,12 @@ def conversations() -> dict[str, Any]:
         copia = dict(c)
         idioma = c.get("idioma", "es")
         linea = _linea_de_identidad(c["perfil"], idioma)
-        copia["mensajes"] = [c["saludo"]] + ([linea] if linea else []) + list(c["mensajes"])
+        # El cliente saluda, pide algo y el agente le pide identidad; recién entonces
+        # responde con sus datos. Así la etapa 0 se ve como ocurre en la vida real.
+        mensajes = list(c["mensajes"])
+        if linea:
+            mensajes = mensajes[:1] + [linea] + mensajes[1:]
+        copia["mensajes"] = [c["saludo"]] + mensajes
         copia["identidad_incluida"] = bool(linea)
         salida.append(copia)
     return {"conversaciones": salida, "n": len(salida)}

@@ -120,6 +120,12 @@ PIDE_MONTO = (
     "quero",
 )
 
+# Solo como fallback sin modelo: el saludo abre la conversación y no pide nada.
+SALUDO = re.compile(
+    r"\b(hola|buenos dias|buen dia|buenas tardes|buenas noches|buenas|hey|ola"
+    r"|bom dia|boa tarde|boa noite)\b"
+)
+
 # 1 500 · 1.500 · 1,500 · 1500.50 — y el separador de miles varía por país.
 NUMERO = re.compile(r"\d[\d\s.,]{0,14}\d|\d")
 
@@ -245,9 +251,13 @@ def extraer(texto: str) -> dict[str, Any]:
     # con «quiero». Para que el turno entre al workflow de crédito tiene que haber un
     # producto del catálogo o un importe. Si no, es otra cosa y se escala.
     del_workflow = producto is not None or monto is not None
+    saluda = SALUDO.search(p) is not None
     if pide_datos:
         # Fuera del workflow a propósito: el turno escala y la redacción dice por qué.
         intencion = "DATOS_PERSONALES"
+    elif saluda and not (del_workflow or pide_humano or consulta or pide):
+        # Solo un saludo: se contesta, sin pedir identidad ni tocar la base.
+        intencion = "SALUDO"
     elif pide_humano:
         intencion = "CREDIT_ELIGIBILITY"
     elif consulta and del_workflow and not (pide and monto is not None):

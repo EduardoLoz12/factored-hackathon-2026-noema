@@ -193,3 +193,21 @@ Esa memoria es también material directo para `LIMITATIONS.md` y para el pitch.
 - Prefieres una pieza que corre sobre tres que casi corren. Quedan 8 días.
 - Cuando algo se cae del alcance, lo escribes en `LIMITATIONS.md` en vez de callarlo.
 - Regla de corte: si el día 6 el ciclo del agente no cierra, se recorta la UI. **Nunca la evaluación.**
+
+## Lo que se aprendió el 5 de octubre de 2026
+
+Cinco defectos y una forma de trabajar que salieron de cerrar el entregable. Son reglas, no historia.
+
+1. **Una métrica que se dispara en casi todos los casos no mide nada.** Antes de reportarla, mira su tasa de activación. Si es ~100 % o ~0 %, el defecto está en la definición.
+2. **Si la etiqueta y el sistema no coinciden, corre las dos rutas sobre el mismo caso antes de decidir cuál está mal.** Así se encontró que el sistema tenía razón en F-052.
+3. **Un conjunto de evaluación entra por la misma puerta que el usuario.** Si el arnés arma los slots a mano y la API los extrae del texto, el arnés mide otro sistema (F-053).
+4. **Lee la conversación completa de corrido antes de dar un agente por terminado.** Cuatro bugs de conversación no salían en ninguna aserción.
+5. **Si una bandera existe para apagarse, la suite se corre apagada.** `SCM_ENABLED=false` tiene que pasar siempre (F-050).
+
+Reglas de trabajo nuevas:
+
+- **Validar en el navegador lo que toca la interfaz**, no solo con `node --check`.
+- **Eduardo quiere ver el cambio en vivo.** Cuando dice «push para verlo», se empuja y se despliega sin más rondas de validación local.
+- **Ninguna espera larga en un comando bloqueante.** Si CI está en cola, se informa y se pregunta, no se espera en silencio.
+- **El panel es el núcleo de la interfaz:** el chat en vivo y su paso a paso en vivo. Lo demás es secundario.
+- **Respetar la frontera de Federico también en `main`:** sus cambios entran por PR, no directo.
