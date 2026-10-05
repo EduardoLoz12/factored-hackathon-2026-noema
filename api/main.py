@@ -42,6 +42,7 @@ from agent.tools import customer as cu
 from agent.tools.ledger import abrir_ledger
 from agent.tools.registry import Role, Session, ToolRegistry, hash_pii
 from agent.tools.store import AnalyticsStore, Contexto
+from api import identidad
 from api.conversaciones import CONVERSACIONES
 from api.extraccion import extraer
 from api.redaccion import preguntar, redactor, sin_datos_personales
@@ -77,6 +78,10 @@ class Estado:
     # Trazas del turno, por conversación. En memoria: es un panel de demo, no un
     # almacén de auditoría. El almacén de verdad son los archivos de `logs/traces/`.
     trazas: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
+    # Factores de identidad que el cliente ya dio, por conversación. En memoria y
+    # efímero a propósito: no es un almacén de PII, es el estado de un diálogo que
+    # dura minutos. Se borra en cuanto la sesión queda emitida.
+    identidades: dict[str, dict[str, str]] = field(default_factory=dict)
     motivo: str = ""
 
     @property
@@ -276,6 +281,13 @@ def chat(cuerpo: CuerpoChat, authorization: str | None = Header(default=None)) -
     seguro = DETECTOR.revisar(cuerpo.mensaje[:MAX_MENSAJE])
     lectura = extraer(cuerpo.mensaje[:MAX_MENSAJE])
 
+    # ── Etapa 0, dentro de la conversación ──────────────────────────────────
+    # Si la sesión no está verificada, el turno no llega al orquestador: el agente
+    # pide los tres factores y los va juntando. Nada personal sale mientras tanto,
+    # que es lo que el desenlace `bloqueado` significa.
+    if not sesion.verified:
+        return _turno_de_identidad(cuerpo, lectura)
+
     sesion_turno = Session(
         role=sesion.role,
         verified=sesion.verified,
@@ -352,6 +364,108 @@ def chat(cuerpo: CuerpoChat, authorization: str | None = Header(default=None)) -
         "scm": turno.scm,
         # Qué se consultó, qué se escribió y qué respaldó cada cifra. Es la
         # bitácora real del turno, no un resumen redactado después.
+        "tools": bitacora,
+        "traza": traza,
+    }
+
+
+def _turno_de_identidad(cuerpo: CuerpoChat, lectura: dict[str, Any]) -> dict[str, Any]:
+    """Pide los tres factores, los junta y verifica cuando están los tres."""
+    if ESTADO.guard is None:
+        raise HTTPException(503, detail=f"sistema no disponible: {ESTADO.motivo}")
+    idioma = lectura["idioma"]
+    reunidos = dict(ESTADO.identidades.get(cuerpo.conversation_id, {}))
+    nuevos = identidad.leer(cuerpo.mensaje)
+    reunidos.update(nuevos)
+    ESTADO.identidades[cuerpo.conversation_id] = reunidos
+    faltan = identidad.faltantes(reunidos)
+
+    etapas = [
+        {
+            "etapa": "IDENTIFY",
+            "razon": (
+                f"faltan {len(faltan)} de 3 factores"
+                if faltan
+                else "los tres factores están: se consulta la base"
+            ),
+            "del_reto": False,
+        }
+    ]
+
+    if faltan:
+        return {
+            "desenlace": "bloqueado",
+            "mensaje": identidad.pedir(faltan, idioma, primera_vez=not nuevos),
+            "pregunta_por": faltan,
+            "ofertas": [],
+            "decision": None,
+            "case_id": None,
+            "action_id": None,
+            "avisos": [],
+            "ausencias": [],
+            "cifras_ancladas": [],
+            "scm": None,
+            "tools": [],
+            "traza": {
+                "desenlace": "bloqueado",
+                "etapas": etapas,
+                "idioma": idioma,
+                "identidad_reunida": sorted(reunidos),
+                "pregunta_por": faltan,
+            },
+        }
+
+    # Los tres están: decide el AccessGuard, no esta capa.
+    ESTADO.orquestador.registry.drenar() if ESTADO.orquestador else None
+    try:
+        r = ESTADO.guard.verificar(
+            cuerpo.conversation_id,
+            document_type=reunidos["document_type"],
+            document_number=reunidos["document_number"],
+            date_of_birth=reunidos["date_of_birth"],
+        )
+    except SinLlaveDeFirma as exc:
+        raise HTTPException(503, detail=str(exc)) from exc
+    except Exception as exc:
+        LOGGER.exception("verificacion_conversacional_fallida")
+        raise HTTPException(500, detail="no pudimos verificar tu identidad ahora") from exc
+
+    bitacora = ESTADO.orquestador.registry.drenar() if ESTADO.orquestador else []
+    etapas.append(
+        {
+            "etapa": "IDENTIFY",
+            "razon": "identidad verificada" if r.verificado else f"no coincide: {r.mensaje}",
+            "del_reto": False,
+        }
+    )
+    if r.verificado:
+        # El estado del diálogo se borra en cuanto hay sesión: los factores no se
+        # guardan más allá del momento en que sirvieron.
+        ESTADO.identidades.pop(cuerpo.conversation_id, None)
+    else:
+        ESTADO.identidades[cuerpo.conversation_id] = {}
+
+    traza = {
+        "desenlace": "verificado" if r.verificado else "bloqueado",
+        "etapas": etapas,
+        "idioma": idioma,
+        "intentos_restantes": r.intentos_restantes,
+        "bloqueado": r.bloqueado,
+    }
+    ESTADO.trazas.setdefault(cuerpo.conversation_id, []).append(traza)
+    return {
+        "desenlace": "verificado" if r.verificado else "bloqueado",
+        "mensaje": identidad.bienvenida(idioma) if r.verificado else r.mensaje,
+        "token": r.token,
+        "pregunta_por": [] if r.verificado else list(identidad.FACTORES),
+        "ofertas": [],
+        "decision": None,
+        "case_id": None,
+        "action_id": None,
+        "avisos": [],
+        "ausencias": [],
+        "cifras_ancladas": [],
+        "scm": None,
         "tools": bitacora,
         "traza": traza,
     }
@@ -517,8 +631,47 @@ ESCENARIOS = [
 
 @app.get("/conversations")
 def conversations() -> dict[str, Any]:
-    """Las tres conversaciones guiadas. Son mensajes del cliente, no respuestas."""
-    return {"conversaciones": CONVERSACIONES, "n": len(CONVERSACIONES)}
+    """Las tres conversaciones guiadas. Son mensajes del cliente, no respuestas.
+
+    Cada una empieza por el saludo y **la respuesta de identidad**, con los tres
+    factores reales del cliente de ese estrato, leídos de la base en el momento. Así
+    la demostración recorre la etapa 0 como la recorrería cualquiera, en vez de
+    aparecer ya verificada.
+
+    Esos tres datos son del dataset sintético de Factored, no de una persona.
+    """
+    salida = []
+    for c in CONVERSACIONES:
+        copia = dict(c)
+        linea = _linea_de_identidad(c["perfil"])
+        copia["mensajes"] = (
+            ["Hola, buenos días. Quería consultar por un producto de crédito."]
+            + ([linea] if linea else [])
+            + list(c["mensajes"])
+        )
+        copia["identidad_incluida"] = bool(linea)
+        salida.append(copia)
+    return {"conversaciones": salida, "n": len(salida)}
+
+
+def _linea_de_identidad(estrato: str) -> str | None:
+    """Arma la frase con la que el cliente se identifica, desde la base."""
+    cid = _cliente_del_estrato(estrato)
+    if not cid or ESTADO.analitica is None:
+        return None
+    fila = ESTADO.analitica.una(
+        """
+        SELECT document_type, document_number, date_of_birth
+        FROM noema_silver.stg_customers WHERE customer_id = ?
+        """,
+        (cid,),
+    )
+    if not fila:
+        return None
+    return (
+        f"Claro. Mi {fila['document_type']} es {fila['document_number']} "
+        f"y nací el {str(fila['date_of_birth'])[:10]}."
+    )
 
 
 @app.get("/scenarios")

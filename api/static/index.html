@@ -57,15 +57,31 @@
     border:1px solid var(--ok-bd);white-space:nowrap}
   .estado-ses.sin{background:rgba(255,255,255,.1);color:#cfe0f5;border-color:rgba(255,255,255,.2)}
 
-  /* Conversación: sin burbujas. Cada turno es una fila a todo el ancho con el
-     hablante en versalitas encima, como una transcripción. */
-  .hilo{min-height:300px;max-height:52vh;overflow-y:auto}
-  .turno{padding:14px 16px;border-bottom:1px solid var(--rule)}
-  .turno.agente{background:var(--tint)}
-  .turno .quien{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
-    color:var(--ink-soft);margin-bottom:5px}
-  .turno .texto{white-space:pre-wrap;overflow-wrap:anywhere}
-  .turno.pensando .texto{color:var(--ink-soft);font-style:italic}
+  /* Conversación en burbujas. Eduardo las pidió así después de ver la versión
+     plana: con la reproducción por turnos, el vaivén izquierda-derecha es lo que
+     deja ver que son dos interlocutores y no un informe. */
+  .hilo{min-height:320px;max-height:52vh;overflow-y:auto;background:#eceff3;
+    padding:14px 16px;display:flex;flex-direction:column;gap:9px}
+  .burbuja{max-width:80%;padding:9px 12px 7px;border-radius:14px;font-size:13.5px;
+    white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:0 1px 1.5px rgba(16,24,40,.08);
+    animation:entra .22s ease-out}
+  .burbuja.cli{align-self:flex-end;background:#dcf7d3;border-bottom-right-radius:4px}
+  .burbuja.age{align-self:flex-start;background:#fff;border-bottom-left-radius:4px}
+  .burbuja.sis{align-self:center;background:#fdf4e3;border:1px solid var(--pe-bd);
+    color:var(--pe);font-size:12.5px;max-width:92%;text-align:center}
+  .burbuja .hora{display:block;margin-top:3px;font-size:10px;color:#7d8794;text-align:right;
+    font-family:var(--mono)}
+  .cursor{display:inline-block;width:7px;margin-left:1px;background:var(--ink-soft);
+    animation:latir .9s steps(1) infinite}
+  .puntos{display:inline-flex;gap:4px;padding:2px 0}
+  .puntos i{width:6px;height:6px;border-radius:99px;background:#9aa3b0;animation:rebota 1.2s infinite}
+  .puntos i:nth-child(2){animation-delay:.18s}
+  .puntos i:nth-child(3){animation-delay:.36s}
+  @keyframes rebota{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+  @keyframes latir{0%,49%{opacity:1}50%,100%{opacity:0}}
+  @keyframes entra{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+  @keyframes aparece{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .paso,.datos tbody tr{animation:aparece .26s ease-out}
 
   .escribir{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--rule);background:var(--card)}
   input[type=text]{flex:1;min-width:0;font:inherit;padding:9px 11px;border:1px solid var(--rule);
@@ -143,7 +159,8 @@
     justify-content:space-between;gap:8px 16px;flex-wrap:wrap}
   footer a{color:var(--accent)}
   [hidden]{display:none!important}
-  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}
+    .cursor{display:none}}
 </style>
 </head>
 <body>
@@ -168,7 +185,7 @@
     <div class="tarjeta-cab oscura">
       <div>
         <h2>Asistente noema</h2>
-        <p>Modo demostración · la identidad se verifica contra la base real</p>
+        <p>La identidad se pide en la conversación y se valida contra la base</p>
       </div>
       <div class="cab-der">
         <span class="estado-ses sin" id="estado-ses">sin verificar</span>
@@ -364,8 +381,6 @@ function pintarEleccion() {
   $('#demuestra').textContent = c ? c.demuestra : '';
 }
 
-const espera = (ms) => new Promise((r) => setTimeout(r, ms));
-
 async function reproducir() {
   const c = CONVS[ELEGIDA];
   if (!c || CORRIENDO) return;
@@ -374,38 +389,32 @@ async function reproducir() {
   $('#reproducir').textContent = 'Reproduciendo…';
   $('#hilo').innerHTML = '';
   $('#datos').hidden = true;
+  $('#pasos').innerHTML = '';
+  $('#avisos').hidden = true;
+  // Sesión nueva y sin verificar: la conversación arranca en la etapa 0.
+  TOKEN = null;
+  CONV = 'demo-' + Math.random().toString(36).slice(2, 12);
+  const ses = $('#estado-ses');
+  ses.textContent = 'sin verificar';
+  ses.className = 'estado-ses sin';
   try {
-    // Identidad primero, con los tres factores reales del cliente de ese estrato.
-    const d = await pedir('/session/demo?perfil=' + encodeURIComponent(c.perfil), { method: 'POST' });
-    TOKEN = d.token; CONV = d.conversation_id;
-    const ses = $('#estado-ses');
-    ses.textContent = 'verificado · ' + (NOMBRE_PERFIL[d.perfil] || d.perfil);
-    ses.className = 'estado-ses';
-    turno('noema', 'Identidad verificada con los tres factores de un cliente ' +
-      (NOMBRE_PERFIL[d.perfil] || d.perfil) + ', leídos de la base. ¿En qué te ayudo?');
-    await espera(700);
     for (const m of c.mensajes) {
+      // El cliente escribe en el campo antes de enviar: el mensaje entra por donde
+      // entraría el de cualquiera, no por una puerta de demostración.
+      await tecleaEnCampo(m);
+      await espera(350);
+      $('#mensaje').value = '';
       await enviar(m);
-      await espera(1100);
+      await espera(1400);
+      if (!CORRIENDO) break;
     }
   } catch (e) {
-    turno('sistema', 'No se pudo reproducir la conversación: ' + e.message);
+    burbuja('sistema', 'No se pudo reproducir la conversación: ' + e.message);
   } finally {
     CORRIENDO = false;
     $('#reproducir').disabled = false;
     $('#reproducir').textContent = 'Reproducir de nuevo';
   }
-}
-
-function turno(quien, texto, clase) {
-  const d = document.createElement('div');
-  d.className = 'turno' + (quien === 'cliente' ? '' : ' agente') + (clase ? ' ' + clase : '');
-  const q = document.createElement('div'); q.className = 'quien'; q.textContent = quien;
-  const t = document.createElement('div'); t.className = 'texto'; t.textContent = texto;
-  d.append(q, t);
-  $('#hilo').appendChild(d);
-  $('#hilo').scrollTop = $('#hilo').scrollHeight;
-  return d;
 }
 
 // ── Los pasos del turno ─────────────────────────────────────────────────────
@@ -544,7 +553,90 @@ function linea(etiqueta, valor, mono) {
   return p;
 }
 
-function pintarDatos(tools) {
+// ── La conversación, con su ritmo ───────────────────────────────────────────
+// Un turno instantáneo no se lee: el ojo no distingue quién habló ni cuándo
+// cambió el panel. Acá cada mensaje se escribe a velocidad de lectura y el
+// análisis de la derecha aparece paso a paso, en el orden en que el sistema lo
+// produjo. Nada de esto inventa latencia sobre la petición real — la espera del
+// servidor es la que es, y el ritmo solo reparte lo que ya llegó.
+const REDUCIDO = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const espera = (ms) => new Promise((r) => setTimeout(r, REDUCIDO ? 0 : ms));
+
+function hora() {
+  const d = new Date();
+  return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+
+function alFondo() {
+  const h = $('#hilo');
+  h.scrollTop = h.scrollHeight;
+}
+
+function burbuja(quien, texto) {
+  const clase = quien === 'cliente' ? 'cli' : (quien === 'sistema' ? 'sis' : 'age');
+  const b = document.createElement('div');
+  b.className = 'burbuja ' + clase;
+  const cuerpo = document.createElement('span');
+  cuerpo.textContent = texto || '';
+  b.appendChild(cuerpo);
+  if (clase !== 'sis') {
+    const h = document.createElement('span');
+    h.className = 'hora';
+    h.textContent = hora();
+    b.appendChild(h);
+  }
+  $('#hilo').appendChild(b);
+  alFondo();
+  return { burbuja: b, cuerpo };
+}
+
+function tecleando() {
+  const b = document.createElement('div');
+  b.className = 'burbuja age';
+  const p = document.createElement('span');
+  p.className = 'puntos';
+  p.innerHTML = '<i></i><i></i><i></i>';
+  b.appendChild(p);
+  $('#hilo').appendChild(b);
+  alFondo();
+  return b;
+}
+
+/** Escribe el texto a velocidad de lectura, con un tope para no aburrir. */
+async function teclear(elemento, texto, msPorCaracter) {
+  if (REDUCIDO) { elemento.textContent = texto; alFondo(); return; }
+  const paso = msPorCaracter || Math.max(8, Math.min(26, 2200 / Math.max(texto.length, 1)));
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor';
+  cursor.textContent = ' ';
+  elemento.after(cursor);
+  // De a trozos y no carácter a carácter: a 8 ms, un carácter por cuadro no se
+  // alcanza a pintar y el navegador se atraganta.
+  const trozo = paso < 12 ? 3 : 1;
+  for (let i = 0; i < texto.length; i += trozo) {
+    elemento.textContent = texto.slice(0, i + trozo);
+    alFondo();
+    await espera(paso * trozo);
+  }
+  elemento.textContent = texto;
+  cursor.remove();
+  alFondo();
+}
+
+/** Escribe el mensaje del cliente dentro del campo, como si lo tecleara. */
+async function tecleaEnCampo(texto) {
+  const campo = $('#mensaje');
+  campo.value = '';
+  if (REDUCIDO) { campo.value = texto; return; }
+  for (let i = 0; i < texto.length; i += 2) {
+    campo.value = texto.slice(0, i + 2);
+    await espera(14);
+  }
+  campo.value = texto;
+}
+
+// ── El panel, revelado en el orden en que el sistema trabajó ────────────────
+async function revelarDatos(tools) {
   const caja = $('#datos');
   const tb = $('#tabla-datos').querySelector('tbody');
   tb.innerHTML = '';
@@ -561,51 +653,75 @@ function pintarDatos(tools) {
     ];
     celdas.forEach(([v, cls], i) => {
       const td = document.createElement('td');
-      if (cls) td.className = cls;
-      if (i === 4) td.className = x.error ? 'fallo' : (x.escribe ? 'guardado' : 'leido');
+      td.className = i === 4 ? (x.error ? 'fallo' : (x.escribe ? 'guardado' : 'leido')) : cls;
       td.textContent = v;
       tr.appendChild(td);
     });
     tb.appendChild(tr);
+    await espera(220);
   }
 }
 
-function pintarTurno(t) {
-  pintarDatos(t.tools);
+const ETIQ_ESTADO = { ok: 'cumplido', no: 'incumplido', pe: 'no aplica' };
+
+function tarjetaPaso(p) {
+  const li = document.createElement('li');
+  li.className = 'paso';
+  const enc = document.createElement('div');
+  enc.className = 'enc';
+  enc.textContent = p.enc;
+  const cab = document.createElement('div');
+  cab.className = 'cab';
+  const st = document.createElement('strong');
+  st.textContent = p.titulo;
+  const ins = document.createElement('span');
+  ins.className = 'insignia ' + p.estado;
+  ins.textContent = ETIQ_ESTADO[p.estado];
+  cab.append(st, ins);
+  li.append(enc, cab);
+  li.append(linea('Regla', p.regla, false));
+  li.append(linea('Observado', p.observado, false));
+  li.append(linea('Evidencia', p.evidencia, true));
+  li.append(linea('Fuente', p.fuente, true));
+  if (p.nota) {
+    const n = document.createElement('p');
+    n.className = 'nota';
+    n.textContent = p.nota;
+    li.appendChild(n);
+  }
+  return li;
+}
+
+async function revelarPasos(pasos) {
+  const ol = $('#pasos');
+  ol.innerHTML = '';
+  const cuenta = { ok: 0, no: 0, pe: 0 };
+  for (const p of pasos) {
+    ol.appendChild(tarjetaPaso(p));
+    cuenta[p.estado] = (cuenta[p.estado] || 0) + 1;
+    // Los contadores suben con cada paso: así se ve que el veredicto se forma,
+    // no que estaba decidido de antemano.
+    $('#n-ok').textContent = cuenta.ok + ' cumplidos';
+    $('#n-no').textContent = cuenta.no + ' incumplidos';
+    $('#n-pe').textContent = cuenta.pe + ' no aplican';
+    ol.scrollTop = ol.scrollHeight;
+    await espera(300);
+  }
+}
+
+async function pintarTurno(t) {
   const ds = $('#desenlace');
   ds.textContent = t.desenlace;
-  ds.className = 'insignia ' + (t.desenlace === 'respuesta' ? 'ok' : (t.desenlace === 'bloqueado' ? 'no' : 'pe'));
+  ds.className = 'insignia ' + (
+    (t.desenlace === 'respuesta' || t.desenlace === 'verificado') ? 'ok'
+      : (t.desenlace === 'bloqueado' ? 'no' : 'pe'));
 
-  const pasos = construirPasos(t);
-  const cuenta = { ok: 0, no: 0, pe: 0 };
-  for (const p of pasos) cuenta[p.estado] = (cuenta[p.estado] || 0) + 1;
-  $('#n-ok').textContent = cuenta.ok + ' cumplidos';
-  $('#n-no').textContent = cuenta.no + ' incumplidos';
-  $('#n-pe').textContent = cuenta.pe + ' no aplican';
+  $('#n-ok').textContent = '— cumplidos';
+  $('#n-no').textContent = '— incumplidos';
+  $('#n-pe').textContent = '— no aplican';
 
-  const ETIQ = { ok: 'cumplido', no: 'incumplido', pe: 'no aplica' };
-  const frag = document.createDocumentFragment();
-  for (const p of pasos) {
-    const li = document.createElement('li');
-    li.className = 'paso';
-    const enc = document.createElement('div'); enc.className = 'enc'; enc.textContent = p.enc;
-    const cab = document.createElement('div'); cab.className = 'cab';
-    const st = document.createElement('strong'); st.textContent = p.titulo;
-    const ins = document.createElement('span'); ins.className = 'insignia ' + p.estado;
-    ins.textContent = ETIQ[p.estado];
-    cab.append(st, ins);
-    li.append(enc, cab);
-    li.append(linea('Regla', p.regla, false));
-    li.append(linea('Observado', p.observado, false));
-    li.append(linea('Evidencia', p.evidencia, true));
-    li.append(linea('Fuente', p.fuente, true));
-    if (p.nota) {
-      const n = document.createElement('p'); n.className = 'nota'; n.textContent = p.nota;
-      li.appendChild(n);
-    }
-    frag.appendChild(li);
-  }
-  $('#pasos').replaceChildren(frag);
+  await revelarDatos(t.tools);
+  await revelarPasos(construirPasos(t));
 
   const av = $('#avisos');
   av.innerHTML = '';
@@ -614,31 +730,48 @@ function pintarTurno(t) {
   if (of) {
     av.append(linea('Oferta', of.producto + ' · ' + num(of.monto_ofrecido_usd) + ' USD a ' +
       of.plazo_meses + ' meses · cuota ' + num(of.cuota_estimada_usd) + ' USD' +
-      (of.interes_total_usd != null ? ' · interés total ' + num(of.interes_total_usd) + ' USD' : ''), true));
+      (of.interes_total_usd != null ? ' · interés total ' + num(of.interes_total_usd) + ' USD' : ''),
+      true));
   }
   for (const a of (t.avisos || []).concat(t.traza ? (t.traza.supuestos || []) : [])) {
-    const p = document.createElement('p'); p.textContent = a; av.appendChild(p);
+    const p = document.createElement('p');
+    p.textContent = a;
+    av.appendChild(p);
   }
   av.hidden = !av.children.length;
 }
 
 async function enviar(texto) {
   ULTIMO = texto;
-  turno('cliente', texto);
-  const esperando = turno('noema', 'consultando la base y la política…', 'pensando');
+  burbuja('cliente', texto);
+  await espera(320);
+  const puntos = tecleando();
   $('#enviar').disabled = true;
   $('#repetir').disabled = true;
+  const t0 = Date.now();
   try {
     const t = await pedir('/chat', {
       method: 'POST',
       body: JSON.stringify({ conversation_id: CONV, mensaje: texto }),
     });
-    esperando.remove();
-    turno('noema', t.mensaje || '(sin mensaje)');
-    pintarTurno(t);
+    if (t.token) {
+      // La sesión la emite el AccessGuard dentro de la conversación, cuando los
+      // tres factores cuadran contra la base. No hay atajo de demostración.
+      TOKEN = t.token;
+      const ses = $('#estado-ses');
+      ses.textContent = 'identidad verificada';
+      ses.className = 'estado-ses';
+    }
+    // Mínimo de medio segundo con los puntos: si la respuesta vuelve en 40 ms,
+    // el parpadeo no se lee como que alguien contestó.
+    await espera(Math.max(0, 600 - (Date.now() - t0)));
+    puntos.remove();
+    const { cuerpo } = burbuja('noema', '');
+    await teclear(cuerpo, t.mensaje || '(sin mensaje)');
+    await pintarTurno(t);
   } catch (e) {
-    esperando.remove();
-    turno('sistema', 'No pudimos completar el turno: ' + e.message);
+    puntos.remove();
+    burbuja('sistema', 'No pudimos completar el turno: ' + e.message);
   } finally {
     $('#enviar').disabled = false;
     $('#repetir').disabled = !ULTIMO;

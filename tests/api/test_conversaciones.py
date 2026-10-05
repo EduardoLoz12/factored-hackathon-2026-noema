@@ -69,6 +69,13 @@ def _sesion(cliente, perfil: str) -> tuple[str, str]:
     return d["token"], d["conversation_id"]
 
 
+def _turno_libre(cliente, conv, mensaje) -> dict:
+    """Un turno sin sesión: así entra el cliente antes de identificarse."""
+    r = cliente.post("/chat", json={"conversation_id": conv, "mensaje": mensaje})
+    assert r.status_code == 200, r.text
+    return r.json()
+
+
 def _turno(cliente, token, conv, mensaje) -> dict:
     r = cliente.post(
         "/chat",
@@ -189,3 +196,75 @@ def test_la_bitacora_dice_que_se_consulto_y_que_se_escribio(cliente):
         assert x["ms"] >= 0
     # Un turno de lectura no escribe.
     assert not any(x["escribe"] for x in t["tools"] if x["tool"].startswith("get_"))
+
+
+# ── La identidad, dentro de la conversación ─────────────────────────────────
+def _real(cliente, estrato: str = "elegible") -> dict:
+    """Los tres factores reales del cliente de ese estrato, desde la base."""
+    from api import main as mod
+
+    cid = mod._cliente_del_estrato(estrato)
+    assert cid, "falta api/static/demo_clientes.json"
+    fila = mod.ESTADO.analitica.una(
+        "SELECT document_type, document_number, date_of_birth "
+        "FROM noema_silver.stg_customers WHERE customer_id = ?",
+        (cid,),
+    )
+    return {k: str(v)[:10] if k == "date_of_birth" else str(v) for k, v in fila.items()}
+
+
+def test_el_agente_pide_los_tres_factores_antes_de_nada(cliente):
+    r = _turno_libre(cliente, "ident-1", "Hola, quiero consultar un préstamo.")
+    assert r["desenlace"] == "bloqueado"
+    assert set(r["pregunta_por"]) == {"document_type", "document_number", "date_of_birth"}
+    # Pedir no es filtrar: el turno no consultó nada del cliente.
+    assert r["tools"] == []
+    assert r["ofertas"] == []
+
+
+def test_si_el_cliente_da_un_factor_el_agente_pide_los_que_faltan(cliente):
+    _turno_libre(cliente, "ident-2", "Hola.")
+    r = _turno_libre(cliente, "ident-2", "Mi DNI, ¿te sirve?")
+    assert r["desenlace"] == "bloqueado"
+    assert "document_type" not in r["pregunta_por"], "ya dio el tipo, no se vuelve a pedir"
+    assert {"document_number", "date_of_birth"} <= set(r["pregunta_por"])
+
+
+def test_con_los_tres_factores_correctos_se_emite_la_sesion(cliente):
+    f = _real(cliente)
+    r = _turno_libre(
+        cliente,
+        "ident-3",
+        f"Mi {f['document_type']} es {f['document_number']} y nací el {f['date_of_birth']}.",
+    )
+    assert r["desenlace"] == "verificado"
+    assert r["token"], "sin token no hay sesión"
+    # Y con esa sesión el sistema ya responde de verdad.
+    t = _turno(cliente, r["token"], "ident-3", "Quisiera un préstamo personal de 3000 dólares.")
+    assert t["desenlace"] in {"respuesta", "escalado"}
+
+
+def test_unos_factores_que_no_cuadran_no_abren_la_sesion(cliente):
+    r = _turno_libre(cliente, "ident-4", "Mi DNI es 00000001 y nací el 1900-01-01.")
+    assert r["desenlace"] == "bloqueado"
+    assert not r.get("token")
+    # Y no dice si el documento existe o no: eso sería un oráculo de enumeración.
+    assert "no existe" not in (r["mensaje"] or "").lower()
+
+
+def test_la_fecha_se_entiende_escrita_a_la_latinoamericana(cliente):
+    from api.identidad import leer
+
+    assert leer("nací el 11/09/1989")["date_of_birth"] == "1989-09-11"
+    assert leer("nací el 1989-09-11")["date_of_birth"] == "1989-09-11"
+    # El número de documento no se confunde con los dígitos de la fecha.
+    leido = leer("Mi DNI es 98856271 y nací el 11/09/1989")
+    assert leido["document_number"] == "98856271"
+    assert leido["date_of_birth"] == "1989-09-11"
+
+
+def test_las_conversaciones_guiadas_empiezan_por_la_identidad(cliente):
+    d = cliente.get("/conversations").json()
+    for c in d["conversaciones"]:
+        assert c["identidad_incluida"] is True
+        assert len(c["mensajes"]) >= 5, "saludo + identidad + los tres del guion"
