@@ -68,5 +68,45 @@
     "status": "terminado",
     "note": "conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa",
     "at": "2026-10-05 09:47"
+  },
+  "API-01": {
+    "status": "terminado",
+    "note": "FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen",
+    "at": "2026-10-05 10:01"
+  },
+  "API-02": {
+    "status": "terminado",
+    "note": "FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen",
+    "at": "2026-10-05 10:01"
+  },
+  "UI-02": {
+    "status": "terminado",
+    "note": "FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen",
+    "at": "2026-10-05 10:01"
+  },
+  "UI-03": {
+    "status": "terminado",
+    "note": "FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen",
+    "at": "2026-10-05 10:01"
+  },
+  "UI-04": {
+    "status": "terminado",
+    "note": "FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen",
+    "at": "2026-10-05 10:01"
+  },
+  "UI-05": {
+    "status": "terminado",
+    "note": "FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen",
+    "at": "2026-10-05 10:01"
+  },
+  "UI-06": {
+    "status": "terminado",
+    "note": "FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen",
+    "at": "2026-10-05 10:01"
+  },
+  "UI-07": {
+    "status": "terminado",
+    "note": "FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen",
+    "at": "2026-10-05 10:01"
   }
 }

@@ -3,11 +3,11 @@
   "corte": "2025-12-31",
   "conjuntos": {
     "es": {
-      "casos": 86,
+      "casos": 87,
       "archivo": "eval\\datasets\\es_holdout.jsonl",
       "por_desenlace": {
-        "respuesta": 55,
-        "escalado": 29,
+        "respuesta": 57,
+        "escalado": 28,
         "pregunta": 1,
         "bloqueado": 1
       },
@@ -18,15 +18,15 @@
         "pide_humano": 1,
         "intencion_desconocida": 1,
         "sin_verificar": 1,
-        "contradiccion": 5
+        "contradiccion": 6
       }
     },
     "pt": {
-      "casos": 46,
+      "casos": 47,
       "archivo": "eval\\datasets\\pt_holdout.jsonl",
       "por_desenlace": {
-        "respuesta": 28,
-        "escalado": 16,
+        "respuesta": 30,
+        "escalado": 15,
         "pregunta": 1,
         "bloqueado": 1
       },
@@ -37,7 +37,7 @@
         "pide_humano": 1,
         "intencion_desconocida": 1,
         "sin_verificar": 1,
-        "contradiccion": 5
+        "contradiccion": 6
       }
     },
     "adversarial": {

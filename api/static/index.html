@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>noema · servicio al cliente de crédito</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground:#f4f5f7; --surface:#fff; --surface-2:#eceef2; --ink:#15181f; --ink-soft:#5b6272;
+    --rule:#d8dbe3; --brand:#27456f; --ok:#1f6f52; --live:#9a6412; --wait:#6b7280; --stop:#8f3a3a;
+    --body:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+    --ground:#101319; --surface:#181c24; --surface-2:#1f242e; --ink:#e8eaf0; --ink-soft:#9aa2b4;
+    --rule:#2c323e; --brand:#8fb3e6; --ok:#5fc39b; --live:#e0a84a; --wait:#8b93a5; --stop:#e08a8a;
+    color-scheme: dark; } }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+  header{border-bottom:1px solid var(--rule);background:var(--surface)}
+  .bar{max-width:72rem;margin:0 auto;padding:12px 16px;display:flex;gap:12px 20px;align-items:baseline;flex-wrap:wrap}
+  h1{font-size:1.05rem;margin:0;font-weight:600;letter-spacing:-.01em}
+  .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft)}
+  nav{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap}
+  nav button{font:inherit;font-size:13px;padding:5px 11px;border:1px solid var(--rule);background:var(--surface);
+    color:var(--ink-soft);border-radius:3px;cursor:pointer}
+  nav button[aria-selected="true"]{background:var(--brand);border-color:var(--brand);color:var(--surface);font-weight:600}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) nav button[aria-selected="true"]{color:#0e1117}}
+  main{max-width:72rem;margin:0 auto;padding:16px;padding-block:18px 48px}
+  .salud{font-family:var(--mono);font-size:11px;color:var(--ink-soft);display:flex;gap:10px;flex-wrap:wrap}
+  .punto{width:7px;height:7px;border-radius:99px;display:inline-block;vertical-align:middle;margin-right:4px}
+  .pareja{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:14px}
+  @media (max-width:860px){.pareja{grid-template-columns:1fr}}
+  .caja{background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:14px;min-width:0}
+  .caja h2{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 10px;font-weight:400}
+  .hilo{display:flex;flex-direction:column;gap:9px;max-height:46vh;overflow-y:auto;padding-right:4px}
+  .msg{padding:8px 11px;border-radius:4px;max-width:88%;white-space:pre-wrap;overflow-wrap:anywhere}
+  .msg.cli{background:var(--surface-2);align-self:flex-end}
+  .msg.sis{background:transparent;border:1px solid var(--rule);align-self:flex-start}
+  .msg .quien{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);display:block;margin-bottom:3px}
+  form.enviar{display:flex;gap:7px;margin-top:11px}
+  input[type=text]{flex:1;min-width:0;font:inherit;padding:8px 10px;border:1px solid var(--rule);border-radius:3px;
+    background:var(--ground);color:var(--ink)}
+  button.primario{font:inherit;font-weight:600;padding:8px 15px;border:1px solid var(--brand);background:var(--brand);
+    color:var(--surface);border-radius:3px;cursor:pointer}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) button.primario{color:#0e1117}}
+  button:disabled{opacity:.5;cursor:default}
+  .chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:11px}
+  .chips button{font:inherit;font-size:12px;text-align:left;padding:5px 9px;border:1px solid var(--rule);
+    background:var(--ground);color:var(--ink);border-radius:3px;cursor:pointer;max-width:100%}
+  ol.etapas{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+  ol.etapas li{display:grid;grid-template-columns:5.6rem 1fr;gap:8px;font-size:12.5px;align-items:baseline}
+  ol.etapas .et{font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:var(--brand);
+    border:1px solid currentColor;border-radius:2px;padding:0 3px;text-align:center}
+  ol.etapas .et.propia{color:var(--ink-soft)}
+  ol.etapas .razon{color:var(--ink-soft);min-width:0;overflow-wrap:anywhere}
+  .pill{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;padding:1px 6px;
+    border-radius:2px;color:var(--surface)}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pill{color:#0e1117}}
+  .pill.respuesta{background:var(--ok)} .pill.pregunta{background:var(--live)}
+  .pill.escalado{background:var(--wait)} .pill.bloqueado{background:var(--stop)}
+  dl.cifras{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:12.5px}
+  dl.cifras dt{font-family:var(--mono);font-size:11px;color:var(--ink-soft)}
+  dl.cifras dd{margin:0;font-family:var(--mono);font-variant-numeric:tabular-nums}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  th{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-soft);font-weight:400}
+  td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+  .scroll{overflow-x:auto}
+  .aviso{font-size:12.5px;color:var(--ink-soft);border-left:2px solid var(--live);padding-left:9px;margin:7px 0 0}
+  .md{font-size:13px;overflow-x:auto}
+  .md table{margin:9px 0}
+  footer{max-width:72rem;margin:0 auto;padding:14px 16px 28px;border-top:1px solid var(--rule);
+    font-family:var(--mono);font-size:11px;color:var(--ink-soft);display:flex;justify-content:space-between;gap:9px 16px;flex-wrap:wrap}
+  footer a{color:var(--brand)}
+  [hidden]{display:none!important}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div>
+      <div class="eyebrow">Factored AI &amp; Data Hackathon 2026 · equipo noema</div>
+      <h1>Información y elegibilidad de productos de crédito</h1>
+    </div>
+    <nav role="tablist">
+      <button role="tab" aria-selected="true" data-vista="chat">Conversación</button>
+      <button role="tab" aria-selected="false" data-vista="consola">Consola</button>
+      <button role="tab" aria-selected="false" data-vista="analitica">Analítica</button>
+    </nav>
+  </div>
+  <div class="bar salud" id="salud"><span>comprobando estado…</span></div>
+</header>
+
+<main>
+  <!-- ── Conversación + Caja de Vidrio ─────────────────────────────────── -->
+  <section id="v-chat" class="pareja">
+    <div class="caja">
+      <h2>Conversación</h2>
+      <div class="chips" id="escenarios"></div>
+      <div class="hilo" id="hilo">
+        <div class="msg sis"><span class="quien">sistema</span>Elige un escenario o escribe un mensaje. Para hablar de tus productos hace falta verificar identidad: el botón de sesión de demostración usa los tres factores reales de un cliente de la base, leídos de la base — no salta la verificación.</div>
+      </div>
+      <form class="enviar" id="forma">
+        <input type="text" id="mensaje" autocomplete="off" placeholder="Escribe como lo haría un cliente…" aria-label="Mensaje del cliente">
+        <button class="primario" type="submit" id="btn-enviar">Enviar</button>
+      </form>
+      <p class="aviso" id="estado-sesion">Sin sesión verificada.
+        <button id="btn-demo" style="font:inherit;font-size:12px;text-decoration:underline;background:none;border:0;color:var(--brand);cursor:pointer;padding:0">Abrir sesión de demostración</button>
+      </p>
+    </div>
+
+    <div class="caja">
+      <h2>Caja de vidrio · el turno, etapa por etapa</h2>
+      <p id="desenlace" style="margin:0 0 9px"><span class="pill escalado">sin turno</span></p>
+      <ol class="etapas" id="etapas"><li><span class="et propia">—</span><span class="razon">Las seis etapas aparecen acá con la razón de cada transición.</span></li></ol>
+      <h2 style="margin-top:15px">Cifras ancladas a un tool de este turno</h2>
+      <dl class="cifras" id="cifras"><dt>—</dt><dd>sin cifras</dd></dl>
+      <h2 style="margin-top:15px">Estado semántico</h2>
+      <dl class="cifras" id="scm"><dt>—</dt><dd>sin turno</dd></dl>
+      <div id="avisos"></div>
+    </div>
+  </section>
+
+  <!-- ── Consola de expedientes ────────────────────────────────────────── -->
+  <section id="v-consola" hidden>
+    <div class="caja">
+      <h2>Expedientes escalados · entrega estructurada, no transcripción</h2>
+      <div class="scroll"><table id="tabla-casos"><thead><tr>
+        <th>Caso</th><th>Motivo</th><th>Cliente (hash)</th><th>Abierto</th>
+      </tr></thead><tbody><tr><td colspan="4">Cargando…</td></tr></tbody></table></div>
+      <p class="aviso">Cada expediente se valida contra su esquema antes de entregarse. Si no cuadra, se entrega degradado con los problemas listados — no se descarta. Elige una fila para ver la entrega.</p>
+      <div id="detalle-caso" hidden style="margin-top:14px;border-top:1px solid var(--rule);padding-top:12px">
+        <h2 id="detalle-titulo">Expediente</h2>
+        <dl class="cifras" id="detalle-meta"></dl>
+        <div id="detalle-bloques" style="margin-top:10px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Analítica ─────────────────────────────────────────────────────── -->
+  <section id="v-analitica" hidden>
+    <div class="caja">
+      <h2>Baseline · tools · tools + SCM</h2>
+      <div class="md" id="tabla-eval">Cargando la comparación…</div>
+    </div>
+    <div class="caja" style="margin-top:14px">
+      <h2>Guardrails en vivo</h2>
+      <dl class="cifras" id="vivo"><dt>—</dt><dd>cargando</dd></dl>
+    </div>
+    <div class="caja" style="margin-top:14px">
+      <h2>Calidad de datos · capa gold</h2>
+      <div class="scroll"><table id="tabla-dq"><thead><tr><th>Comprobación</th><th class="n">Valor</th></tr></thead>
+        <tbody><tr><td colspan="2">Cargando…</td></tr></tbody></table></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>v1.0.0 · política v3 · corte 2025-12-31 · ninguna cifra sale del modelo</span>
+  <span>Eloz Consulting · <a href="https://elozconsulting.com">elozconsulting.com</a></span>
+</footer>
+
+<script>
+const $ = (s) => document.querySelector(s);
+let TOKEN = null;
+let CONV = "web-" + Math.random().toString(36).slice(2, 12);
+
+async function pedir(ruta, opciones = {}) {
+  const cab = Object.assign({ "content-type": "application/json" }, opciones.headers || {});
+  if (TOKEN) cab["authorization"] = "Bearer " + TOKEN;
+  const r = await fetch(ruta, Object.assign({}, opciones, { headers: cab }));
+  const texto = await r.text();
+  let cuerpo;
+  try { cuerpo = JSON.parse(texto); } catch { cuerpo = { texto }; }
+  if (!r.ok) throw new Error((cuerpo && (cuerpo.detail || cuerpo.error)) || ("HTTP " + r.status));
+  return cuerpo;
+}
+
+// ── pestañas ────────────────────────────────────────────────────────────────
+document.querySelectorAll('nav button').forEach((b) => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('nav button').forEach((o) => o.setAttribute('aria-selected', String(o === b)));
+    for (const v of ['chat', 'consola', 'analitica']) $('#v-' + v).hidden = v !== b.dataset.vista;
+    if (b.dataset.vista === 'consola') cargarCasos();
+    if (b.dataset.vista === 'analitica') cargarAnalitica();
+  });
+});
+
+// ── salud ───────────────────────────────────────────────────────────────────
+function punto(ok) {
+  return '<span class="punto" style="background:' + (ok ? 'var(--ok)' : 'var(--stop)') + '"></span>';
+}
+async function cargarSalud() {
+  try {
+    const s = await pedir('/health');
+    $('#salud').innerHTML =
+      '<span>' + punto(s.listo) + (s.listo ? 'sistema listo' : ('no disponible: ' + (s.motivo || '—'))) + '</span>' +
+      '<span>' + punto(s.llave_de_firma) + 'llave de firma</span>' +
+      '<span>' + punto(true) + 'SCM ' + (s.scm_habilitado ? 'encendido' : 'apagado') + '</span>' +
+      '<span>política v' + (s.politica_version ?? '—') + '</span>' +
+      '<span>corte ' + s.corte + '</span>';
+  } catch (e) {
+    $('#salud').innerHTML = '<span>' + punto(false) + 'no se pudo consultar el estado: ' + e.message + '</span>';
+  }
+}
+
+// ── escenarios ──────────────────────────────────────────────────────────────
+async function cargarEscenarios() {
+  try {
+    const d = await pedir('/scenarios');
+    $('#escenarios').innerHTML = '';
+    for (const e of d.escenarios) {
+      const b = document.createElement('button');
+      b.textContent = e.titulo;
+      b.title = e.espera;
+      b.addEventListener('click', () => { $('#mensaje').value = e.mensaje; $('#mensaje').focus(); });
+      $('#escenarios').appendChild(b);
+    }
+  } catch { /* la conversación funciona igual sin escenarios precargados */ }
+}
+
+// ── sesión de demostración ──────────────────────────────────────────────────
+$('#btn-demo').addEventListener('click', async () => {
+  $('#btn-demo').disabled = true;
+  try {
+    const d = await pedir('/session/demo', { method: 'POST' });
+    TOKEN = d.token; CONV = d.conversation_id;
+    $('#estado-sesion').textContent = 'Sesión verificada con los tres factores reales de un cliente de la base. Caduca en 15 minutos.';
+  } catch (e) {
+    $('#estado-sesion').textContent = 'No se pudo abrir la sesión: ' + e.message;
+    $('#btn-demo').disabled = false;
+  }
+});
+
+// ── conversación ────────────────────────────────────────────────────────────
+function burbuja(quien, texto) {
+  const d = document.createElement('div');
+  d.className = 'msg ' + (quien === 'cliente' ? 'cli' : 'sis');
+  const q = document.createElement('span'); q.className = 'quien'; q.textContent = quien;
+  d.appendChild(q); d.appendChild(document.createTextNode(texto));
+  $('#hilo').appendChild(d);
+  $('#hilo').scrollTop = $('#hilo').scrollHeight;
+}
+
+function pintarTurno(t) {
+  $('#desenlace').innerHTML = '<span class="pill ' + t.desenlace + '">' + t.desenlace + '</span>';
+
+  const ol = $('#etapas'); ol.innerHTML = '';
+  for (const e of (t.traza && t.traza.etapas) || []) {
+    const li = document.createElement('li');
+    const et = document.createElement('span');
+    et.className = 'et' + (e.del_reto === false ? ' propia' : '');
+    et.textContent = e.etapa;
+    const rz = document.createElement('span'); rz.className = 'razon'; rz.textContent = e.razon || '';
+    li.append(et, rz); ol.appendChild(li);
+  }
+  if (!ol.children.length) ol.innerHTML = '<li><span class="et propia">—</span><span class="razon">sin etapas</span></li>';
+
+  const dl = $('#cifras'); dl.innerHTML = '';
+  const ofertas = t.ofertas || [];
+  if (ofertas.length) {
+    for (const o of ofertas) {
+      const campos = [['producto', o.producto], ['monto ofrecido USD', o.monto_ofrecido_usd],
+        ['cuota USD', o.cuota_estimada_usd], ['plazo meses', o.plazo_meses],
+        ['tasa anual %', o.tasa_anual], ['TEA %', o.tea_pct], ['interés total USD', o.interes_total_usd]];
+      for (const [k, v] of campos) {
+        if (v === null || v === undefined) continue;
+        const dt = document.createElement('dt'); dt.textContent = k;
+        const dd = document.createElement('dd');
+        dd.textContent = typeof v === 'number' ? v.toLocaleString('es', { maximumFractionDigits: 2 }) : v;
+        dl.append(dt, dd);
+      }
+    }
+  } else if ((t.cifras_ancladas || []).length) {
+    for (const v of t.cifras_ancladas.slice(0, 14)) {
+      const dt = document.createElement('dt'); dt.textContent = 'anclada';
+      const dd = document.createElement('dd'); dd.textContent = Number(v).toLocaleString('es', { maximumFractionDigits: 2 });
+      dl.append(dt, dd);
+    }
+  }
+  if (!dl.children.length) dl.innerHTML = '<dt>—</dt><dd>este turno no pronunció ninguna cifra</dd>';
+
+  const ds = $('#scm'); ds.innerHTML = '';
+  if (t.scm) {
+    const pares = [['estado epistémico', t.scm.epistemic_status],
+      ['hechos', (t.scm.facts || []).length || t.scm.n_facts],
+      ['contradicciones', (t.scm.contradictions || []).length],
+      ['evidencia faltante', (t.scm.missing_evidence || []).join(', ') || 'ninguna']];
+    for (const [k, v] of pares) {
+      if (v === undefined) continue;
+      const dt = document.createElement('dt'); dt.textContent = k;
+      const dd = document.createElement('dd'); dd.textContent = String(v);
+      ds.append(dt, dd);
+    }
+  } else {
+    ds.innerHTML = '<dt>SCM</dt><dd>apagado en este turno</dd>';
+  }
+
+  const av = $('#avisos'); av.innerHTML = '';
+  for (const a of (t.avisos || []).concat((t.traza && t.traza.supuestos) || [])) {
+    const p = document.createElement('p'); p.className = 'aviso'; p.textContent = a; av.appendChild(p);
+  }
+  if (t.pregunta_por && t.pregunta_por.length) {
+    const p = document.createElement('p'); p.className = 'aviso';
+    p.textContent = 'Falta: ' + t.pregunta_por.join(', ') + '. Preguntar es el resultado correcto, no un fallo.';
+    av.appendChild(p);
+  }
+}
+
+$('#forma').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const texto = $('#mensaje').value.trim();
+  if (!texto) return;
+  burbuja('cliente', texto);
+  $('#mensaje').value = '';
+  $('#btn-enviar').disabled = true;
+  try {
+    const t = await pedir('/chat', {
+      method: 'POST',
+      body: JSON.stringify({ conversation_id: CONV, mensaje: texto }),
+    });
+    burbuja('agente', t.mensaje || '(sin mensaje)');
+    pintarTurno(t);
+  } catch (e) {
+    burbuja('sistema', 'No pudimos completar el turno: ' + e.message);
+  } finally {
+    $('#btn-enviar').disabled = false;
+    cargarSalud();
+  }
+});
+
+// ── consola ─────────────────────────────────────────────────────────────────
+async function cargarCasos() {
+  const tb = $('#tabla-casos').querySelector('tbody');
+  tb.innerHTML = '<tr><td colspan="4">Cargando…</td></tr>';
+  try {
+    const d = await pedir('/cases?limite=25');
+    tb.innerHTML = '';
+    if (!d.casos.length) { tb.innerHTML = '<tr><td colspan="4">Ningún expediente abierto todavía.</td></tr>'; return; }
+    for (const c of d.casos) {
+      const tr = document.createElement('tr');
+      tr.style.cursor = 'pointer';
+      for (const v of [c.case_id, c.motivo, (c.cliente_hash || '—').slice(0, 12),
+                       String(c.creado_en).slice(0, 19)]) {
+        const td = document.createElement('td'); td.textContent = String(v ?? '—'); tr.appendChild(td);
+      }
+      tr.addEventListener('click', () => verCaso(c.case_id));
+      tb.appendChild(tr);
+    }
+  } catch (e) {
+    tb.innerHTML = '<tr><td colspan="4">No se pudieron leer los expedientes: ' + e.message + '</td></tr>';
+  }
+}
+
+async function verCaso(id) {
+  const caja = $('#detalle-caso');
+  caja.hidden = false;
+  $('#detalle-titulo').textContent = 'Expediente ' + id;
+  $('#detalle-meta').innerHTML = '';
+  $('#detalle-bloques').textContent = 'Cargando…';
+  try {
+    const d = await pedir('/cases/' + encodeURIComponent(id));
+    const meta = [['motivo', d.motivo], ['intención', d.intencion],
+      ['política', 'v' + d.politica_version], ['abierto', String(d.creado_en).slice(0, 19)],
+      ['esquema', d.validacion && d.validacion.ok === false ? 'degradado' : 'válido']];
+    for (const [k, v] of meta) {
+      const dt = document.createElement('dt'); dt.textContent = k;
+      const dd = document.createElement('dd'); dd.textContent = String(v ?? '—');
+      $('#detalle-meta').append(dt, dd);
+    }
+    const cont = $('#detalle-bloques'); cont.innerHTML = '';
+    const e = d.expediente || {};
+    for (const bloque of ['hechos_verificados', 'fuentes', 'ofertas_cotizadas',
+                          'evidencia_faltante', 'pregunta_abierta_no_verificada',
+                          'problemas_de_esquema']) {
+      if (!(bloque in e)) continue;
+      const h = document.createElement('h2'); h.textContent = bloque.replace(/_/g, ' ');
+      const pre = document.createElement('pre');
+      pre.style.cssText = 'font-family:var(--mono);font-size:11.5px;white-space:pre-wrap;overflow-wrap:anywhere;margin:4px 0 10px;color:var(--ink-soft)';
+      pre.textContent = JSON.stringify(e[bloque], null, 2);
+      cont.append(h, pre);
+    }
+    if (!cont.children.length) cont.textContent = 'El expediente no trae bloques.';
+  } catch (err) {
+    $('#detalle-bloques').textContent = 'No se pudo leer el expediente: ' + err.message;
+  }
+}
+
+// ── analítica ───────────────────────────────────────────────────────────────
+function md(texto) {
+  // Markdown mínimo: encabezados, tablas y negritas. Suficiente para la tabla
+  // comparativa, y sin traer una librería para una pestaña.
+  const lineas = texto.split('\n');
+  const salida = [];
+  let enTabla = false;
+  const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const neg = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`(.+?)`/g, '<code>$1</code>');
+  for (const l of lineas) {
+    const t = l.trim();
+    if (/^\|/.test(t)) {
+      const celdas = t.split('|').slice(1, -1).map((c) => c.trim());
+      if (/^[-:\s|]+$/.test(t)) continue;
+      if (!enTabla) { salida.push('<div class="scroll"><table>'); enTabla = true; salida.push('<tr>' + celdas.map((c) => '<th>' + neg(c) + '</th>').join('') + '</tr>'); continue; }
+      salida.push('<tr>' + celdas.map((c, i) => '<td' + (i ? ' class="n"' : '') + '>' + neg(c) + '</td>').join('') + '</tr>');
+      continue;
+    }
+    if (enTabla) { salida.push('</table></div>'); enTabla = false; }
+    if (/^#{1,3}\s/.test(t)) salida.push('<h3 style="font-size:.95rem;margin:14px 0 5px">' + neg(t.replace(/^#+\s/, '')) + '</h3>');
+    else if (t) salida.push('<p style="margin:5px 0;color:var(--ink-soft)">' + neg(t) + '</p>');
+  }
+  if (enTabla) salida.push('</table></div>');
+  return salida.join('');
+}
+
+async function cargarAnalitica() {
+  try {
+    const r = await fetch('/eval');
+    $('#tabla-eval').innerHTML = md(await r.text());
+  } catch (e) { $('#tabla-eval').textContent = 'No se pudo cargar la comparación: ' + e.message; }
+
+  try {
+    const m = await pedir('/metrics');
+    const dl = $('#vivo'); dl.innerHTML = '';
+    const pares = [
+      ['respuestas revisadas por el anclaje', m.grounding.revisadas],
+      ['respuestas bloqueadas por el anclaje', m.grounding.bloqueadas],
+      ['mensajes revisados por inyección', m.inyeccion && m.inyeccion.mensajes_revisados],
+      ['marcados como sospechosos', m.inyeccion && m.inyeccion.mensajes_sospechosos],
+      ['SCM', m.scm_habilitado ? 'encendido' : 'apagado'],
+    ];
+    for (const [k, v] of pares) {
+      if (v === undefined || v === null) continue;
+      const dt = document.createElement('dt'); dt.textContent = k;
+      const dd = document.createElement('dd'); dd.textContent = String(v);
+      dl.append(dt, dd);
+    }
+  } catch { /* la pestaña sigue útil con la tabla sola */ }
+
+  const tb = $('#tabla-dq').querySelector('tbody');
+  try {
+    const d = await pedir('/dq');
+    tb.innerHTML = '';
+    for (const f of d.filas.slice(0, 40)) {
+      const claves = Object.keys(f);
+      const tr = document.createElement('tr');
+      const td1 = document.createElement('td');
+      td1.textContent = claves.slice(0, 2).map((k) => f[k]).join(' · ');
+      const td2 = document.createElement('td'); td2.className = 'n';
+      const num = claves.find((k) => typeof f[k] === 'number');
+      td2.textContent = num ? Number(f[num]).toLocaleString('es') : '';
+      tr.append(td1, td2); tb.appendChild(tr);
+    }
+    if (!tb.children.length) tb.innerHTML = '<tr><td colspan="2">El reporte está vacío.</td></tr>';
+  } catch (e) {
+    tb.innerHTML = '<tr><td colspan="2">No disponible: ' + e.message + '</td></tr>';
+  }
+}
+
+cargarSalud();
+cargarEscenarios();
+</script>
+</body>
+</html>

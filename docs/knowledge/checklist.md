@@ -2,17 +2,17 @@
 
 Generado por `make checklist` contra el estado real del repo. Cuando alguien crea o completa un archivo de evidencia, el ítem avanza solo en la siguiente corrida. **No editar estados a mano aquí** — usar `python -m scripts.checklist --done ID --note "..."`.
 
-Última evaluación: 2026-10-05 09:47
+Última evaluación: 2026-10-05 10:01
 
 Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
-## Avance global — 49/79 `███████████████░░░░░░░░░`
+## Avance global — 57/79 `█████████████████░░░░░░░`
 
-**49 terminado · 8 avanzado · 22 falta**
+**57 terminado · 8 avanzado · 14 falta**
 
 | Dueño | Terminado | Avanzado | Falta | Total |
 |---|---:|---:|---:|---:|
-| Eduardo | 28 | 5 | 22 | 55 |
+| Eduardo | 36 | 5 | 14 | 55 |
 | Federico | 21 | 3 | 0 | 24 |
 
 ## Plataforma de datos — 11/15 `█████████░░░`
@@ -75,14 +75,14 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [x] | `AG-03` | Registro de tools con allowlist por rol | Eduardo | D5 · 1-oct | Eduardo · 2026-10-02 |
 | [x] | `AG-04` | Las once herramientas implementadas (ADR-0009: el catalogo se derivo de la politica, son once no nueve) | Eduardo | D5 · 1-oct | Eduardo · 2026-10-02 |
 | [x] | `AG-05` | AccessGuard: identidad, 3 intentos, JWT con customer_id dentro | Eduardo | D5 · 1-oct | Eduardo · 2026-10-02 |
-| [x] | `AG-06` | Orquestador de las seis etapas | Eduardo | D5 · 1-oct | Eduardo · 2026-10-02 |
+| [x] | `AG-06` | Orquestador de las seis etapas | Eduardo | D5 · 1-oct | Eduardo · 2026-10-05 |
 | [x] | `AG-07` | VERIFY: relectura real del store y ledger de acciones | Eduardo | D5 · 1-oct | Eduardo · 2026-10-02 |
 | [x] | `AG-08` | Handoff estructurado validado por esquema | Eduardo | D5 · 1-oct | Eduardo · 2026-10-02 |
 | [x] | `AG-09` | GroundingChecker: ninguna cifra fuera de los tools | Eduardo | D6 · 2-oct | Eduardo · 2026-10-02 |
 | [x] | `AG-10` | Defensa contra inyeccion de prompt | Eduardo | D6 · 2-oct | Eduardo · 2026-10-02 |
 | [ ] | `AG-11` | Multilingue: deteccion y prompts espanol/portugues | Eduardo | D6 · 2-oct | — |
 | [ ] | `AG-12` | Observabilidad: traza por turno, costo, health checks | Eduardo | D5 · 1-oct | — |
-| [~] | `AG-13` | Integracion del SCM tras la bandera SCM_ENABLED | Eduardo | D5 · 1-oct | Eduardo · 2026-10-02 |
+| [~] | `AG-13` | Integracion del SCM tras la bandera SCM_ENABLED | Eduardo | D5 · 1-oct | Eduardo · 2026-10-05 |
 
 ## Evaluacion — 6/7 `██████████░░`
 
@@ -92,28 +92,28 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [x] | `EV-02` | Conjunto retenido en espanol (~80 casos) | Eduardo | D7 · 3-oct | — | conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa
 | [x] | `EV-03` | Conjunto en portugues de Brasil (~40 casos) | Eduardo | D7 · 3-oct | — | conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa
 | [x] | `EV-04` | Suite adversarial (~20 casos de inyeccion y suplantacion) | Eduardo | D6 · 2-oct | — | conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa
-| [x] | `EV-05` | Harness de los tres brazos: baseline, tools, tools+SCM | Eduardo | D7 · 3-oct | sin commit | conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa
+| [x] | `EV-05` | Harness de los tres brazos: baseline, tools, tools+SCM | Eduardo | D7 · 3-oct | Eduardo · 2026-10-05 | conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa
 | [x] | `EV-06` | Metricas: resolucion segura, acciones inseguras, grounding, costo | Eduardo | D8 · 4-oct | — | conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa
 | [ ] | `EV-07` | Resultados publicados y comparados | Eduardo | D8 · 4-oct | — |
 
-## API — 0/2 `░░░░░░░░░░░░`
+## API — 2/2 `████████████`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
-| [ ] | `API-01` | FastAPI con chat, trace, cases, metrics, eval, scenarios | Eduardo | D7 · 3-oct | — |
-| [ ] | `API-02` | Seguridad: JWT, rate limit, CORS cerrado, redaccion de PII | Eduardo | D7 · 3-oct | — |
+| [x] | `API-01` | FastAPI con chat, trace, cases, metrics, eval, scenarios | Eduardo | D7 · 3-oct | sin commit | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
+| [x] | `API-02` | Seguridad: JWT, rate limit, CORS cerrado, redaccion de PII | Eduardo | D7 · 3-oct | — | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
 
-## Frontend — 0/8 `░░░░░░░░░░░░`
+## Frontend — 6/8 `█████████░░░`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
 | [ ] | `UI-01` | Proyecto Next.js configurado | Eduardo | D6 · 2-oct | — |
-| [ ] | `UI-02` | /chat en espanol y portugues | Eduardo | D6 · 2-oct | — |
-| [ ] | `UI-03` | Panel Caja de Vidrio con la traza en vivo | Eduardo | D6 · 2-oct | — |
-| [ ] | `UI-04` | Escenarios precargados para el jurado | Eduardo | D6 · 2-oct | — |
-| [ ] | `UI-05` | /console con los expedientes estructurados | Eduardo | D7 · 3-oct | — |
-| [ ] | `UI-06` | /analytics: metricas del agente y evidencia del ablation | Eduardo | D7 · 3-oct | — |
-| [ ] | `UI-07` | /analytics: insights del negocio y calidad de datos | Eduardo | D7 · 3-oct | — |
+| [x] | `UI-02` | /chat en espanol y portugues | Eduardo | D6 · 2-oct | — | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
+| [x] | `UI-03` | Panel Caja de Vidrio con la traza en vivo | Eduardo | D6 · 2-oct | — | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
+| [x] | `UI-04` | Escenarios precargados para el jurado | Eduardo | D6 · 2-oct | — | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
+| [x] | `UI-05` | /console con los expedientes estructurados | Eduardo | D7 · 3-oct | — | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
+| [x] | `UI-06` | /analytics: metricas del agente y evidencia del ablation | Eduardo | D7 · 3-oct | — | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
+| [x] | `UI-07` | /analytics: insights del negocio y calidad de datos | Eduardo | D7 · 3-oct | — | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
 | [ ] | `UI-08` | Deploy publico accesible para el jurado | Eduardo | D7 · 3-oct | — |
 
 ## Entregables — 0/5 `░░░░░░░░░░░░`
