@@ -2,20 +2,20 @@
 
 Generado por `make checklist` contra el estado real del repo. Cuando alguien crea o completa un archivo de evidencia, el ítem avanza solo en la siguiente corrida. **No editar estados a mano aquí** — usar `python -m scripts.checklist --done ID --note "..."`.
 
-Última evaluación: 2026-10-05 14:35
+Última evaluación: 2026-10-05 14:46
 
 Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 
-## Avance global — 58/79 `██████████████████░░░░░░`
+## Avance global — 65/79 `████████████████████░░░░`
 
-**58 terminado · 8 avanzado · 13 falta**
+**65 terminado · 4 avanzado · 10 falta**
 
 | Dueño | Terminado | Avanzado | Falta | Total |
 |---|---:|---:|---:|---:|
-| Eduardo | 37 | 5 | 13 | 55 |
+| Eduardo | 44 | 1 | 10 | 55 |
 | Federico | 21 | 3 | 0 | 24 |
 
-## Plataforma de datos — 11/15 `█████████░░░`
+## Plataforma de datos — 12/15 `██████████░░`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
@@ -33,7 +33,7 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [x] | `DAT-12` | Gold: dq_report publicable en /analytics | Federico | D3 · 29-sep | fedevargas93 · 2026-09-28 |
 | [~] | `DAT-13` | Espejo en Databricks: carga y dbt verificados en el workspace real | Federico | D3 · 29-sep | fedevargas93 · 2026-09-28 |
 | [~] | `DAT-14` | Export gold a Postgres con relectura verificada en el destino real | Federico | D5 · 1-oct | fedevargas93 · 2026-09-28 |
-| [~] | `DAT-15` | Prueba que falla si una columna prohibida por fuga entra a credit_features_asof | Eduardo | D3 · 29-sep | Eduardo · 2026-09-28 |
+| [x] | `DAT-15` | Prueba que falla si una columna prohibida por fuga entra a credit_features_asof | Eduardo | D3 · 29-sep | Eduardo · 2026-09-28 | verificado el 5-oct: existe y corre
 
 ## Modelos — 7/13 `██████░░░░░░`
 
@@ -66,7 +66,7 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [x] | `SCM-07` | Endurecido contra entradas ambiguas y contradictorias | Federico | D4 · 30-sep | fedevargas93 · 2026-09-28 |
 | [x] | `SCM-08` | Seccion neurosimbolica de la documentacion | Federico | D6 · 2-oct | fedevargas93 · 2026-09-28 |
 
-## Agente — 10/13 `█████████░░░`
+## Agente — 13/13 `████████████`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
@@ -80,11 +80,11 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [x] | `AG-08` | Handoff estructurado validado por esquema | Eduardo | D5 · 1-oct | Eduardo · 2026-10-02 |
 | [x] | `AG-09` | GroundingChecker: ninguna cifra fuera de los tools | Eduardo | D6 · 2-oct | Eduardo · 2026-10-02 |
 | [x] | `AG-10` | Defensa contra inyeccion de prompt | Eduardo | D6 · 2-oct | Eduardo · 2026-10-02 |
-| [ ] | `AG-11` | Multilingue: deteccion y prompts espanol/portugues | Eduardo | D6 · 2-oct | — |
-| [ ] | `AG-12` | Observabilidad: traza por turno, costo, health checks | Eduardo | D5 · 1-oct | — |
-| [~] | `AG-13` | Integracion del SCM tras la bandera SCM_ENABLED | Eduardo | D5 · 1-oct | Eduardo · 2026-10-05 |
+| [x] | `AG-11` | Multilingue: deteccion y prompts espanol/portugues | Eduardo | D6 · 2-oct | — | verificado el 5-oct: existe y corre
+| [x] | `AG-12` | Observabilidad: traza por turno, costo, health checks | Eduardo | D5 · 1-oct | — | verificado el 5-oct: existe y corre
+| [x] | `AG-13` | Integracion del SCM tras la bandera SCM_ENABLED | Eduardo | D5 · 1-oct | Eduardo · 2026-10-05 | verificado el 5-oct: existe y corre
 
-## Evaluacion — 6/7 `██████████░░`
+## Evaluacion — 7/7 `████████████`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
@@ -94,7 +94,7 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [x] | `EV-04` | Suite adversarial (~20 casos de inyeccion y suplantacion) | Eduardo | D6 · 2-oct | — | conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa
 | [x] | `EV-05` | Harness de los tres brazos: baseline, tools, tools+SCM | Eduardo | D7 · 3-oct | Eduardo · 2026-10-05 | conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa
 | [x] | `EV-06` | Metricas: resolucion segura, acciones inseguras, grounding, costo | Eduardo | D8 · 4-oct | — | conjunto retenido 86 es / 46 pt / 20 adversariales, tres brazos y tabla comparativa
-| [ ] | `EV-07` | Resultados publicados y comparados | Eduardo | D8 · 4-oct | — |
+| [x] | `EV-07` | Resultados publicados y comparados | Eduardo | D8 · 4-oct | — | verificado el 5-oct: existe y corre
 
 ## API — 2/2 `████████████`
 
@@ -116,12 +116,12 @@ Estados: `[ ]` falta · `[~]` avanzado · `[x]` terminado
 | [x] | `UI-07` | /analytics: insights del negocio y calidad de datos | Eduardo | D7 · 3-oct | — | FastAPI con nueve rutas y la interfaz de una pagina servida desde el mismo origen
 | [x] | `UI-08` | Deploy publico accesible para el jurado | Eduardo | D7 · 3-oct | — | https://noema.5-78-236-186.sslip.io en el Hetzner, systemd con tope de memoria y HTTPS por certbot
 
-## Entregables — 0/5 `░░░░░░░░░░░░`
+## Entregables — 2/5 `█████░░░░░░░`
 
 |  | ID | Tarea | Dueño | Día | Último movimiento |
 |---|---|---|---|---|---|
-| [~] | `ENT-01` | docs 02 arquitectura, 03 politica, 04 evaluacion, 06 runbook completos | Eduardo | D8 · 4-oct | Eduardo · 2026-10-05 |
-| [~] | `ENT-02` | LIMITATIONS final, con lo que realmente falto | Eduardo | D8 · 4-oct | Eduardo · 2026-10-05 |
+| [x] | `ENT-01` | docs 02 arquitectura, 03 politica, 04 evaluacion, 06 runbook completos | Eduardo | D8 · 4-oct | Eduardo · 2026-10-05 | 02 arquitectura, 03 politica y 06 runbook escritos; 04 evaluacion ya estaba
+| [x] | `ENT-02` | LIMITATIONS final, con lo que realmente falto | Eduardo | D8 · 4-oct | Eduardo · 2026-10-05 | verificado el 5-oct: existe y corre
 | [ ] | `ENT-03` | Cinco diapositivas | Eduardo | D9 · 5-oct | — |
 | [ ] | `ENT-04` | Video de maximo 3 minutos | Eduardo | D9 · 5-oct | — |
 | [ ] | `ENT-05` | Envio a hackathon.admin@factored.ai | Eduardo | D9 · 5-oct | — |

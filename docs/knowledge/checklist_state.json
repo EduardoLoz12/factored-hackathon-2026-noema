@@ -113,5 +113,40 @@
     "status": "terminado",
     "note": "https://noema.5-78-236-186.sslip.io en el Hetzner, systemd con tope de memoria y HTTPS por certbot",
     "at": "2026-10-05 10:18"
+  },
+  "AG-11": {
+    "status": "terminado",
+    "note": "verificado el 5-oct: existe y corre",
+    "at": "2026-10-05 14:44"
+  },
+  "AG-12": {
+    "status": "terminado",
+    "note": "verificado el 5-oct: existe y corre",
+    "at": "2026-10-05 14:44"
+  },
+  "EV-07": {
+    "status": "terminado",
+    "note": "verificado el 5-oct: existe y corre",
+    "at": "2026-10-05 14:44"
+  },
+  "DAT-15": {
+    "status": "terminado",
+    "note": "verificado el 5-oct: existe y corre",
+    "at": "2026-10-05 14:44"
+  },
+  "AG-13": {
+    "status": "terminado",
+    "note": "verificado el 5-oct: existe y corre",
+    "at": "2026-10-05 14:44"
+  },
+  "ENT-02": {
+    "status": "terminado",
+    "note": "verificado el 5-oct: existe y corre",
+    "at": "2026-10-05 14:44"
+  },
+  "ENT-01": {
+    "status": "terminado",
+    "note": "02 arquitectura, 03 politica y 06 runbook escritos; 04 evaluacion ya estaba",
+    "at": "2026-10-05 14:46"
   }
 }

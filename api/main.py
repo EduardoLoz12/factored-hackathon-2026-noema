@@ -42,6 +42,7 @@ from agent.tools import customer as cu
 from agent.tools.ledger import abrir_ledger
 from agent.tools.registry import Role, Session, ToolRegistry, hash_pii
 from agent.tools.store import AnalyticsStore, Contexto
+from api import eventos as ev
 from api import identidad
 from api.conversaciones import CONVERSACIONES
 from api.extraccion import extraer
@@ -365,6 +366,9 @@ def chat(cuerpo: CuerpoChat, authorization: str | None = Header(default=None)) -
         # Qué se consultó, qué se escribió y qué respaldó cada cifra. Es la
         # bitácora real del turno, no un resumen redactado después.
         "tools": bitacora,
+        # La secuencia real del turno, para que el panel la reproduzca en orden en
+        # vez de inventarlo.
+        "eventos": ev.del_turno(turno, lectura, bitacora, traza.get("inyeccion")),
         "traza": traza,
     }
 
@@ -406,6 +410,7 @@ def _turno_de_identidad(cuerpo: CuerpoChat, lectura: dict[str, Any]) -> dict[str
             "cifras_ancladas": [],
             "scm": None,
             "tools": [],
+            "eventos": ev.de_identidad(lectura, sorted(reunidos), faltan, None),
             "traza": {
                 "desenlace": "bloqueado",
                 "etapas": etapas,
@@ -467,6 +472,7 @@ def _turno_de_identidad(cuerpo: CuerpoChat, lectura: dict[str, Any]) -> dict[str
         "cifras_ancladas": [],
         "scm": None,
         "tools": bitacora,
+        "eventos": ev.de_identidad(lectura, sorted(reunidos), [], r),
         "traza": traza,
     }
 

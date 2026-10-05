@@ -268,3 +268,53 @@ def test_las_conversaciones_guiadas_empiezan_por_la_identidad(cliente):
     for c in d["conversaciones"]:
         assert c["identidad_incluida"] is True
         assert len(c["mensajes"]) >= 5, "saludo + identidad + los tres del guion"
+
+
+# ── El flujo de eventos, que es lo que el panel muestra ─────────────────────
+def test_el_turno_publica_su_secuencia_con_origen_y_control(cliente):
+    token, cid = _sesion(cliente, "rechazo_con_motivo")
+    t = _turno(cliente, token, cid, "Necesito un préstamo personal de 15000 dólares.")
+    eventos = t["eventos"]
+    assert len(eventos) >= 10, "un turno completo no cabe en menos de diez eventos"
+    for e in eventos:
+        assert set(e) >= {"fase", "titulo", "detalle", "fuente", "control", "estado"}
+        assert e["estado"] in {"ok", "no", "pe"}
+        assert e["titulo"], "un evento sin título no se puede leer"
+
+    fases = [e["fase"] for e in eventos]
+    # El orden es el real: primero entra el mensaje, al final se decide.
+    assert fases.index("entrada") < fases.index("consulta")
+    assert fases.index("consulta") < fases.index("politica")
+    assert fases[-1] == "desenlace"
+
+
+def test_cada_consulta_dice_de_que_tabla_salio(cliente):
+    token, cid = _sesion(cliente, "elegible")
+    t = _turno(cliente, token, cid, "Quisiera un préstamo personal de 3000 dólares.")
+    consultas = [e for e in t["eventos"] if e["fase"] == "consulta"]
+    assert consultas, "ninguna consulta quedó registrada"
+    for e in consultas:
+        assert e["fuente"], f"{e['titulo']} no dice de dónde salió el dato"
+        assert e["ms"] is not None
+    origenes = {e["fuente"] for e in consultas}
+    assert any("stg_customers" in o for o in origenes)
+    assert any("stg_products" in o for o in origenes)
+
+
+def test_las_reglas_de_la_politica_se_publican_una_por_una(cliente):
+    token, cid = _sesion(cliente, "rechazo_con_motivo")
+    t = _turno(cliente, token, cid, "Necesito un préstamo personal de 15000 dólares.")
+    reglas = [e for e in t["eventos"] if e["fase"] == "politica" and "_" in e["fuente"]]
+    ids = " ".join(e["fuente"] for e in reglas)
+    assert "R1_antiguedad" in ids
+    assert "eligibility_v1.yaml v3" in ids
+    # Y se ve cuál cortó: en este perfil, la exposición sobre el ingreso.
+    fallidas = [e for e in reglas if e["estado"] == "no"]
+    assert fallidas, "si el cliente fue rechazado, alguna regla tuvo que fallar"
+
+
+def test_el_turno_bloqueado_por_identidad_no_consulta_nada(cliente):
+    r = _turno_libre(cliente, "ev-bloq", "Hola, quiero saber mi cupo.")
+    fases = {e["fase"] for e in r["eventos"]}
+    assert "consulta" not in fases, "sin identidad no se consulta la base"
+    assert "politica" not in fases
