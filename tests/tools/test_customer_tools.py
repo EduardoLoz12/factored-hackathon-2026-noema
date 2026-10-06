@@ -402,10 +402,11 @@ def test_una_sesion_anonima_solo_alcanza_la_verificacion(registry):
     assert registry.catalogo_para(Role.ANONYMOUS) == ["verify_identity"]
 
 
-def test_el_cliente_verificado_alcanza_las_cuatro(registry):
+def test_el_cliente_verificado_alcanza_las_cinco(registry):
     assert registry.catalogo_para(Role.CUSTOMER) == [
         "get_customer_assets",
         "get_customer_credit_products",
+        "get_customer_product_summary",
         "get_customer_profile",
         "verify_identity",
     ]

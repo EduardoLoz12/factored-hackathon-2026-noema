@@ -200,7 +200,7 @@ def test_ningun_ataque_cambia_el_cliente_de_la_sesion(orq, ataque):
 
 def test_el_catalogo_de_tools_es_cerrado(registry):
     """Once y solo once. No hay forma de pedir una operación nueva por mensaje."""
-    assert len(registry.nombres()) == 11
+    assert len(registry.nombres()) == 12  # 11 + get_customer_product_summary
 
 
 @pytest.mark.parametrize(

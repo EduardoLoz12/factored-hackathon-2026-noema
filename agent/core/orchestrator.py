@@ -80,6 +80,10 @@ ESTRUCTURADAS = frozenset(
 
 FUENTE_CLIENTE = Source(layer=SourceLayer.LANGUAGE, ref="mensaje_del_cliente")
 
+# Intención de la consulta sobre los productos propios del cliente. No está en
+# `REQUIRED_SLOTS` (contrato del SCM): el orquestador la atiende antes de esa comprobación.
+CUENTA_PROPIA = "CUENTA_PROPIA"
+
 
 @dataclass(frozen=True)
 class Transicion:
@@ -113,6 +117,8 @@ class Turno:
     ausencias: tuple[str, ...] = ()
     avisos: list[str] = field(default_factory=list)
     scm: dict[str, Any] | None = None
+    # Productos del propio cliente, para `CUENTA_PROPIA`. Sin decisión ni oferta.
+    cuenta: list[dict[str, Any]] | None = None
 
     @property
     def etapas_recorridas(self) -> list[str]:
@@ -211,6 +217,11 @@ class Orquestador:
                 if predicado in SISTEMA_NO_CLIENTE:
                     continue
                 estado.assert_fact("customer", predicado, valor, FUENTE_CLIENTE, 0.6)
+
+        # Consulta del propio cliente: saldo, límite, tasa y cuota. No es decisión ni
+        # acción, así que salta `DECIDE` y `ACT`, igual que la consulta de producto.
+        if intencion == CUENTA_PROPIA:
+            return self._informar_cuenta(session, etapas, valores, slots, estado)
 
         if intencion not in REQUIRED_SLOTS:
             etapas.append(Transicion(Etapa.UNDERSTAND, f"intención desconocida: {intencion}"))
@@ -461,6 +472,40 @@ class Orquestador:
             pagos=pagos.data if pagos is not None else {"historial": []},
             actividad=actividad.data if actividad is not None else {"actividad": []},
             ausencias=tuple(sorted(valores.ausencias)),
+        )
+
+    def _informar_cuenta(
+        self,
+        session: Session,
+        etapas: list[Transicion],
+        valores: TurnValues,
+        slots: dict[str, Any],
+        estado: SemanticState | None,
+    ) -> Turno:
+        """`CUENTA_PROPIA` lee los productos del cliente y no decide nada."""
+        resumen = self.registry.invoke(
+            "get_customer_product_summary", session, contexto=self.contexto
+        )
+        valores.registrar(resumen)
+        if not resumen.ok:
+            etapas.append(
+                Transicion(Etapa.UNDERSTAND, f"productos no disponibles: {resumen.error}")
+            )
+            return self._escalar(session, etapas, valores, "abstencion_de_politica", slots)
+        etapas.append(
+            Transicion(
+                Etapa.VERIFY,
+                "sin cifras huérfanas (consulta del propio cliente: no pasa por la política)",
+            )
+        )
+        return Turno(
+            desenlace=Desenlace.RESPUESTA,
+            etapas=etapas,
+            mensaje="Estos son tus productos con nosotros.",
+            cuenta=resumen.data["productos"],
+            cifras_ancladas=tuple(valores.valores),
+            ausencias=tuple(sorted(valores.ausencias)),
+            scm=estado.snapshot() if estado is not None else None,
         )
 
     def _informar_producto(
