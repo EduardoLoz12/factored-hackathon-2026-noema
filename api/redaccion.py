@@ -279,6 +279,100 @@ def redactar(turno: Any, idioma: str = ES, pedido: str | None = None) -> str:
     )
 
 
+PRODUCTO_PT = {
+    "Tarjeta Crédito": "Cartão de Crédito",
+    "Préstamo Personal": "Empréstimo Pessoal",
+    "Préstamo Hipotecario": "Empréstimo Hipotecário",
+}
+
+
+def _dato(valor: Any, decimales: int = 0) -> str:
+    """Una cifra del tool, o la palabra que dice que no hay dato. Nunca un cero inventado."""
+    return "—" if valor is None else cifra(valor, decimales)
+
+
+def redactar_cuenta(turno: Any, idioma: str = ES) -> str:
+    """Resumen de los productos del propio cliente: saldo, límite, tasa y cuota estimada.
+
+    La cuota de un préstamo es una estimación con el plazo supuesto de la política; la
+    base no registra el plazo original. La frase lo dice, para que el cliente no tome la
+    estimación por el dato del banco.
+    """
+    pt = idioma == PT
+    productos = turno.cuenta or []
+    if not productos:
+        return (
+            "Você não tem produtos de crédito ativos conosco."
+            if pt
+            else "No tienes productos de crédito activos con nosotros."
+        )
+    n = len(productos)
+    plural = n != 1
+    if pt:
+        sustantivo = "produtos" if plural else "produto"
+        cabeza = f"Você tem {n} {sustantivo} de crédito ativo{'s' if plural else ''}."
+    else:
+        sustantivo = "productos" if plural else "producto"
+        cabeza = f"Tienes {n} {sustantivo} de crédito activo{'s' if plural else ''}."
+
+    lineas = []
+    for p in productos:
+        tipo = p["tipo"]
+        nombre = PRODUCTO_PT.get(tipo, tipo) if pt else tipo
+        if p.get("modalidad") == "revolvente":
+            if pt:
+                lineas.append(
+                    f"{nombre}: saldo utilizado {_dato(p['saldo_usd'], 2)} USD de um limite "
+                    f"de {_dato(p['limite_usd'], 2)} USD, taxa anual de "
+                    f"{_dato(p['tasa_anual'], 2)} %. Pagamento mínimo estimado: "
+                    f"{_dato(p.get('pago_minimo_usd'), 2)} USD."
+                )
+            else:
+                lineas.append(
+                    f"{nombre}: saldo usado {_dato(p['saldo_usd'], 2)} USD de un límite "
+                    f"de {_dato(p['limite_usd'], 2)} USD, tasa anual de "
+                    f"{_dato(p['tasa_anual'], 2)} %. Pago mínimo estimado: "
+                    f"{_dato(p.get('pago_minimo_usd'), 2)} USD."
+                )
+        else:
+            if pt:
+                lineas.append(
+                    f"{nombre}: saldo pendente {_dato(p['saldo_usd'], 2)} USD, taxa anual de "
+                    f"{_dato(p['tasa_anual'], 2)} %. Parcela estimada: "
+                    f"{_dato(p['cuota_estimada_usd'], 2)} USD em {p['plazo_supuesto_meses']} meses."
+                )
+            else:
+                lineas.append(
+                    f"{nombre}: saldo pendiente {_dato(p['saldo_usd'], 2)} USD, tasa anual de "
+                    f"{_dato(p['tasa_anual'], 2)} %. Cuota estimada: "
+                    f"{_dato(p['cuota_estimada_usd'], 2)} USD a {p['plazo_supuesto_meses']} meses."
+                )
+
+    hay_prestamo = any(p.get("modalidad") != "revolvente" for p in productos)
+    if not hay_prestamo:
+        return cabeza + "\n· " + "\n· ".join(lineas)
+    cola = (
+        "A parcela é uma estimativa com prazo presumido: o banco não registra o prazo original. "
+        "Um atendente pode confirmá-la com você."
+        if pt
+        else "La cuota es una estimación con un plazo supuesto: la base no registra tu plazo "
+        "original. Un asesor puede confirmártela."
+    )
+    return cabeza + "\n· " + "\n· ".join(lineas) + "\n" + cola
+
+
+def redactor_cuenta(idioma: str):
+    """Adaptador para `Orquestador.redactar_y_verificar`, igual que `redactor`."""
+
+    def escribir(turno: Any):
+        def _f(_intento: int, _previo: Any) -> str:
+            return redactar_cuenta(turno, idioma)
+
+        return _f
+
+    return escribir
+
+
 def redactor(idioma: str, pedido: str | None):
     """Adaptador para `Orquestador.redactar_y_verificar`.
 

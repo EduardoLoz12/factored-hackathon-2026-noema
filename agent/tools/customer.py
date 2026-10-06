@@ -20,7 +20,9 @@ from __future__ import annotations
 import hmac
 import logging
 from datetime import date
+from typing import Any
 
+from agent.policies.engine import cuota_francesa
 from agent.tools.registry import REGISTRY, Param, Role, Session, ToolResult, ToolSpec
 from agent.tools.store import Contexto, ConversionImposible
 
@@ -302,6 +304,69 @@ def _get_customer_assets(
 # ─────────────────────────────────────────────────────────────────────────────
 # Registro
 # ─────────────────────────────────────────────────────────────────────────────
+def _get_customer_product_summary(
+    session: Session, params, contexto: Contexto, idempotency_key
+) -> ToolResult:
+    """Lo que el cliente pregunta por sus productos: saldo, límite, tasa, cuota.
+
+    Sale de la misma lectura de `get_customer_credit_products`, así que no hay una segunda
+    consulta que pueda divergir. Dos cuidados:
+
+    - La **cuota de un préstamo es una estimación**. La base no registra ni la cuota ni el
+      plazo original; la política usa un plazo supuesto por producto y la misma fórmula, y
+      el resumen lo declara. Se calcula igual que la carga de la política.
+    - La **tarjeta** se muestra con su pago mínimo, que es lo que la política también
+      cobra: no es una cuota de amortización.
+    """
+    base = _get_customer_credit_products(session, None, contexto, None)
+    if not base.ok:
+        return base
+    politica = contexto.politica
+    productos: list[dict] = []
+    valores: list[Any] = [base.data["n"]]
+    ausencias = list(base.ausencias)
+    for p in base.data["productos"]:
+        tipo = p["tipo"]
+        saldo, limite, tasa = p["saldo_usd"], p["limite_usd"], p["tasa_anual"]
+        modalidad = politica.amortizacion.get(tipo) if politica is not None else None
+        fila: dict[str, Any] = {
+            "tipo": tipo,
+            "modalidad": modalidad,
+            "saldo_usd": saldo,
+            "limite_usd": limite,
+            "tasa_anual": tasa,
+            "cuota_estimada_usd": None,
+            "plazo_supuesto_meses": None,
+            "pago_minimo_usd": None,
+        }
+        if modalidad == "revolvente":
+            if saldo is not None:
+                fila["pago_minimo_usd"] = round(
+                    max(saldo * politica.pago_minimo_pct, politica.pago_minimo_piso), 2
+                )
+                valores.append(fila["pago_minimo_usd"])
+        elif politica is not None and limite is not None and tasa is not None:
+            plazo = int(politica.plazos.get(tipo, 48))
+            fila["plazo_supuesto_meses"] = plazo
+            fila["cuota_estimada_usd"] = round(cuota_francesa(limite, tasa, plazo), 2)
+            valores.extend([plazo, fila["cuota_estimada_usd"]])
+        if saldo is not None:
+            valores.append(saldo)
+        if limite is not None:
+            valores.append(limite)
+        if tasa is not None:
+            valores.append(tasa)
+        productos.append(fila)
+    return ToolResult(
+        tool="get_customer_product_summary",
+        ok=True,
+        data={"productos": productos, "n": len(productos)},
+        grounded_values=tuple(valores),
+        ausencias=tuple(dict.fromkeys(ausencias)),
+        source="noema_silver.stg_products",
+    )
+
+
 def registrar(registry=REGISTRY) -> None:
     """Registra las cuatro. Idempotente por `nombres()`, para poder llamarla en tests."""
     ya = set(registry.nombres())
@@ -365,6 +430,18 @@ def registrar(registry=REGISTRY) -> None:
                 name="get_customer_credit_products",
                 descripcion="Productos de crédito vigentes, con límite y saldo en USD.",
                 handler=_get_customer_credit_products,
+                **comunes,
+            )
+        )
+    if "get_customer_product_summary" not in ya:
+        registry.register(
+            ToolSpec(
+                name="get_customer_product_summary",
+                descripcion=(
+                    "Resumen de los productos de crédito del cliente: saldo, límite, tasa y "
+                    "cuota estimada (o pago mínimo en tarjeta), en USD."
+                ),
+                handler=_get_customer_product_summary,
                 **comunes,
             )
         )

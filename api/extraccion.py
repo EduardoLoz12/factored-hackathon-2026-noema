@@ -126,6 +126,16 @@ SALUDO = re.compile(
     r"|bom dia|boa tarde|boa noite)\b"
 )
 
+# Preguntas sobre los productos propios del cliente: saldo, cuota, cuánto le falta.
+# Pide identidad, y solo si no hay un importe que sugiera una solicitud nueva.
+CUENTA = (
+    "mis productos", "mi saldo", "mis saldos", "cuanto debo", "cuanto me falta",
+    "cuanto falta", "mi cuota", "mis cuotas", "mi deuda", "mis deudas", "mis prestamos",
+    "mi prestamo", "mi tarjeta", "mi cupo", "meus produtos", "meu saldo", "quanto devo",
+    "quanto ainda devo", "quanto falta", "minha parcela", "minhas parcelas",
+    "meu emprestimo", "meus emprestimos", "minha divida",
+)  # fmt: skip
+
 # 1 500 · 1.500 · 1,500 · 1500.50 — y el separador de miles varía por país.
 NUMERO = re.compile(r"\d[\d\s.,]{0,14}\d|\d")
 
@@ -255,6 +265,8 @@ def extraer(texto: str) -> dict[str, Any]:
     if pide_datos:
         # Fuera del workflow a propósito: el turno escala y la redacción dice por qué.
         intencion = "DATOS_PERSONALES"
+    elif any(x in p for x in CUENTA) and not (pide and monto is not None):
+        intencion = "CUENTA_PROPIA"
     elif saluda and not (del_workflow or pide_humano or consulta or pide):
         # Solo un saludo: se contesta, sin pedir identidad ni tocar la base.
         intencion = "SALUDO"

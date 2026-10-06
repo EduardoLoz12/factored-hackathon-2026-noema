@@ -48,7 +48,7 @@ from api import identidad
 from api.comprension import comprender, lectura_desde
 from api.conversaciones import CONVERSACIONES
 from api.extraccion import extraer
-from api.redaccion import preguntar, redactor, sin_datos_personales
+from api.redaccion import preguntar, redactor, redactor_cuenta, sin_datos_personales
 from api.seguridad import (
     FiltroPII,
     Limitador,
@@ -346,6 +346,7 @@ def _pide_servicio(lectura: dict[str, Any]) -> bool:
     """El cliente pidió algo que necesita identidad: un producto, sus datos o un humano."""
     return lectura["pide_humano"] or lectura["intencion"] in {
         "PRODUCT_INFO",
+        "CUENTA_PROPIA",
         "CREDIT_ELIGIBILITY",
         "DATOS_PERSONALES",
     }
@@ -413,7 +414,11 @@ def _turno_verificado(
     # evaluación. Si la plantilla pronunciara una cifra que los tools no publicaron,
     # el turno escala en vez de entregarla.
     try:
-        if turno.desenlace.value == "respuesta":
+        if turno.desenlace.value == "respuesta" and lectura["intencion"] == "CUENTA_PROPIA":
+            turno, _ = orq.redactar_y_verificar(
+                turno, sesion_turno, redactor_cuenta(lectura["idioma"])(turno)
+            )
+        elif turno.desenlace.value == "respuesta":
             escribir = redactor(lectura["idioma"], lectura["slots"].get("product_type"))
             turno, _ = orq.redactar_y_verificar(turno, sesion_turno, escribir(turno))
         elif turno.desenlace.value == "pregunta":
