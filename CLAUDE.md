@@ -146,13 +146,17 @@ La raíz del repo es **`C:\Users\eduar\Factored AI & DATA Hackathon`** — la mi
 
 ## Estado actual
 
-**Cierre — 5-oct-2026.** Checklist **65/79**. El entregable técnico está en `main` y desplegado.
+**Proyecto terminado en código — 5-oct-2026.** Checklist **65/79** en el último `make checklist` (antes de las dos últimas funciones; ver nota). Faltan el video, el envío y las integraciones declaradas.
 
+- **Qué está entregado:** chat con identidad verificada, política de siete reglas, tres brazos de evaluación, interfaz en inglés con respuestas en el idioma del cliente, tres conversaciones guiadas, y consulta de productos propios (saldo, límite, tasa y cuota estimada) con sesión verificada.
 - **URL pública:** https://noema.5-78-236-186.sslip.io — Hetzner, servicio `noema.service`, puerto 8100, tope de memoria 320 MB. El servidor también corre GFV y el trading bot: no tocar sus servicios.
-- **Evaluación de tres brazos** (`make cases` y `make eval`), 154 casos, modelo real `claude-haiku-4-5`. Baseline: 146 acciones inseguras. Con tools: 0. Con SCM: 0 y 6 conflictos de valor declarados.
-- **Interfaz en inglés.** El chatbot responde en el idioma del cliente: español en las conversaciones 1 y 3, portugués en la 2.
-- **Pendiente de entrega:** `ENT-03` cinco diapositivas, `ENT-04` video ≤3 min, `ENT-05` envío a `hackathon.admin@factored.ai`.
-- **Pendiente técnico:** `DAT-13` espera `DATABRICKS_HOST` y `DATABRICKS_TOKEN` (no está en la rúbrica; ver ADR-0002). `ML-05` a `ML-10` quedaron fuera por tiempo, declarado en `LIMITATIONS.md`.
+- **Evaluación de tres brazos** (`make cases` y `make eval`), 154 casos, modelo real `claude-haiku-4-5`. Español: solo modelo 85 de 87 con cifras sin respaldo; con tools 0; con SCM 0 y 6 contradicciones declaradas. Portugués y adversarial, ver `eval/results/comparacion.md`.
+- **Pruebas:** 1 000 pruebas recolectadas, 50 de API. Ruff limpio.
+- **Presentación:** `docs/presentacion/noema_deck_v3.pptx` (11 diapositivas, en inglés). El plan en `docs/presentacion/plan.md` es de la versión anterior de diez diapositivas.
+- **Pendiente de entrega:** `ENT-04` video ≤3 min (llamada en vivo con ambos presentando el deck), `ENT-05` envío a `hackathon.admin@factored.ai`. `ENT-03` (diapositivas) queda hecho con el v3.
+- **Pendiente técnico:** `DAT-13` y `DAT-14` esperan credenciales de Databricks (ADR-0002); `INF-08` igual. `ML-05` a `ML-10` quedaron fuera por tiempo. `UI-01` (Next.js) no aplica: la interfaz es una página servida por la API. Todo en `LIMITATIONS.md`.
+- **Capacidad de pago:** el proxy por flujo de caja (Federico) tiene una ganancia modesta sobre su base y se abstiene en la mayoría de clientes. La cuota máxima por ingreso está en curso y no está conectada a las reglas 3 y 5 todavía.
+- **Estimación de cuota:** la base no registra la cuota ni el plazo original. La cuota de un préstamo es una estimación con el plazo supuesto de la política, y la respuesta lo dice.
 
 ## Operación: ramas, merge y despliegue
 
